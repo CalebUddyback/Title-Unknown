@@ -80,9 +80,9 @@ public class Board : MonoBehaviour
     }
 
 
-    private void Start()
+    private void Awake()
     {
-        //FillArray();
+        FillArray();
     }
 
     public Transform GetNodePos(Vector2Int index)

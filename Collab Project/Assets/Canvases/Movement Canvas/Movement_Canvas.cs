@@ -69,12 +69,13 @@ public class Movement_Canvas : MonoBehaviour
         {
             if (character.board.boardFlowDirection)
             {
-                if (character.board.GetNodePos(selectedIndex).GetComponent<Node>().Directions().Contains(dir))
+                if (character.board.GetNodePos(selectedIndex).GetComponent<Node>().Directions().Contains(dir))  //If node allows node in direction
                     result = true;
 
-                if (currentPath.Count > 1 && character.board.GetNodePos(nextPos) == currentPath[currentPath.Count - 2])
+
+                if (currentPath.Count > 1 && (character.board.GetNodePos(nextPos) == currentPath[currentPath.Count - 2]))
                     result = true;
-                else if (character.board.GetNodePos(nextPos) == character.board.GetNodePos(character.currentNode))
+                if (currentPath.Count == 1 && character.board.GetNodePos(nextPos) == character.board.GetNodePos(character.currentNode))
                     result = true;
             }
             else
@@ -84,7 +85,9 @@ public class Movement_Canvas : MonoBehaviour
         }
         else
         {
-            if (currentPath.Count > 1 && character.board.GetNodePos(nextPos) == currentPath[currentPath.Count - 2])
+            if (currentPath.Count > 1 && (character.board.GetNodePos(nextPos) == currentPath[currentPath.Count - 2]))
+                result = true;
+            if (currentPath.Count == 1 && character.board.GetNodePos(nextPos) == character.board.GetNodePos(character.currentNode))
                 result = true;
         }
             

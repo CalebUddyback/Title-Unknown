@@ -9,60 +9,42 @@ public class Dice_Canvas : MonoBehaviour
 
     public Transform allDice;
 
-    private int numOfDice = 2;
-
-    public int results = 0;
-
     public bool diceMatch = false;
 
-    private void Start()
-    {
 
-    }
-
-    private void OnEnable()
+    public void SetDice(int amount)
     {
-        for (int i = 0; i < numOfDice; i++)
+        for (int i = 0; i < allDice.childCount; i++)
+        {
+            Destroy(allDice.GetChild(i).gameObject);
+        }
+
+        for (int i = 0; i < amount; i++)
         {
             Instantiate(dice_Prefab, allDice);
         }
-
-        allDice.gameObject.SetActive(true);
-
-        RollDice();
     }
 
-    public void RollDice()
+
+    public IEnumerator RollDice()
     {
-        List<float> rollSpeedList = new List<float>();
 
-        foreach (Transform dice in allDice)
-        {
-            float rollSpeed = 0;
-
-            do
-            {
-                rollSpeed = Random.Range(0.05f, 0.2f);
-            }
-            while (rollSpeedList.Contains(rollSpeed));
-
-            dice.GetComponent<Dice>().rollSpeed = rollSpeed;
-            rollSpeedList.Add(rollSpeed);
-
-            dice.GetComponent<Dice>().StartRoll();
-        }
-
-        StartCoroutine(WaitForResults());
-    }
-
-    public IEnumerator WaitForResults()
-    {
+        GetDiceTotal = 0;
 
         for (int i = 0; i < allDice.childCount; i++)
         {
-            yield return new WaitUntil(() => allDice.GetChild(i).GetComponent<Dice>().IsRolling == false);
-            results += allDice.GetChild(i).GetComponent<Dice>().GetResult;
+            allDice.GetChild(i).GetComponent<Dice>().StartRolling();
         }
+
+        for (int i = 0; i < allDice.childCount; i++)
+        {
+            yield return allDice.GetChild(i).GetComponent<Dice>().rolling;
+            GetDiceTotal += allDice.GetChild(i).GetComponent<Dice>().GetResult;
+        }
+
+
+        if (allDice.childCount == 1)
+            yield break;
 
         diceMatch = true;
 
@@ -77,23 +59,7 @@ public class Dice_Canvas : MonoBehaviour
 
         if (diceMatch)
             print("MATCH");
-
-        yield return new WaitForSeconds(1f);
-
-        foreach (Transform child in allDice)
-        {
-            Destroy(child.gameObject);
-        }
-
-        allDice.gameObject.SetActive(false);
-
-        GetResults = results;
-
-        results = 0;
-
     }
 
-    public int GetResults { get; private set; } = 0;
-
-    public void ResetResults() => GetResults = 0;
+    public int GetDiceTotal { get; private set; } = 0;
 }

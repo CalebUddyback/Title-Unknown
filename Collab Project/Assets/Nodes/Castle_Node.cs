@@ -4,7 +4,13 @@ using UnityEngine;
 
 public class Castle_Node : Node_Effect
 {
-    public override IEnumerator LandOnEffect(Character character)
+
+    public override IEnumerator ImediateEffect(Character character)
+    {
+        yield return null;
+    }
+
+    public override IEnumerator ActivateEffect(Character character)
     {
         //print("CASTLE");
 
@@ -34,6 +40,6 @@ public class Castle_Node : Node_Effect
 
     public override IEnumerator PassEffect(Character character)
     {
-        yield return StartCoroutine(LandOnEffect(character));
+        yield return StartCoroutine(ActivateEffect(character));
     }
 }

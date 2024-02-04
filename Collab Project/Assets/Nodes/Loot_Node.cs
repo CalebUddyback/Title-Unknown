@@ -4,29 +4,33 @@ using UnityEngine;
 
 public class Loot_Node : Node_Effect
 {
-    public List<string> loot = new List<string> {"flower", "rock", "sword"};
+    public List<Item> loot = new List<Item>();
 
-
-    public override IEnumerator LandOnEffect(Character character)
+    private void Awake()
     {
-        int i = Random.Range(0, loot.Count);
+        ActionName = "Loot";
+    }
 
-        string item = loot[i];
+    public override IEnumerator ImediateEffect(Character character)
+    {
+        yield return null;
+    }
 
-        //yield return StartCoroutine(character.Award(item));
-
+    public override IEnumerator ActivateEffect(Character character)
+    {
+        Item item = loot[Random.Range(0, loot.Count)];
 
         character.main_Camera.offset = new Vector3(0, 1, -12);
 
         character.animations.Clip("Award Get");
 
-        character.item_Canvas.gameObject.SetActive(true);
+        character.award_Canvas.gameObject.SetActive(true);
 
-        yield return character.item_Canvas.GetComponent<Item_Canvas>().WaitForSelection();
+        yield return character.award_Canvas.GetComponent<Award_Canvas>().WaitForSelection();
 
-        int s = character.item_Canvas.GetComponent<Item_Canvas>().GetSelection();
+        int s = character.award_Canvas.GetComponent<Award_Canvas>().GetSelection();
 
-        character.item_Canvas.gameObject.SetActive(false);
+        character.award_Canvas.gameObject.SetActive(false);
 
         character.main_Camera.offset = new Vector3(0, 1, -20);
 
@@ -34,15 +38,11 @@ public class Loot_Node : Node_Effect
         {
             character.animations.Clip("Award Keep");
             yield return new WaitForSeconds(0.7f);
-            print("Recieved: " + item);
+            print("Recieved: " + item._name);
             character.inventory.Add(item);
         }
 
         character.animations.Clip("Idle Down");
-
-
-
-        print("Node Effect Done");
     }
 
     public override IEnumerator PassEffect(Character character)

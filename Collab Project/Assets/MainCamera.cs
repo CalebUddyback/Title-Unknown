@@ -34,8 +34,10 @@ public class MainCamera : MonoBehaviour
         }
     }
 
-    public IEnumerator LerpMove(float duration)
+    public IEnumerator LerpMove(Transform newTarget, float speed )
     {
+        target = newTarget;
+
         fixedTime = true;
 
         Vector3 startPositon = transform.position;
@@ -48,10 +50,10 @@ public class MainCamera : MonoBehaviour
 
         float elapsedTime = 0.0f;
 
-        while (lerp < 1.0f && duration > 0.0f)
+        while (lerp < 1.0f && speed > 0.0f)
         {
 
-            lerp = Mathf.Lerp(0.0f, 1.0f, elapsedTime / duration);
+            lerp = Mathf.Lerp(0.0f, 1.0f, elapsedTime / speed);
             smoothLerp = Mathf.SmoothStep(0.0f, 1.0f, lerp);
             transform.position = Vector3.Lerp(startPositon, newPosition, smoothLerp);
             elapsedTime += Time.deltaTime;

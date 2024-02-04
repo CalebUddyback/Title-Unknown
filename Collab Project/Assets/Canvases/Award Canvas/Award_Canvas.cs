@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Item_Canvas : MonoBehaviour
+public class Award_Canvas : MonoBehaviour
 {
 
     public IEnumerator WaitForSelection()

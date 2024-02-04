@@ -7,35 +7,30 @@ public class Dice : MonoBehaviour
 {
     public Text text;
 
-    public float rollSpeed = 0.2f;
+    public Coroutine rolling = null;
 
-    public void StartRoll() => StartCoroutine(Roll());
+    public void StartRolling() => rolling = StartCoroutine(Roll(Random.Range(0.05f, 0.2f)));
 
-    private IEnumerator Roll()
+    public void StartRolling(float speed) => rolling = StartCoroutine(Roll(speed));
+
+    private bool isRolling = false;
+
+
+    IEnumerator Roll(float speed)
     {
-        IsRolling = true;
+        GetResult = 6;
 
-        GetResult = 1;
+        isRolling = true;
 
-        while (true)
+        while (isRolling)
         {
+            GetResult = (GetResult + 1 > 6) ? 1 : GetResult += 1;
             text.text = GetResult.ToString();
-
-            yield return new WaitForSeconds(rollSpeed);
-
-            if (!IsRolling)
-                break;
-
-            if (GetResult + 1 > 6)
-                GetResult = 1;
-            else
-                GetResult++;           
+            yield return new WaitForSeconds(speed);
         }
     }
 
-    public void StopRoll() => IsRolling = false;
-
-    public bool IsRolling { get; private set; } = false;
+    public void StopRoll() => isRolling = false;
 
     public int GetResult { get; private set; } = -1;
 
