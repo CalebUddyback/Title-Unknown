@@ -15,6 +15,8 @@ public class Character : MonoBehaviour
 
     public Canvas dice_Canvas, movement_Canvas, actions_Canvas, inventory_canvas, award_Canvas;
 
+    [Header("Personal Stats")]      // Put into scriptable object
+
     public int health = 100;
 
     public List<Item> inventory = new List<Item>();
@@ -48,12 +50,7 @@ public class Character : MonoBehaviour
         List<Transform> movementPath = (List<Transform>)cd.result;
         
         
-        
-        
-        
         yield return new WaitForSeconds(0.2f);
-        
-        
         
         
         yield return Moving(movementPath);
@@ -65,7 +62,7 @@ public class Character : MonoBehaviour
         if (board.GetNodePos(currentNode).GetComponent<Node_Effect>() != null)
             yield return StartCoroutine(board.GetNodePos(currentNode).GetComponent<Node_Effect>().ImediateEffect(this));
         else
-            print("No Effect");
+            print("No Imediate Node Effect");
 
 
 
@@ -102,7 +99,11 @@ public class Character : MonoBehaviour
 
         dice_Canvas.GetComponent<Dice_Canvas>().SetDice(1);
 
-        yield return new WaitForEndOfFrame();  /* Delay because destroying in SetDice() does not happen quick enough */
+        /* Delay because destroying in SetDice() does not happen quick enough */
+
+        yield return new WaitForEndOfFrame();  
+
+        /* Dont use CoroutineWithData so we can retrieve DiceTotal after the fact multiple times */
 
         yield return dice_Canvas.GetComponent<Dice_Canvas>().RollDice();
 
@@ -121,9 +122,15 @@ public class Character : MonoBehaviour
 
         movement_Canvas.gameObject.SetActive(true);
 
-        yield return new WaitUntil(() => movement_Canvas.GetComponent<Movement_Canvas>().submittedPath != null);
+        CoroutineWithData cd = new CoroutineWithData(this, movement_Canvas.GetComponent<Movement_Canvas>().ChoosingPath(this));
 
-        List<Transform> movementPath = movement_Canvas.GetComponent<Movement_Canvas>().submittedPath;
+        yield return cd.coroutine;
+
+        List<Transform> movementPath = (List<Transform>)cd.result;
+
+        main_Camera.offset = new Vector3(0, 1, -20);
+
+        movement_Canvas.gameObject.SetActive(false);
 
         yield return main_Camera.LerpMove(transform, 1f);
 
@@ -132,6 +139,7 @@ public class Character : MonoBehaviour
 
     IEnumerator Moving(List<Transform> path)
     {
+
         for (int i = 0; i < path.Count; i++)
         {
             Transform nextNode = path[i];
@@ -197,7 +205,6 @@ public class Character : MonoBehaviour
             }
         }
     }
-
 
     public IEnumerator FaceDirection(string targetDirection, bool immediate)
     {
@@ -307,25 +314,24 @@ public class Character : MonoBehaviour
                 actions_Canvas.GetComponent<CanvasGroup>().interactable = false;
                 inventory_canvas.gameObject.SetActive(true);
 
-                // wait until item is used OR inventory is backed out of (Restart action phase)
-
                 cd = new CoroutineWithData(this, inventory_canvas.GetComponent<Inventory_Canvas>().ChooseItem(this));
                 yield return cd.coroutine;
 
                 int chosenItem = (int)cd.result;
 
-                if (chosenItem != -1)
+                if (chosenItem == -1)
+                {
+                    print("Returned");
+                    inventory_canvas.gameObject.SetActive(false);
+                }
+                else
                 {
                     actions_Canvas.gameObject.SetActive(false);
                     inventory_canvas.gameObject.SetActive(false);
                     yield return inventory[chosenItem].GetComponent<Item>().Use(this);
                     inventory.RemoveAt(chosenItem);
+
                     break;
-                }
-                else
-                {
-                    print("Returned");
-                    inventory_canvas.gameObject.SetActive(false);
                 }
             }
             else if (chosenAction == "rest")

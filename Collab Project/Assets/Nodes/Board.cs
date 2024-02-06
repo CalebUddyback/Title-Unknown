@@ -51,9 +51,7 @@ public class Board : MonoBehaviour
         Vector2 rayTarget = Vector2.zero;
 
 
-        /*
-         * VIUSAL GRID SIZE MUST BE CHANGED IN INSPECTOR!
-         */
+        /* VIUSAL GRID SIZE MUST BE CHANGED IN INSPECTOR! */
 
 
         for (int y = 0; y < height; y++)
@@ -87,45 +85,35 @@ public class Board : MonoBehaviour
 
     public Transform GetNodePos(Vector2Int index)
     {
+        Transform pos = null;
+
         if ((index.x >= 0 && index.x < width) && (index.y >= 0 && index.y < height))
         {
-            return nodes[index.x, index.y];
-        } 
-        else
-        {
-            //print("Outside Boundaries");
-            return null;
-        } 
+            pos = nodes[index.x, index.y];
+            goto Found;
+        }
+
+    Found:
+            return pos;
     }
 
     public Vector2Int GetNodeIndex(Transform node)
     {
-        Grid grid = GetComponent<Grid>();
-
-        Vector2 rayTarget = Vector2.zero;
-
         Vector2Int index = Vector2Int.zero;
 
         for (int y = 0; y < height; y++)
         {
             for (int x = 0; x < width; x++)
             {
-                raycast = Physics2D.Raycast(rayTarget, Vector3.forward);
-
-                if (raycast.collider != null)
+                if (nodes[x, y] == node)
                 {
-                    if (raycast.collider.gameObject == node.gameObject)
-                    {
-                        index = new Vector2Int(x, y);
-                        break;
-                    }
+                    index = new Vector2Int(x, y);
+                    goto Found;
                 }
-
-                rayTarget = new Vector2(rayTarget.x + grid.cellSize.x, rayTarget.y);
             }
-            rayTarget = new Vector2(0, rayTarget.y + grid.cellSize.y);
         }
 
+    Found:
         return index;
     }
 }
