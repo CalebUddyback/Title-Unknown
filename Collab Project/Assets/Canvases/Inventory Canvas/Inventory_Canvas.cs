@@ -16,6 +16,11 @@ public class Inventory_Canvas : MonoBehaviour
     private void Awake()
     {
         backButton.onClick.AddListener(() => chosenItemIndex = -1);
+
+        foreach(Transform slot in itemContainer)
+        {
+            slot.GetComponent<Button>().onClick.AddListener(() =>  chosenItemIndex = slot.transform.GetSiblingIndex());
+        }
     }
 
     public IEnumerator ChooseItem(Character character)
@@ -24,21 +29,24 @@ public class Inventory_Canvas : MonoBehaviour
 
         chosenItemIndex = -2;
 
-        for (int i = 0; i < inventory.Count; i++)
+
+        for (int i = 0; i < itemContainer.childCount; i++)
         {
-            itemContainer.GetChild(i).GetComponent<Button>().interactable = true;
-            itemContainer.GetChild(i).GetComponent<Button>().onClick.AddListener(() => chosenItemIndex = i-1);
-            itemContainer.GetChild(i).GetComponent<Image>().sprite = inventory[i].icon;
+            if (i < inventory.Count)
+            {
+                if (inventory[i].usable)
+                    itemContainer.GetChild(i).GetComponent<Button>().interactable = true;
+
+                itemContainer.GetChild(i).GetComponent<Image>().sprite = inventory[i].icon;
+            }
+            else
+            {
+                itemContainer.GetChild(i).GetComponent<Button>().interactable = false;
+                itemContainer.GetChild(i).GetComponent<Image>().sprite = emptySlotSprite;
+            }
         }     
 
-        yield return new WaitUntil(() => chosenItemIndex != -2);
-
-        if (chosenItemIndex > -1)
-        {
-            itemContainer.GetChild(chosenItemIndex).GetComponent<Button>().interactable = false;
-            itemContainer.GetChild(chosenItemIndex).GetComponent<Button>().onClick.RemoveAllListeners();
-            itemContainer.GetChild(chosenItemIndex).GetComponent<Image>().sprite = emptySlotSprite;
-        }
+        yield return new WaitUntil(() => chosenItemIndex != -2);        
 
         yield return chosenItemIndex;
     }

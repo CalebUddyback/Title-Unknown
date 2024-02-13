@@ -37,6 +37,11 @@ public class Action_Canvas : MonoBehaviour
                 nodeButtonTxt.text = nodeEffect.ActionName;
         }
 
+        if(character.inventory.Count > 0)
+            itemsButton.interactable = true;
+        else
+            itemsButton.interactable = false;
+
         yield return new WaitUntil(() => chosenAction != null);
 
         nodeButton.interactable = false;

@@ -53,8 +53,10 @@ public class Dialogue_Canvas : MonoBehaviour
                 {
                     case -1:
                         print("Dialogue Ended");
-                        if(npc_dialogue.branches[branch].section[i].responses[0].responseEffects != null)
-                            yield return npc_dialogue.branches[branch].section[i].responses[0].responseEffects;
+                        if (npc_dialogue.branches[branch].section[i].responses[0].effect != null)
+                            yield return npc_dialogue.branches[branch].section[i].responses[0].effect;
+                        else
+                            yield return null;
                         break;
 
                     default:

@@ -17,15 +17,21 @@ public class Character : MonoBehaviour
 
     [Header("Personal Stats")]      // Put into scriptable object
 
-    public int health = 100;
-
     public List<Item> inventory = new List<Item>();
 
     public int gold = 0;
 
+    private int health = 50;
+
+    public UnityEngine.UI.Image healthBar;      // Control by gamecontroller
+    public UnityEngine.UI.Text healthTxt;
+
     private void Start()
     {
         animations = transform.Find("Sprites").GetComponent<AnimationController>();
+
+        healthBar.fillAmount = GetHealth() / 100f;
+        healthTxt.text = GetHealth().ToString();
 
         StartCoroutine(Phases());
     }
@@ -60,7 +66,7 @@ public class Character : MonoBehaviour
         // DAMAGE OR MOVEMENT HERE
 
         if (board.GetNodePos(currentNode).GetComponent<Node_Effect>() != null)
-            yield return StartCoroutine(board.GetNodePos(currentNode).GetComponent<Node_Effect>().ImediateEffect(this));
+            yield return board.GetNodePos(currentNode).GetComponent<Node_Effect>().ImediateEffect(this);
         else
             print("No Imediate Node Effect");
 
@@ -116,7 +122,7 @@ public class Character : MonoBehaviour
         yield return diceResults;
     }
 
-    IEnumerator MovementPhase(int max)
+    public IEnumerator MovementPhase(int max)
     {
         movement_Canvas.GetComponent<Movement_Canvas>().maxAmount = max;
 
@@ -137,7 +143,7 @@ public class Character : MonoBehaviour
         yield return movementPath;
     }
 
-    IEnumerator Moving(List<Transform> path)
+    public IEnumerator Moving(List<Transform> path)
     {
 
         for (int i = 0; i < path.Count; i++)
@@ -342,5 +348,28 @@ public class Character : MonoBehaviour
                 break;
             }
         }
+    }
+
+    public int GetHealth()
+    {
+        return health;
+    }
+
+    public void Health(int change)
+    {
+        if (health + change > 100)
+            health = 100;
+        else if (health + change <= 0)
+            Death();
+        else
+            health += change;
+
+        healthBar.fillAmount = GetHealth() / 100f;
+        healthTxt.text = GetHealth().ToString();
+    }
+
+    public void Death()
+    {
+        print("DEAD");
     }
 }

@@ -15,7 +15,7 @@ public class Dialogue_Node : Node_Effect
 
     public override IEnumerator ImediateEffect(Character character)
     {
-        GameObject dialogueBox = GameObject.Find("Main Camera").transform.GetChild(0).gameObject;
+        GameObject dialogueBox = GameObject.Find("Main Camera").transform.Find("Dialogue Canvas").gameObject;
 
         yield return character.FaceDirection(npcDirection, false);
 
@@ -34,29 +34,28 @@ public class Dialogue_Node : Node_Effect
 
     public override IEnumerator ActivateEffect(Character character)
     {
-        GameObject dialogueBox = GameObject.Find("Main Camera").transform.GetChild(0).gameObject;
+        GameObject dialogueBox = GameObject.Find("Main Camera").transform.Find("Dialogue Canvas").gameObject;
 
         yield return character.FaceDirection(npcDirection, false);
 
         dialogueBox.SetActive(true);
-
-
 
         CoroutineWithData cd = new CoroutineWithData(this, dialogueBox.GetComponent<Dialogue_Canvas>().PrintText(npc_Dialogue, 1));
 
         yield return cd.coroutine;
 
         Node_Effect dialogue_Result = (Node_Effect)cd.result;
-        
-        //yield return dialogueBox.GetComponent<Dialogue_Canvas>().PrintText(npc_Dialogue, 1);
 
         dialogueBox.SetActive(false);
 
-        yield return dialogue_Result.ActivateEffect(character);
+        if (dialogue_Result != null)
+        {
+            yield return dialogue_Result.ActivateEffect(character);
+        }
 
         yield return new WaitForSeconds(0.5f);
 
-        isSearched = true;
+        yield return character.FaceDirection("Down", false);
 
         yield return null;
     }

@@ -7,7 +7,7 @@ using UnityEngine;
 public class DialogueResponse
 {
     public string response;
-    public Node_Effect[] responseEffects;
+    public Node_Effect effect = null;
     public int nextSection;
 }
 

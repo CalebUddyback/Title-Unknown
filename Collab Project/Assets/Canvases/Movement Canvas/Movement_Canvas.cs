@@ -82,6 +82,9 @@ public class Movement_Canvas : MonoBehaviour
         upButton.interactable = Available(currentlySelectedIndex, Vector2Int.up);
     }
 
+
+    /* Putting this function in Node script maybe better */
+
     bool Available(Vector2Int curr, Vector2Int dir)
     {
         Vector2Int nextPos = curr + dir;
@@ -109,31 +112,23 @@ public class Movement_Canvas : MonoBehaviour
     public void SelectDirection(Vector2Int direction)
     {
 
+        selectedIndex += direction;
+
         if (currentPath.Count > 1)
         {
-            if (character.board.GetNodePos(selectedIndex + direction) != currentPath[currentPath.Count - 2])
-            {
-                currentPath.Add(character.board.GetNodePos(selectedIndex + direction));
-            }
-            else
-            {
+            if (character.board.GetNodePos(selectedIndex) == currentPath[currentPath.Count - 2])
                 currentPath.RemoveAt(currentPath.Count - 1);
-
-                if (currentPath.Count == 1)
-                    goButton.interactable = false;
-            }
+            else
+                currentPath.Add(character.board.GetNodePos(selectedIndex));
         }
-        else if (currentPath.Count == 1)
-        {
+        else
+            currentPath.Add(character.board.GetNodePos(selectedIndex));
 
-            currentPath.Add(character.board.GetNodePos(selectedIndex + direction));
-
+        if (currentPath.Count > 1)
             goButton.interactable = true;
+        else
+            goButton.interactable = false;
 
-        }
-
-
-        selectedIndex += direction;
 
         AvailableDirections(selectedIndex);
 
