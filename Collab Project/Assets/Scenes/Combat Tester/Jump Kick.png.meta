@@ -1,0 +1,374 @@
+fileFormatVersion: 2
+guid: ca71902be2f62c448a0c6c85e30a4144
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 1558075335421300469
+    second: Jump Kick_0
+  - first:
+      213: -6181689170444651336
+    second: Jump Kick_1
+  - first:
+      213: -1579838031790558401
+    second: Jump Kick_2
+  - first:
+      213: 155253688147578538
+    second: Jump Kick_3
+  - first:
+      213: -2407141949006716351
+    second: Jump Kick_4
+  - first:
+      213: -8432487201571451737
+    second: Jump Kick_5
+  - first:
+      213: 5471945851934639513
+    second: Jump Kick_6
+  - first:
+      213: -6695929039426447694
+    second: Jump Kick_7
+  - first:
+      213: -7069432519146252012
+    second: Jump Kick_8
+  - first:
+      213: -8803108710474244439
+    second: Jump Kick_9
+  - first:
+      213: 7388946617657368294
+    second: Jump Kick_0
+  - first:
+      213: -5343942211901399371
+    second: Jump Kick_1
+  - first:
+      213: 1600069136268748754
+    second: Jump Kick_2
+  - first:
+      213: -7173796655963480498
+    second: Jump Kick_3
+  - first:
+      213: -7607340934460244455
+    second: Jump Kick_4
+  - first:
+      213: -1034167511407219579
+    second: Jump Kick_5
+  - first:
+      213: -775275844093939712
+    second: Jump Kick_6
+  - first:
+      213: -1045886412584834071
+    second: Jump Kick_7
+  - first:
+      213: 56194697377588605
+    second: Jump Kick_8
+  - first:
+      213: 2894983355341629428
+    second: Jump Kick_9
+  externalObjects: {}
+  serializedVersion: 11
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 0
+    aniso: -1
+    mipBias: -100
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  applyGammaDecoding: 0
+  platformSettings:
+  - serializedVersion: 3
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: Jump Kick_0
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 107
+        width: 28
+        height: 48
+      alignment: 6
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 6ee9ac9eccfca8660800000000000000
+      internalID: 7388946617657368294
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Jump Kick_1
+      rect:
+        serializedVersion: 2
+        x: 35
+        y: 109
+        width: 28
+        height: 48
+      alignment: 6
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 5bed6672fd086d5b0800000000000000
+      internalID: -5343942211901399371
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Jump Kick_2
+      rect:
+        serializedVersion: 2
+        x: 72
+        y: 109
+        width: 35
+        height: 41
+      alignment: 9
+      pivot: {x: 0.2857143, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 2d76d53e666943610800000000000000
+      internalID: 1600069136268748754
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Jump Kick_3
+      rect:
+        serializedVersion: 2
+        x: 116
+        y: 108
+        width: 33
+        height: 44
+      alignment: 9
+      pivot: {x: 0.21212122, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e4e596623fd817c90800000000000000
+      internalID: -7173796655963480498
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Jump Kick_4
+      rect:
+        serializedVersion: 2
+        x: 1
+        y: 60
+        width: 26
+        height: 34
+      alignment: 6
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 91e753cb9bb4d6690800000000000000
+      internalID: -7607340934460244455
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Jump Kick_5
+      rect:
+        serializedVersion: 2
+        x: 41
+        y: 60
+        width: 44
+        height: 32
+      alignment: 9
+      pivot: {x: 0.11363637, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 58ca25ca026e5a1f0800000000000000
+      internalID: -1034167511407219579
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Jump Kick_6
+      rect:
+        serializedVersion: 2
+        x: 90
+        y: 56
+        width: 34
+        height: 39
+      alignment: 9
+      pivot: {x: 0.1764706, y: -0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 000f6d53abaad35f0800000000000000
+      internalID: -775275844093939712
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Jump Kick_7
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 29
+        height: 42
+      alignment: 9
+      pivot: {x: 0.1724138, y: -0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 9eb297e59d34c71f0800000000000000
+      internalID: -1045886412584834071
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Jump Kick_8
+      rect:
+        serializedVersion: 2
+        x: 40
+        y: 1
+        width: 31
+        height: 36
+      alignment: 9
+      pivot: {x: 0.19354838, y: -0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: d75a37f87c4a7c000800000000000000
+      internalID: 56194697377588605
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Jump Kick_9
+      rect:
+        serializedVersion: 2
+        x: 80
+        y: 0
+        width: 31
+        height: 36
+      alignment: 9
+      pivot: {x: 0.12903225, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 4f76ecdf50c0d2820800000000000000
+      internalID: 2894983355341629428
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+  spritePackingTag: 
+  pSDRemoveMatte: 0
+  pSDShowRemoveMatteOption: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
