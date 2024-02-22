@@ -16,11 +16,9 @@ public class AnimationController : MonoBehaviour
     {
         GetComponent<Animator>().Play(trigger);
 
-        if (GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).loop)
-        {
-            print("Playing " + trigger);
-            coroutine = StartCoroutine(Playing());
-        }
+        print("Playing " + trigger);
+        coroutine = StartCoroutine(Playing());
+
     }
 
     public void Pause()

@@ -15,6 +15,7 @@ public abstract class Combat_Character : MonoBehaviour
         public string name;
         public string methodName;
         public int damage;
+        public bool requiresRange = true;
         public Vector3 range;
         public Coroutine coroutine;
 
@@ -32,7 +33,7 @@ public abstract class Combat_Character : MonoBehaviour
 
     public List<Attack> attackList;
 
-    public bool contact = false;
+    public bool eventFrame = false;
 
     public void Start()
     {
@@ -55,7 +56,8 @@ public abstract class Combat_Character : MonoBehaviour
 
         Menu.ResetMenus();
 
-        yield return MoveInRange(attackList[index].range);
+        if(attackList[index].requiresRange)
+            yield return MoveInRange(attackList[index].range);
 
         attackList[index].Run(this);
 
@@ -68,10 +70,10 @@ public abstract class Combat_Character : MonoBehaviour
         StartTurn();
     }
 
-    public void Contact()
+    public void EventFrame()
     {
         print("Contact");
-        contact = true;
+        eventFrame = true;
     }
 
 
@@ -98,6 +100,9 @@ public abstract class Combat_Character : MonoBehaviour
 
     public IEnumerator JumpInRange(Vector3 range, float maxTime)
     {
+        /* This Method Works for Flying enemies */
+
+
         Vector3 startPos = transform.position;
         Vector3 targetPos = enemy.position + range;
 
@@ -106,8 +111,6 @@ public abstract class Combat_Character : MonoBehaviour
         float timer = 0;
         //float maxTime = 0.4f;
 
-        bool falling = false;
-
         while (timer < maxTime)
         {
 
@@ -115,8 +118,6 @@ public abstract class Combat_Character : MonoBehaviour
             float x1 = targetPos.x;
             float dist = x1 - x0;
 
-            //float nextX = Mathf.MoveTowards(transform.position.x, x1, speed * Time.deltaTime);
-            //float baseY = Mathf.Lerp(startPos.y, targetPos.y, (nextX - x0) / dist);
             float nextX = Mathf.Lerp(startPos.x, targetPos.x, timer / maxTime);
             float baseY = Mathf.Lerp(startPos.y, targetPos.y, timer / maxTime);
             float arc = archHeight * (nextX - x0) * (nextX - x1) / (-0.25f * dist * dist);
@@ -154,12 +155,15 @@ public abstract class Combat_Character : MonoBehaviour
         transform.position = startingPos;
     }
 
+    public IEnumerator WaitForKeyFrame()
+    {
+        yield return new WaitUntil(() => eventFrame == true);
+
+        eventFrame = false;
+    }
+
     public IEnumerator Impact()
     {
-        yield return new WaitUntil(() => contact == true);
-
-        contact = false;
-
         gameObject.GetComponent<AnimationController>().Pause();
 
         yield return new WaitForSeconds(0.2f); // contact pause
