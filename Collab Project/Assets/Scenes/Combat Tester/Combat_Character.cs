@@ -10,12 +10,14 @@ public abstract class Combat_Character : MonoBehaviour
 
     public Combat_Menu_Controller Menu;
 
+    public AnimationController animationController;
+
     public class Attack
     {
         public string name;
         public string methodName;
         public int damage;
-        public bool requiresRange = true;
+        public float precision = 10;
         public Vector3 range;
         public Coroutine coroutine;
 
@@ -25,20 +27,53 @@ public abstract class Combat_Character : MonoBehaviour
             this.methodName = methodName;
         }
 
-        public void Run(MonoBehaviour owner)
+        public void Execute(MonoBehaviour owner)
         {
             coroutine = owner.StartCoroutine(methodName);
+        }
+
+        public int Critical { get; private set;}
+        public float Success { get; private set;}
+
+        public void GetOutcome()
+        {
+
+            Success = 0;
+
+            Critical = Random.Range(0, 10) > 4 ? 2 : 1;
+
+            for (int i = 0; i < 2; i++)
+            {
+                float roll = Random.Range(0f, 10f) > 5 ? Success += 0.5f : Success;
+            }
+
+            string outcome = "";
+
+            if (Critical == 2)
+                outcome += "CRITICAL ";
+
+            switch (Success)
+            {
+                case 0:
+                    outcome += "Miss";
+                    break;
+                case 0.5f:
+                    outcome += "Block";
+                    break;
+                case 1:
+                    outcome += "Hit";
+                    break;
+                default:
+                    print("ERROR: " + Success);
+                    break;
+                        
+            }
+
+            print(outcome);
         }
     }
 
     public List<Attack> attackList;
-
-    public bool eventFrame = false;
-
-    public void Start()
-    {
-        StartTurn();
-    }
 
     public void StartTurn()
     {
@@ -50,18 +85,24 @@ public abstract class Combat_Character : MonoBehaviour
         return attackList[index].name;
     }
 
-    public IEnumerator AttackChoice(int index)
+    public Attack attackChoice;
+
+    public void AttackChoice(int index)
+    {
+        attackChoice = attackList[index];
+
+        StartCoroutine(AttackChoice());
+    }
+
+    public IEnumerator AttackChoice()
     {
         startingPos = transform.position;
 
         Menu.ResetMenus();
 
-        if(attackList[index].requiresRange)
-            yield return MoveInRange(attackList[index].range);
+        attackChoice.Execute(this);
 
-        attackList[index].Run(this);
-
-        yield return attackList[index].coroutine;
+        yield return attackChoice.coroutine;
 
         yield return new WaitForSeconds(0.3f);
 
@@ -70,18 +111,39 @@ public abstract class Combat_Character : MonoBehaviour
         StartTurn();
     }
 
-    public void EventFrame()
-    {
-        print("Contact");
-        eventFrame = true;
-    }
-
 
     public IEnumerator MoveInRange(Vector3 range)
     {
         Vector3 startPos = transform.position;
 
         Vector3 targetPos = new Vector3(enemy.position.x + range.x, transform.position.y , 0);
+
+        if (transform.position == targetPos)
+            yield break;
+
+        float timer = 0;
+        float maxTime = 0.3f;
+
+        while (timer < maxTime)
+        {
+            transform.position = Vector3.Lerp(startPos, targetPos, timer / maxTime);
+
+            timer += Time.deltaTime;
+
+            yield return null;
+        }
+
+        transform.position = targetPos;
+    }
+
+    public IEnumerator MoveAmount(Vector3 amuont)
+    {
+        Vector3 startPos = transform.position;
+
+        Vector3 targetPos = startPos + amuont;
+
+        if (transform.position == targetPos)
+            yield break;
 
         float timer = 0;
         float maxTime = 0.3f;
@@ -131,9 +193,6 @@ public abstract class Combat_Character : MonoBehaviour
         }
 
         transform.position = targetPos;
-
-
-        yield return null;
     }
 
     public IEnumerator ResetPos()
@@ -157,18 +216,48 @@ public abstract class Combat_Character : MonoBehaviour
 
     public IEnumerator WaitForKeyFrame()
     {
-        yield return new WaitUntil(() => eventFrame == true);
+        yield return new WaitUntil(() => animationController.eventFrame == true);
 
-        eventFrame = false;
+        animationController.eventFrame = false;
+    }
+
+    public IEnumerator ApplyOutcome()
+    {
+        switch (attackChoice.Success)
+        {
+            case 0:
+                yield return StartCoroutine(enemy.GetComponent<Combat_Character>().Dodge());
+                break;
+
+            case 0.5f:
+                StartCoroutine(enemy.GetComponent<Combat_Character>().Block());
+                yield return Impact();
+                break;
+
+            case 1:
+                StartCoroutine(enemy.GetComponent<Combat_Character>().Damage());
+                yield return Impact();
+                break;
+        }
     }
 
     public IEnumerator Impact()
     {
-        gameObject.GetComponent<AnimationController>().Pause();
+        animationController.Pause();
+
+        enemy.GetComponent<Combat_Character>().animationController.Pause();
 
         yield return new WaitForSeconds(0.2f); // contact pause
 
-        gameObject.GetComponent<AnimationController>().Play();
+        animationController.Play();
+
+        enemy.GetComponent<Combat_Character>().animationController.Play();
     }
 
+
+    public abstract IEnumerator Damage();
+
+    public abstract IEnumerator Block();
+
+    public abstract IEnumerator Dodge();
 }

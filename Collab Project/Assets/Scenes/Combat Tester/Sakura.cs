@@ -5,9 +5,7 @@ using UnityEngine.Events;
 
 public class Sakura : Combat_Character
 {
-
     public GameObject kunaiPrefab;
-    public Transform instatiatePoint;
 
     private void Awake()
     {
@@ -46,51 +44,56 @@ public class Sakura : Combat_Character
             new Attack("Throw Kunai", nameof(Throw_Kunai))
             {
                 damage = 10,
-                requiresRange = false,
             },
         };
     }
 
     IEnumerator Punch()
     {
-        gameObject.GetComponent<AnimationController>().Clip("Sakura Punch");
+        attackChoice.GetOutcome();
+
+        yield return MoveInRange(attackChoice.range);
+
+        animationController.Clip("Sakura Punch");
 
         yield return WaitForKeyFrame();
-        yield return Impact();
+        yield return ApplyOutcome();
 
-        yield return gameObject.GetComponent<AnimationController>().coroutine;
+        yield return animationController.coroutine;
 
-        gameObject.GetComponent<AnimationController>().Clip("Sakura Idle");
-
-        yield return null;
+        animationController.Clip("Sakura Idle");
     }
 
     IEnumerator Uppercut()
     {
-        gameObject.GetComponent<AnimationController>().Clip("Sakura Uppercut");
+        attackChoice.GetOutcome();
+
+        yield return MoveInRange(attackChoice.range);
+
+        animationController.Clip("Sakura Uppercut");
 
         yield return WaitForKeyFrame();
-        yield return Impact();
+        yield return ApplyOutcome();
 
-        yield return gameObject.GetComponent<AnimationController>().coroutine;
+        yield return animationController.coroutine;
 
-        yield return null;
-
-        gameObject.GetComponent<AnimationController>().Clip("Sakura Idle");
+        animationController.Clip("Sakura Idle");
     }
 
     IEnumerator Kick()
     {
-        gameObject.GetComponent<AnimationController>().Clip("Sakura Kick");
+        attackChoice.GetOutcome();
+
+        yield return MoveInRange(attackChoice.range);
+
+        animationController.Clip("Sakura Kick");
 
         yield return WaitForKeyFrame();
-        yield return Impact();
+        yield return ApplyOutcome();
 
-        yield return gameObject.GetComponent<AnimationController>().coroutine;
+        yield return animationController.coroutine;
 
-        yield return null;
-
-        gameObject.GetComponent<AnimationController>().Clip("Sakura Idle");
+        animationController.Clip("Sakura Idle");
     }
 
     IEnumerator Combo()
@@ -100,18 +103,20 @@ public class Sakura : Combat_Character
         yield return Uppercut();
 
         yield return Kick();
-
-        yield return null;
     }
 
     IEnumerator Jump_Kick()
     {
+        attackChoice.GetOutcome();
+
+        yield return MoveInRange(attackChoice.range);
+
 
         float maxTime = 0.4f;
 
         GetComponent<Rigidbody>().isKinematic = true;
 
-        gameObject.GetComponent<AnimationController>().Clip("Sakura Jump");
+        animationController.Clip("Sakura Jump");
 
         StartCoroutine(JumpInRange(new Vector3(-0.3f, 0.1f, 0), maxTime));
 
@@ -121,43 +126,42 @@ public class Sakura : Combat_Character
 
         //yield return new WaitForSeconds((maxTime / 2) - 0.1665f);
 
-        gameObject.GetComponent<AnimationController>().Clip("Sakura Jump Kick");
+        animationController.Clip("Sakura Jump Kick");
 
         yield return WaitForKeyFrame();
-        yield return Impact();
+        yield return ApplyOutcome();
 
         GetComponent<Rigidbody>().isKinematic = false;
 
-        yield return gameObject.GetComponent<AnimationController>().coroutine;
+        yield return animationController.coroutine;
 
         //gameObject.GetComponent<AnimationController>().Clip("Sakura Fall");
 
         yield return new WaitUntil(() => GetComponent<Rigidbody>().velocity.y > -0.1f);
 
-        gameObject.GetComponent<AnimationController>().Clip("Sakura Landing");
+        animationController.Clip("Sakura Landing");
 
-        yield return gameObject.GetComponent<AnimationController>().coroutine;
-
-        yield return new WaitForSeconds(0.3f);
-
-        yield return null;
+        yield return animationController.coroutine;
     }
 
     IEnumerator Throw_Kunai()
     {
-        gameObject.GetComponent<AnimationController>().Clip("Sakura Kunai");
+        attackChoice.GetOutcome();
+
+        animationController.Clip("Sakura Kunai");
 
         yield return WaitForKeyFrame();
 
-        GameObject kunai = Instantiate(kunaiPrefab, instatiatePoint.position, Quaternion.identity);
+        GameObject kunai = Instantiate(kunaiPrefab, animationController.instatiatePoint.position, Quaternion.identity);
 
         yield return ProjectileArch(kunai.transform, new Vector3(-0.1f, 0.2f, 0), 0.4f);
 
         Destroy(kunai);
 
-        gameObject.GetComponent<AnimationController>().Clip("Sakura Idle");
+        yield return ApplyOutcome();
 
-        yield return null;
+        animationController.Clip("Sakura Idle");
+
     }
 
     public IEnumerator ProjectileArch(Transform instance, Vector3 range, float maxTime)
@@ -202,5 +206,31 @@ public class Sakura : Combat_Character
         }
     }
 
+    public override IEnumerator Damage()
+    {
+        animationController.Clip("Sakura Idle");
+        yield return null;
+        animationController.Clip("Sakura Damaged");
+        yield return animationController.coroutine;
+    }
+
+    public override IEnumerator Block()
+    {
+        animationController.Clip("Sakura Idle");
+        yield return null;
+        animationController.Clip("Sakura Block");
+        yield return animationController.coroutine;
+    }
+
+    public override IEnumerator Dodge()
+    {
+        animationController.Clip("Sakura Idle");
+        yield return null;
+        animationController.Clip("Sakura Dodge");
+
+        yield return MoveAmount(new Vector3(0.3f,0,0));
+
+        yield return animationController.coroutine;
+    }
 }
 

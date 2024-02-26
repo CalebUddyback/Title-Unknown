@@ -6,6 +6,9 @@ public class AnimationController : MonoBehaviour
 {
     public Coroutine coroutine;
 
+    public bool eventFrame = false;
+
+    public Transform instatiatePoint;
 
     private void FixedUpdate()
     {
@@ -33,8 +36,14 @@ public class AnimationController : MonoBehaviour
 
     IEnumerator Playing()
     {
-        yield return null;      // ThIS HAS TO BE HERE TO CLEAR LAST ANIMATION
+        yield return null;      // THIS HAS TO BE HERE TO CLEAR LAST ANIMATION
 
         yield return new WaitUntil(() => GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).normalizedTime > 1);
+    }
+
+    public void EventFrame()
+    {
+        print("Contact");
+        eventFrame = true;
     }
 }

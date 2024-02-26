@@ -18,7 +18,7 @@ public class Combat_Attack_Canvas : Combat_Menu
     {
         yield return base.WaitForChoice();
 
-        new CoroutineWithData(transform.root.GetComponent<Combat_Character>(), transform.root.GetComponent<Combat_Character>().AttackChoice(buttonChoice));
+        transform.root.GetComponent<Combat_Character>().AttackChoice(buttonChoice);
     
         yield return null;
     }
