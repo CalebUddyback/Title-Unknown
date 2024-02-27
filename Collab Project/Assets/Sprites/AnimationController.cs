@@ -19,9 +19,11 @@ public class AnimationController : MonoBehaviour
     {
         GetComponent<Animator>().Play(trigger);
 
-        print("Playing " + trigger);
-        coroutine = StartCoroutine(Playing());
-
+        if (!trigger.Contains("Idle"))
+        {
+            print("Playing " + trigger);
+            coroutine = StartCoroutine(Playing());
+        }
     }
 
     public void Pause()
@@ -38,12 +40,11 @@ public class AnimationController : MonoBehaviour
     {
         yield return null;      // THIS HAS TO BE HERE TO CLEAR LAST ANIMATION
 
-        yield return new WaitUntil(() => GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).normalizedTime > 1);
+        yield return new WaitWhile(() => GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).normalizedTime <= 1);
     }
 
     public void EventFrame()
     {
-        print("Contact");
         eventFrame = true;
     }
 }

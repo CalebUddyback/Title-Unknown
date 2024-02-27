@@ -4,13 +4,17 @@ using UnityEngine;
 
 public abstract class Combat_Character : MonoBehaviour
 {
-    public Vector3 startingPos;
+    public float startingXPos;
 
-    public Transform enemy;
+    public Transform enemyTransform;
+
+    private Combat_Character enemy => enemyTransform.GetComponent<Combat_Character>();
 
     public Combat_Menu_Controller Menu;
 
     public AnimationController animationController;
+
+    public Outcome_Bubble outcome_Bubble;
 
     public class Attack
     {
@@ -75,6 +79,11 @@ public abstract class Combat_Character : MonoBehaviour
 
     public List<Attack> attackList;
 
+    private void Start()
+    {
+        startingXPos = transform.position.x;
+    }
+
     public void StartTurn()
     {
         Menu.gameObject.SetActive(true);
@@ -85,28 +94,34 @@ public abstract class Combat_Character : MonoBehaviour
         return attackList[index].name;
     }
 
-    public Attack attackChoice;
+    public Attack attackInfo;
 
     public void AttackChoice(int index)
     {
-        attackChoice = attackList[index];
+        attackInfo = attackList[index];
 
         StartCoroutine(AttackChoice());
     }
 
     public IEnumerator AttackChoice()
     {
-        startingPos = transform.position;
-
         Menu.ResetMenus();
 
-        attackChoice.Execute(this);
+        Attack main = attackInfo;     //This allows for combos to change attackchoice without breaking this coroutine
 
-        yield return attackChoice.coroutine;
+        main.Execute(this);
+
+        yield return main.coroutine;
 
         yield return new WaitForSeconds(0.3f);
 
-        yield return ResetPos();
+        Coroutine charReset = StartCoroutine(ResetPos());
+
+        Coroutine enemyRest = StartCoroutine(enemy.ResetPos());
+
+        yield return charReset;
+
+        yield return enemyRest;
 
         StartTurn();
     }
@@ -116,9 +131,9 @@ public abstract class Combat_Character : MonoBehaviour
     {
         Vector3 startPos = transform.position;
 
-        Vector3 targetPos = new Vector3(enemy.position.x + range.x, transform.position.y , 0);
+        Vector3 targetPos = new Vector3(enemyTransform.position.x + range.x, transform.position.y , 0);
 
-        if (transform.position == targetPos)
+        if (startPos == targetPos)
             yield break;
 
         float timer = 0;
@@ -146,7 +161,7 @@ public abstract class Combat_Character : MonoBehaviour
             yield break;
 
         float timer = 0;
-        float maxTime = 0.3f;
+        float maxTime = 0.25f;
 
         while (timer < maxTime)
         {
@@ -166,7 +181,7 @@ public abstract class Combat_Character : MonoBehaviour
 
 
         Vector3 startPos = transform.position;
-        Vector3 targetPos = enemy.position + range;
+        Vector3 targetPos = enemyTransform.position + range;
 
         float archHeight = 0.25f;
 
@@ -197,21 +212,23 @@ public abstract class Combat_Character : MonoBehaviour
 
     public IEnumerator ResetPos()
     {
-        Vector3 startPos = transform.position;
+        float currentXPos = transform.position.x;
 
         float timer = 0;
         float maxTime = 0.3f;
 
         while (timer < maxTime)
         {
-            transform.position = Vector3.Lerp(startPos, startingPos, timer / maxTime);
+            float lerp = Mathf.Lerp(currentXPos, startingXPos, timer / maxTime);
+
+            transform.position = new Vector3(lerp, transform.position.y, transform.position.z);
 
             timer += Time.deltaTime;
 
             yield return null;
         }
 
-        transform.position = startingPos;
+        transform.position = new Vector3(startingXPos, transform.position.y, transform.position.z);
     }
 
     public IEnumerator WaitForKeyFrame()
@@ -223,19 +240,21 @@ public abstract class Combat_Character : MonoBehaviour
 
     public IEnumerator ApplyOutcome()
     {
-        switch (attackChoice.Success)
+        switch (attackInfo.Success)
         {
             case 0:
-                yield return StartCoroutine(enemy.GetComponent<Combat_Character>().Dodge());
+                yield return StartCoroutine(enemyTransform.GetComponent<Combat_Character>().Dodge());
                 break;
 
             case 0.5f:
-                StartCoroutine(enemy.GetComponent<Combat_Character>().Block());
+                StartCoroutine(enemy.Block());
+                Instantiate(outcome_Bubble, enemy.animationController.instatiatePoint.position, Quaternion.identity).text.text = (attackInfo.damage/2).ToString();
                 yield return Impact();
                 break;
 
             case 1:
-                StartCoroutine(enemy.GetComponent<Combat_Character>().Damage());
+                StartCoroutine(enemy.Damage());
+                Instantiate(outcome_Bubble, enemy.animationController.instatiatePoint.position, Quaternion.identity).text.text = attackInfo.damage.ToString();
                 yield return Impact();
                 break;
         }
@@ -245,13 +264,13 @@ public abstract class Combat_Character : MonoBehaviour
     {
         animationController.Pause();
 
-        enemy.GetComponent<Combat_Character>().animationController.Pause();
+        enemy.animationController.Pause();
 
         yield return new WaitForSeconds(0.2f); // contact pause
 
         animationController.Play();
 
-        enemy.GetComponent<Combat_Character>().animationController.Play();
+        enemy.animationController.Play();
     }
 
 
@@ -260,4 +279,45 @@ public abstract class Combat_Character : MonoBehaviour
     public abstract IEnumerator Block();
 
     public abstract IEnumerator Dodge();
+
+    public IEnumerator ProjectileArch(Transform instance, Vector3 range, float maxTime)
+    {
+        /* This Method Works for Flying enemies */
+
+
+        Vector3 startPos = instance.position;
+        Vector3 targetPos = enemyTransform.position + range;
+
+        float archHeight = 0.1f;
+
+        float timer = 0;
+
+        while (timer < maxTime)
+        {
+
+            float x0 = startPos.x;
+            float x1 = targetPos.x;
+            float dist = x1 - x0;
+
+            float nextX = Mathf.Lerp(startPos.x, targetPos.x, timer / maxTime);
+            float baseY = Mathf.Lerp(startPos.y, targetPos.y, timer / maxTime);
+            float arc = archHeight * (nextX - x0) * (nextX - x1) / (-0.25f * dist * dist);
+            Vector3 nextPos = new Vector3(nextX, baseY + arc, instance.position.z);
+
+            instance.rotation = LookAt2D(nextPos - instance.position);
+            instance.position = nextPos;
+
+            timer += Time.deltaTime;
+
+            yield return null;
+        }
+
+        instance.position = targetPos;
+
+        Quaternion LookAt2D(Vector2 forward)
+        {
+            return Quaternion.Euler(0, 0, Mathf.Atan2(forward.y, forward.x) * Mathf.Rad2Deg);
+        }
+    }
+
 }
