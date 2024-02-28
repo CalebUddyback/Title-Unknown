@@ -122,8 +122,6 @@ public abstract class Combat_Character : MonoBehaviour
         yield return charReset;
 
         yield return enemyRest;
-
-        StartTurn();
     }
 
 

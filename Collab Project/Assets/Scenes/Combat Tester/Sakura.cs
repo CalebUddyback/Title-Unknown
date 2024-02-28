@@ -168,6 +168,9 @@ public class Sakura : Combat_Character
         yield return WaitForKeyFrame();
         Coroutine outcome = StartCoroutine(ApplyOutcome());
 
+        if (attackInfo.Success != 0)
+            yield return outcome;
+
         GetComponent<Rigidbody>().isKinematic = false;
 
         yield return animationController.coroutine;
