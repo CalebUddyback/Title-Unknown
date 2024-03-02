@@ -16,6 +16,7 @@ public abstract class Combat_Character : MonoBehaviour
 
     public Outcome_Bubble outcome_Bubble;
 
+
     public class Attack
     {
         public string name;
@@ -79,9 +80,53 @@ public abstract class Combat_Character : MonoBehaviour
 
     public List<Attack> attackList;
 
+
+    [Header("Turn Controller")]
+
+    public UnityEngine.UI.Image timer;
+
+    public float actual_Progess;
+
+
     private void Start()
     {
         startingXPos = transform.position.x;
+        StartCoroutine(ProgressionBar());
+    }
+
+    IEnumerator ProgressionBar()
+    {
+        float speed = 1f;
+
+        timer.fillAmount = 0;
+
+        actual_Progess = 0;
+
+        while (actual_Progess < speed)
+        {
+            timer.fillAmount = actual_Progess / speed;
+
+            actual_Progess += Time.deltaTime;
+
+            yield return null;
+        }
+
+
+        timer.fillAmount = 1;
+
+        actual_Progess = speed;
+
+        //timer.color = Color.white;
+
+        StartTurn();
+    }
+
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            actual_Progess -= 0.5f;
+        }
     }
 
     public void StartTurn()
@@ -120,6 +165,8 @@ public abstract class Combat_Character : MonoBehaviour
         Coroutine enemyRest = StartCoroutine(enemy.ResetPos());
 
         yield return charReset;
+
+        StartCoroutine(ProgressionBar());
 
         yield return enemyRest;
     }
