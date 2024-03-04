@@ -31,8 +31,7 @@ public class Sakura : Combat_Character
 
             new Attack("Dragon Crossing", nameof(Combo))
             {
-                damage = 10,
-                range =  new Vector3(-0.35f, 0, 0)
+                chargeTime = 3f,
             },
 
             new Attack("Jump Kick", nameof(Jump_Kick))
@@ -44,6 +43,12 @@ public class Sakura : Combat_Character
             new Attack("Throw Kunai", nameof(Throw_Kunai))
             {
                 damage = 10,
+            },
+
+            new Attack("Multi Hit", nameof(Multi_Hit))
+            {
+                damage = 10,
+                range =  new Vector3(-0.35f, 0, 0),
             },
         };
     }
@@ -221,6 +226,36 @@ public class Sakura : Combat_Character
 
     }
 
+    IEnumerator Multi_Hit()
+    {
+        attackInfo.GetOutcome();
+
+        yield return MoveInRange(attackInfo.range);
+
+        animationController.Clip("Sakura Multi Hit");
+
+        yield return WaitForKeyFrame();
+        Coroutine outcome = StartCoroutine(ApplyOutcome());
+
+        if (attackInfo.Success != 0)
+        {
+
+            yield return WaitForKeyFrame();
+            outcome = StartCoroutine(ApplyOutcome());
+
+            yield return WaitForKeyFrame();
+            outcome = StartCoroutine(ApplyOutcome());
+
+            yield return WaitForKeyFrame();
+            outcome = StartCoroutine(ApplyOutcome());
+
+        }
+
+        yield return animationController.coroutine;
+        animationController.Clip("Sakura Idle");
+
+        yield return outcome;
+    }
 
     public override IEnumerator Damage()
     {

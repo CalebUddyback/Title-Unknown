@@ -13,7 +13,7 @@ public abstract class Combat_Menu : MonoBehaviour
 
     public bool comfirmation = false;
 
-    private void Awake()
+    private void Start()
     {
         foreach(Transform button in GetComponent<SubMenu>().content)
         {

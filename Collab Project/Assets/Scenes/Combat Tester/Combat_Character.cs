@@ -14,13 +14,16 @@ public abstract class Combat_Character : MonoBehaviour
 
     public AnimationController animationController;
 
-    public Outcome_Bubble outcome_Bubble;
+    public Outcome_Bubble outcome_Bubble_Prefab;
+
+    public Transform outcome_Bubble_Pos;
 
 
     public class Attack
     {
         public string name;
         public string methodName;
+        public float chargeTime = 0.5f;
         public int damage;
         public float precision = 10;
         public Vector3 range;
@@ -91,12 +94,14 @@ public abstract class Combat_Character : MonoBehaviour
     private void Start()
     {
         startingXPos = transform.position.x;
-        StartCoroutine(ProgressionBar());
+        StartCoroutine(Focusing());
     }
 
-    IEnumerator ProgressionBar()
+    IEnumerator Focusing()
     {
         float speed = 1f;
+
+        timer.color = Color.blue;
 
         timer.fillAmount = 0;
 
@@ -116,9 +121,30 @@ public abstract class Combat_Character : MonoBehaviour
 
         actual_Progess = speed;
 
-        //timer.color = Color.white;
-
         StartTurn();
+    }
+
+    IEnumerator Charging(float chargeTime)
+    {
+        timer.color = Color.red;
+
+        timer.fillAmount = 0;
+
+        actual_Progess = 0;
+
+        while (actual_Progess < chargeTime)
+        {
+            timer.fillAmount = actual_Progess / chargeTime;
+
+            actual_Progess += Time.deltaTime;
+
+            yield return null;
+        }
+
+
+        timer.fillAmount = 1;
+
+        actual_Progess = chargeTime;
     }
 
     private void Update()
@@ -127,11 +153,34 @@ public abstract class Combat_Character : MonoBehaviour
         {
             actual_Progess -= 0.5f;
         }
+
+        UITEST();
     }
 
     public void StartTurn()
     {
         Menu.gameObject.SetActive(true);
+    }
+
+    public Transform uiPoint;
+    public Camera mcamera;
+
+    void UITEST()
+    {
+        Vector3 targPos = uiPoint.position;
+
+        Vector3 camForward = mcamera.transform.forward;
+
+        Vector3 camPos = mcamera.transform.position + camForward;
+
+        float distanceInFrontOfCamera = Vector3.Dot(targPos - camPos, camForward);
+
+        if(distanceInFrontOfCamera < 0f)
+        {
+            targPos -= camForward * distanceInFrontOfCamera;
+        }
+
+        Menu.gameObject.transform.position = RectTransformUtility.WorldToScreenPoint(mcamera, targPos);
     }
 
     public string AttackName(int index)
@@ -154,6 +203,8 @@ public abstract class Combat_Character : MonoBehaviour
 
         Attack main = attackInfo;     //This allows for combos to change attackchoice without breaking this coroutine
 
+        yield return Charging(attackInfo.chargeTime);
+
         main.Execute(this);
 
         yield return main.coroutine;
@@ -166,7 +217,7 @@ public abstract class Combat_Character : MonoBehaviour
 
         yield return charReset;
 
-        StartCoroutine(ProgressionBar());
+        StartCoroutine(Focusing());
 
         yield return enemyRest;
     }
@@ -293,13 +344,13 @@ public abstract class Combat_Character : MonoBehaviour
 
             case 0.5f:
                 StartCoroutine(enemy.Block());
-                Instantiate(outcome_Bubble, enemy.animationController.instatiatePoint.position, Quaternion.identity).text.text = (attackInfo.damage/2).ToString();
+                Instantiate(outcome_Bubble_Prefab, enemy.outcome_Bubble_Pos.position, Quaternion.identity).text.text = (attackInfo.damage/2).ToString();
                 yield return Impact();
                 break;
 
             case 1:
                 StartCoroutine(enemy.Damage());
-                Instantiate(outcome_Bubble, enemy.animationController.instatiatePoint.position, Quaternion.identity).text.text = attackInfo.damage.ToString();
+                Instantiate(outcome_Bubble_Prefab, enemy.outcome_Bubble_Pos.position, Quaternion.identity).text.text = attackInfo.damage.ToString();
                 yield return Impact();
                 break;
         }

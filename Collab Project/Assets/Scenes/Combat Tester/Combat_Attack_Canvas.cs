@@ -5,11 +5,19 @@ using UnityEngine.UI;
 
 public class Combat_Attack_Canvas : Combat_Menu
 {
-    private void Start()
+    public GameObject buttonPrefab;
+    public Transform buttonContainer;
+
+    private void Awake()
     {
-        foreach (Transform button in GetComponent<SubMenu>().content)
+        //foreach (Transform button in GetComponent<SubMenu>().content)
+        //{
+        //    button.GetChild(0).GetComponent<Text>().text = transform.root.GetComponent<Combat_Character>().AttackName(button.GetSiblingIndex());
+        //}
+
+        foreach(Combat_Character.Attack attack in transform.root.GetComponent<Combat_Character>().attackList)
         {
-            button.GetChild(0).GetComponent<Text>().text = transform.root.GetComponent<Combat_Character>().AttackName(button.GetSiblingIndex());
+            Instantiate(buttonPrefab, buttonContainer).transform.GetChild(0).GetComponent<Text>().text = attack.name;
         }
     }
 
