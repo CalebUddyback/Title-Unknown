@@ -23,11 +23,56 @@ public class Combat_Attack_Canvas : Combat_Menu
 
 
     public override IEnumerator WaitForChoice()
-    {
+    {         
         yield return base.WaitForChoice();
 
-        transform.root.GetComponent<Combat_Character>().AttackChoice(buttonChoice);
-    
-        yield return null;
+        yield return null;      // Give menu time to close if -1
+
+        Combat_Character.Attack attack = transform.root.GetComponent<Combat_Character>().attackList[buttonChoice];
+
+        List<int> outputs = new List<int>();
+
+        if (attack.requiredMenus != null)
+        {
+
+            int i = 0;
+
+            Combat_Menu reqMenu = transform.parent.Find(attack.requiredMenus[i]).GetComponent<Combat_Menu>();
+
+            Controller.OpenSubmenu(reqMenu);
+
+            while (i < attack.requiredMenus.Length)
+            {
+
+                yield return Controller.CurrentCD.coroutine;
+
+                if (reqMenu.buttonChoice == -1)
+                {
+
+                    if (i-1 < 0)
+                        yield break;
+
+                    outputs.RemoveAt(i);
+                    i--;
+
+                    reqMenu = transform.parent.Find(attack.requiredMenus[i]).GetComponent<Combat_Menu>();
+                }
+                else
+                {
+
+                    if (i + 1 >= attack.requiredMenus.Length)
+                        break;
+
+                    outputs.Add(reqMenu.buttonChoice);
+                    i++;
+
+                    reqMenu = transform.parent.Find(attack.requiredMenus[i]).GetComponent<Combat_Menu>();
+
+                    Controller.OpenSubmenu(reqMenu);
+                }
+            }
+        }
+
+        transform.root.GetComponent<Combat_Character>().AttackChoice(attack, outputs.ToArray());
     }
 }

@@ -7,6 +7,8 @@ public class CoroutineWithData
     public object result;
     private IEnumerator target;
 
+    bool stop = false;
+
     public CoroutineWithData(MonoBehaviour owner, IEnumerator target)
     {
         this.target = target;
@@ -15,10 +17,13 @@ public class CoroutineWithData
 
     private IEnumerator Run()
     {
-        while (target.MoveNext())
+        while (target.MoveNext() && !stop)
         {
             result = target.Current;
             yield return result;
         }
     }
+
+    public void Stop() => stop = true;
+
 }

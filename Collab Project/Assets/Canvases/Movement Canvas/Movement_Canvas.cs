@@ -44,7 +44,7 @@ public class Movement_Canvas : MonoBehaviour
 
         doneChoosing = false;
 
-        currentPath.Add(character.board.GetNodePos(character.currentNode));
+        currentPath.Add(character.board.GetTilePos(character.currentNode));
 
         character.main_Camera.offset = new Vector3(0, 1, -25);
     }
@@ -89,17 +89,17 @@ public class Movement_Canvas : MonoBehaviour
     {
         Vector2Int nextPos = curr + dir;
 
-        if (character.board.GetNodePos(nextPos) == null)
+        if (character.board.GetTilePos(nextPos) == null)
             return false;
 
-        if (currentPath.Count > 1 && (character.board.GetNodePos(nextPos) == currentPath[currentPath.Count - 2]))
+        if (currentPath.Count > 1 && (character.board.GetTilePos(nextPos) == currentPath[currentPath.Count - 2]))
             return true;
 
         if (currentPath.Count < maxAmount + 1)
         {
             if (character.board.boardFlowDirection)
             {
-                if (character.board.GetNodePos(selectedIndex).GetComponent<Node>().Directions().Contains(dir))  //If node flows in direction
+                if (character.board.GetTilePos(selectedIndex).GetComponent<Node>().Directions().Contains(dir))  //If node flows in direction
                     return true;      
             }
             else
@@ -116,13 +116,13 @@ public class Movement_Canvas : MonoBehaviour
 
         if (currentPath.Count > 1)
         {
-            if (character.board.GetNodePos(selectedIndex) == currentPath[currentPath.Count - 2])
+            if (character.board.GetTilePos(selectedIndex) == currentPath[currentPath.Count - 2])
                 currentPath.RemoveAt(currentPath.Count - 1);
             else
-                currentPath.Add(character.board.GetNodePos(selectedIndex));
+                currentPath.Add(character.board.GetTilePos(selectedIndex));
         }
         else
-            currentPath.Add(character.board.GetNodePos(selectedIndex));
+            currentPath.Add(character.board.GetTilePos(selectedIndex));
 
         if (currentPath.Count > 1)
             goButton.interactable = true;
@@ -134,7 +134,7 @@ public class Movement_Canvas : MonoBehaviour
 
         totalText.text = (currentPath.Count - 1).ToString() + "/" + maxAmount.ToString();
 
-        main_Camera.target = character.board.GetNodePos(selectedIndex);
+        main_Camera.target = character.board.GetTilePos(selectedIndex);
 
     }
 }

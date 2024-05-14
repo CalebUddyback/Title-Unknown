@@ -7,21 +7,18 @@ public class Combat_Action_Canvas : Combat_Menu
 {
     public override IEnumerator WaitForChoice()
     {
-        print("waiting");
-
         yield return base.WaitForChoice();
 
         switch (buttonChoice)
         {
             case 0:
-                transform.parent.Find("Attacks").gameObject.SetActive(true);
+
+                Controller.OpenSubmenu(transform.parent.Find("Attacks"));
                 break;
 
             default:
                 yield return WaitForChoice();
                 break;
         }
-
-        yield return null;
     }
 }

@@ -4,7 +4,7 @@ using UnityEngine;
 
 public abstract class Combat_Character : MonoBehaviour
 {
-    public float startingXPos;
+    public Vector3 startingPos;
 
     public Transform enemyTransform;
 
@@ -24,9 +24,9 @@ public abstract class Combat_Character : MonoBehaviour
         public string name;
         public string methodName;
         public float chargeTime = 0.5f;
-        public int damage;
-        public float precision = 10;
-        public Vector3 range;
+        public int maxCharges = 0;
+        public string[] requiredMenus;
+        public Info[] info;
         public Coroutine coroutine;
 
         public Attack(string name, string methodName)
@@ -35,9 +35,19 @@ public abstract class Combat_Character : MonoBehaviour
             this.methodName = methodName;
         }
 
-        public void Execute(MonoBehaviour owner)
+        public class Info
         {
-            coroutine = owner.StartCoroutine(methodName);
+            public int damage;
+
+            public Info(int damage)
+            {
+                this.damage = damage;
+            }
+        }
+
+        public void Execute(MonoBehaviour owner, int[] requirments)
+        {
+            coroutine = owner.StartCoroutine(methodName, requirments);
         }
 
         public int Critical { get; private set;}
@@ -54,6 +64,8 @@ public abstract class Combat_Character : MonoBehaviour
             {
                 float roll = Random.Range(0f, 10f) > 5 ? Success += 0.5f : Success;
             }
+
+            //Success = 0;
 
             string outcome = "";
 
@@ -83,6 +95,10 @@ public abstract class Combat_Character : MonoBehaviour
 
     public List<Attack> attackList;
 
+    public Attack attack;
+
+    int[] attack_Requirments;
+
 
     [Header("Turn Controller")]
 
@@ -92,8 +108,7 @@ public abstract class Combat_Character : MonoBehaviour
 
 
     private void Start()
-    {
-        startingXPos = transform.position.x;
+    { 
         StartCoroutine(Focusing());
     }
 
@@ -154,18 +169,19 @@ public abstract class Combat_Character : MonoBehaviour
             actual_Progess -= 0.5f;
         }
 
-        UITEST();
+        MenuPositioning();
     }
 
     public void StartTurn()
     {
+        startingPos = transform.position;
         Menu.gameObject.SetActive(true);
     }
 
     public Transform uiPoint;
     public Camera mcamera;
 
-    void UITEST()
+    void MenuPositioning()
     {
         Vector3 targPos = uiPoint.position;
 
@@ -183,16 +199,29 @@ public abstract class Combat_Character : MonoBehaviour
         Menu.gameObject.transform.position = RectTransformUtility.WorldToScreenPoint(mcamera, targPos);
     }
 
+
+    /// <summary>
+    /// Used to put attack name on Action Menu Button
+    /// </summary>
+    /// <param name="index"></param>
+    /// <returns></returns>
+
     public string AttackName(int index)
     {
         return attackList[index].name;
     }
 
-    public Attack attackInfo;
-
-    public void AttackChoice(int index)
+    public void AttackChoice(Attack atk)
     {
-        attackInfo = attackList[index];
+        attack = atk;
+
+        StartCoroutine(AttackChoice());
+    }
+
+    public void AttackChoice(Attack atk, int[] requirments)
+    {
+        attack = atk;
+        attack_Requirments = requirments;
 
         StartCoroutine(AttackChoice());
     }
@@ -201,11 +230,11 @@ public abstract class Combat_Character : MonoBehaviour
     {
         Menu.ResetMenus();
 
-        Attack main = attackInfo;     //This allows for combos to change attackchoice without breaking this coroutine
+        Attack main = attack;     //This allows for combos to change attackchoice without breaking this coroutine
 
-        yield return Charging(attackInfo.chargeTime);
+        yield return Charging(attack.chargeTime);
 
-        main.Execute(this);
+        main.Execute(this, attack_Requirments);
 
         yield return main.coroutine;
 
@@ -221,7 +250,6 @@ public abstract class Combat_Character : MonoBehaviour
 
         yield return enemyRest;
     }
-
 
     public IEnumerator MoveInRange(Vector3 range)
     {
@@ -271,6 +299,11 @@ public abstract class Combat_Character : MonoBehaviour
         transform.position = targetPos;
     }
 
+    public IEnumerator JumpInRange(Vector3 range)
+    {
+        yield return JumpInRange(range, 0.3f);
+    }
+
     public IEnumerator JumpInRange(Vector3 range, float maxTime)
     {
         /* This Method Works for Flying enemies */
@@ -292,9 +325,10 @@ public abstract class Combat_Character : MonoBehaviour
             float dist = x1 - x0;
 
             float nextX = Mathf.Lerp(startPos.x, targetPos.x, timer / maxTime);
-            float baseY = Mathf.Lerp(startPos.y, targetPos.y, timer / maxTime);
+            float nextY = Mathf.Lerp(startPos.y, targetPos.y, timer / maxTime);
+            float nextZ = Mathf.Lerp(startPos.z, targetPos.z, timer / maxTime);
             float arc = archHeight * (nextX - x0) * (nextX - x1) / (-0.25f * dist * dist);
-            Vector3 nextPos = new Vector3(nextX, baseY + arc, transform.position.z);
+            Vector3 nextPos = new Vector3(nextX, nextY + arc, nextZ);
 
             transform.position = nextPos;
 
@@ -308,23 +342,27 @@ public abstract class Combat_Character : MonoBehaviour
 
     public IEnumerator ResetPos()
     {
-        float currentXPos = transform.position.x;
+        Vector3 currentPos = transform.position;
 
         float timer = 0;
         float maxTime = 0.3f;
 
         while (timer < maxTime)
         {
-            float lerp = Mathf.Lerp(currentXPos, startingXPos, timer / maxTime);
+            float xLerp = Mathf.Lerp(currentPos.x, startingPos.x, timer / maxTime);
 
-            transform.position = new Vector3(lerp, transform.position.y, transform.position.z);
+            //float yLerp = Mathf.Lerp(currentPos.y, startingPos.y, timer / maxTime);
+
+            float zLerp = Mathf.Lerp(currentPos.z, startingPos.z, timer / maxTime);
+
+            transform.position = new Vector3(xLerp, transform.position.y, zLerp);
 
             timer += Time.deltaTime;
 
             yield return null;
         }
 
-        transform.position = new Vector3(startingXPos, transform.position.y, transform.position.z);
+        transform.position = startingPos;
     }
 
     public IEnumerator WaitForKeyFrame()
@@ -334,9 +372,9 @@ public abstract class Combat_Character : MonoBehaviour
         animationController.eventFrame = false;
     }
 
-    public IEnumerator ApplyOutcome()
+    public IEnumerator ApplyOutcome(Attack.Info info)
     {
-        switch (attackInfo.Success)
+        switch (attack.Success)
         {
             case 0:
                 yield return StartCoroutine(enemyTransform.GetComponent<Combat_Character>().Dodge());
@@ -344,17 +382,19 @@ public abstract class Combat_Character : MonoBehaviour
 
             case 0.5f:
                 StartCoroutine(enemy.Block());
-                Instantiate(outcome_Bubble_Prefab, enemy.outcome_Bubble_Pos.position, Quaternion.identity).text.text = (attackInfo.damage/2).ToString();
+                Instantiate(outcome_Bubble_Prefab, enemy.outcome_Bubble_Pos.position, Quaternion.identity).text.text = (info.damage/2).ToString();
                 yield return Impact();
                 break;
 
             case 1:
                 StartCoroutine(enemy.Damage());
-                Instantiate(outcome_Bubble_Prefab, enemy.outcome_Bubble_Pos.position, Quaternion.identity).text.text = attackInfo.damage.ToString();
+                Instantiate(outcome_Bubble_Prefab, enemy.outcome_Bubble_Pos.position, Quaternion.identity).text.text = info.damage.ToString();
                 yield return Impact();
                 break;
         }
     }
+
+
 
     public IEnumerator Impact()
     {

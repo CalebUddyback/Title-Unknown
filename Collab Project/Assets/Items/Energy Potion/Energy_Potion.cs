@@ -24,8 +24,8 @@ public class Energy_Potion : Item
 
         // DAMAGE OR MOVEMENT HERE
 
-        if (character.board.GetNodePos(character.currentNode).GetComponent<Node_Effect>() != null)
-            yield return character.board.GetNodePos(character.currentNode).GetComponent<Node_Effect>().ImediateEffect(character);
+        if (character.board.GetTilePos(character.currentNode).GetComponent<Node_Effect>() != null)
+            yield return character.board.GetTilePos(character.currentNode).GetComponent<Node_Effect>().ImediateEffect(character);
         else
             print("No Imediate Node Effect");
 

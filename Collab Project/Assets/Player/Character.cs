@@ -65,8 +65,8 @@ public class Character : MonoBehaviour
 
         // DAMAGE OR MOVEMENT HERE
 
-        if (board.GetNodePos(currentNode).GetComponent<Node_Effect>() != null)
-            yield return board.GetNodePos(currentNode).GetComponent<Node_Effect>().ImediateEffect(this);
+        if (board.GetTilePos(currentNode).GetComponent<Node_Effect>() != null)
+            yield return board.GetTilePos(currentNode).GetComponent<Node_Effect>().ImediateEffect(this);
         else
             print("No Imediate Node Effect");
 
@@ -157,12 +157,12 @@ public class Character : MonoBehaviour
                 yield return null;
             }
 
-            currentNode = board.GetNodeIndex(nextNode);
+            currentNode = board.GetTileIndex(nextNode);
 
             if (i != path.Count - 1)
             {
-                if (board.GetNodePos(currentNode).GetComponent<Node_Effect>() != null)
-                    yield return StartCoroutine(board.GetNodePos(currentNode).GetComponent<Node_Effect>().PassEffect(this));
+                if (board.GetTilePos(currentNode).GetComponent<Node_Effect>() != null)
+                    yield return StartCoroutine(board.GetTilePos(currentNode).GetComponent<Node_Effect>().PassEffect(this));
             }
         }
 
@@ -280,7 +280,7 @@ public class Character : MonoBehaviour
 
     IEnumerator ActionPhase()
     {
-        Node_Effect nodeEffect = board.GetNodePos(currentNode).GetComponent<Node_Effect>();
+        Node_Effect nodeEffect = board.GetTilePos(currentNode).GetComponent<Node_Effect>();
 
 
         while (true)

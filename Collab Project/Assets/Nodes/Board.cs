@@ -1,7 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Array2DEditor;
 
 public class Board : MonoBehaviour
 {
@@ -9,31 +8,26 @@ public class Board : MonoBehaviour
 
     RaycastHit2D raycast;
 
-    private const int height = 7;
-    private const int width = 7;
-
     [SerializeField]
-    private Array2DBool visualBoard = null;
+    private int height = 100;
+    [SerializeField]
+    private int width = 100;
 
-    private Transform[,] nodes = new Transform[width, height];
+    private Transform[,] tiles;
 
-    private void OnDrawGizmos()
-    {
-        DrawBoundaries();
-        FillArray();
-    }
+    const float TILE_SIZE = 1;
+
+    public Transform startingTile;
 
     void DrawBoundaries()
     {
-        Grid grid = GetComponent<Grid>();
+        Vector2 bottomLeftCorner = new Vector2(-TILE_SIZE / 2, -TILE_SIZE / 2);
 
-        Vector2 bottomLeftCorner = new Vector2(-grid.cellSize.x / 2, -grid.cellSize.y / 2);
+        Vector2 bottomRightCorner = new Vector2((TILE_SIZE * width) - TILE_SIZE / 2, -TILE_SIZE / 2);
 
-        Vector2 bottomRightCorner = new Vector2((grid.cellSize.x * visualBoard.GridSize.x) - grid.cellSize.x / 2, -grid.cellSize.y / 2);
+        Vector2 topLeftCorner = new Vector2(-TILE_SIZE / 2, (TILE_SIZE * height) - TILE_SIZE / 2);
 
-        Vector2 topLeftCorner = new Vector2(-grid.cellSize.x / 2, (grid.cellSize.y * visualBoard.GridSize.y) - grid.cellSize.y / 2);
-
-        Vector2 topRightCorner = new Vector2((grid.cellSize.x * visualBoard.GridSize.x) - grid.cellSize.x / 2, (grid.cellSize.y * visualBoard.GridSize.y) - grid.cellSize.y / 2);
+        Vector2 topRightCorner = new Vector2((TILE_SIZE * width) - TILE_SIZE / 2, (TILE_SIZE * height) - TILE_SIZE / 2);
 
         Debug.DrawLine(bottomLeftCorner, bottomRightCorner, Color.red);
 
@@ -44,15 +38,16 @@ public class Board : MonoBehaviour
         Debug.DrawLine(topLeftCorner, bottomLeftCorner, Color.red);
     }
 
+    private void OnDrawGizmos()
+    {
+        DrawBoundaries();
+    }
+
     void FillArray()
     {
-        Grid grid = GetComponent<Grid>();
+        tiles = new Transform[width, height];
 
         Vector2 rayTarget = Vector2.zero;
-
-
-        /* VIUSAL GRID SIZE MUST BE CHANGED IN INSPECTOR! */
-
 
         for (int y = 0; y < height; y++)
         {
@@ -62,18 +57,16 @@ public class Board : MonoBehaviour
 
                 if (raycast.collider != null)
                 {
-                    visualBoard.SetCell(x, y, true);
-                    nodes[x, y] = raycast.collider.transform;
+                    tiles[x, y] = raycast.collider.transform;
                 }
                 else
                 {
-                    visualBoard.SetCell(x, y, false);
-                    nodes[x, y] = null;
+                    tiles[x, y] = null;
                 }
 
-                rayTarget = new Vector2(rayTarget.x + grid.cellSize.x, rayTarget.y);
+                rayTarget = new Vector2(rayTarget.x + TILE_SIZE, rayTarget.y);
             }
-            rayTarget = new Vector2(0, rayTarget.y + grid.cellSize.y);
+            rayTarget = new Vector2(0, rayTarget.y + TILE_SIZE);
         }
     }
 
@@ -83,21 +76,50 @@ public class Board : MonoBehaviour
         FillArray();
     }
 
-    public Transform GetNodePos(Vector2Int index)
+    private string DrawBoardMap()
+    {
+        string map = "\n";
+
+        for (int y = height - 1; y >= 0; y--)
+        {
+            for (int x = 0; x < width; x++)
+            {
+                if (tiles[x, y] != null)
+                    map += "* ";
+                else
+                    map += "- ";
+            }
+            map += "\n";
+        }
+
+        return map;
+    }
+
+    private void Start()
+    {
+        print(DrawBoardMap());
+    }
+
+    //public Tile GetTile(Vector2Int index)
+    //{
+    //    return tiles[index.x, index.y].GetComponent<Tile>();
+    //}
+
+    public Transform GetTilePos(Vector2Int index)
     {
         Transform pos = null;
 
         if ((index.x >= 0 && index.x < width) && (index.y >= 0 && index.y < height))
         {
-            pos = nodes[index.x, index.y];
+            pos = tiles[index.x, index.y];
             goto Found;
         }
 
     Found:
-            return pos;
+        return pos;
     }
 
-    public Vector2Int GetNodeIndex(Transform node)
+    public Vector2Int GetTileIndex(Transform tile)
     {
         Vector2Int index = Vector2Int.zero;
 
@@ -105,7 +127,7 @@ public class Board : MonoBehaviour
         {
             for (int x = 0; x < width; x++)
             {
-                if (nodes[x, y] == node)
+                if (tiles[x, y] == tile)
                 {
                     index = new Vector2Int(x, y);
                     goto Found;

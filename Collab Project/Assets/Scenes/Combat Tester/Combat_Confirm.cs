@@ -17,7 +17,5 @@ public class Combat_Confirm : Combat_Menu
             case 1:
                 break;
         }
-
-        yield return null;
     }
 }

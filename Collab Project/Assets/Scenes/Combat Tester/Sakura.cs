@@ -11,92 +11,122 @@ public class Sakura : Combat_Character
     {
         attackList = new List<Attack>()
         {
-            new Attack("Punch", nameof(Punch))
+            new Attack("Combo", nameof(Combo))
             {
-                damage = 10,
-                range =  new Vector3(-0.35f, 0, 0)
-            },
+                chargeTime = 1f,
+                maxCharges = 3,
 
-            new Attack("Uppercut", nameof(Uppercut))
-            {
-                damage = 10,
-                range =  new Vector3(-0.35f, 0, 0)
-            },
+                requiredMenus = new string[]
+                {
+                    "Charges",
+                    "Confirm"
+                },
 
-            new Attack("Kick", nameof(Kick))
-            {
-                damage = 10,
-                range =  new Vector3(-0.35f, 0, 0)
-            },
-
-            new Attack("Dragon Crossing", nameof(Combo))
-            {
-                chargeTime = 3f,
+                info = new Attack.Info[]
+                {
+                    new Attack.Info(5),
+                    new Attack.Info(7),
+                    new Attack.Info(10)
+                }
             },
 
             new Attack("Jump Kick", nameof(Jump_Kick))
             {
-                damage = 10,
-                range =  new Vector3(-1f, 0, 0)
+
+                requiredMenus = new string[]
+                {
+                    "Confirm"
+                },
+
+                info = new Attack.Info[]
+                {
+                    new Attack.Info(18),
+                }
             },
 
             new Attack("Throw Kunai", nameof(Throw_Kunai))
             {
-                damage = 10,
+                requiredMenus = new string[]
+                {
+                    "Confirm"
+                },
+
+                info = new Attack.Info[]
+                {
+                    new Attack.Info(5),
+                }
             },
 
             new Attack("Multi Hit", nameof(Multi_Hit))
             {
-                damage = 10,
-                range =  new Vector3(-0.35f, 0, 0),
+                chargeTime = 1,
+
+                requiredMenus = new string[]
+                {
+                    "Confirm"
+                },
+
+                info = new Attack.Info[]
+                {
+                    new Attack.Info(5),
+                    new Attack.Info(5),
+                    new Attack.Info(5),
+                    new Attack.Info(7)
+                }
             },
         };
     }
 
-    IEnumerator Punch()
+    IEnumerator Combo(int[] input)
     {
-        attackInfo.GetOutcome();
+        int charge = input[0];
 
-        yield return MoveInRange(attackInfo.range);
+        attack.GetOutcome();
+
+        yield return MoveInRange(new Vector3(-0.35f, 0, 0));
 
         animationController.Clip("Sakura Punch");
 
         yield return WaitForKeyFrame();
-        Coroutine outcome = StartCoroutine(ApplyOutcome());
+        Coroutine outcome = StartCoroutine(ApplyOutcome(attack.info[0]));
 
         yield return animationController.coroutine;
         animationController.Clip("Sakura Idle");
 
         yield return outcome;
-    }
 
-    IEnumerator Uppercut()
-    {
-        attackInfo.GetOutcome();
+        if (charge == 0)
+            yield break;
 
-        yield return MoveInRange(attackInfo.range);
+        // two
+
+        attack.GetOutcome();
+
+        yield return MoveInRange(new Vector3(-0.35f, 0, 0));
 
         animationController.Clip("Sakura Uppercut");
 
         yield return WaitForKeyFrame();
-        Coroutine outcome = StartCoroutine(ApplyOutcome());
+        outcome = StartCoroutine(ApplyOutcome(attack.info[1]));
 
         yield return animationController.coroutine;
         animationController.Clip("Sakura Idle");
 
         yield return outcome;
-    }
 
-    IEnumerator Kick()
-    {
-        attackInfo.GetOutcome();
+        if (charge == 1)
+            yield break;
 
-        yield return MoveInRange(attackInfo.range);
+        // three
+
+        attack.GetOutcome();
+
+        yield return MoveInRange(new Vector3(-0.35f, 0, 0));
 
         animationController.Clip("Sakura Kick");
 
         yield return WaitForKeyFrame();
-        Coroutine outcome = StartCoroutine(ApplyOutcome());
+        outcome = StartCoroutine(ApplyOutcome(attack.info[2]));
 
         yield return animationController.coroutine;
         animationController.Clip("Sakura Idle");
@@ -104,54 +134,11 @@ public class Sakura : Combat_Character
         yield return outcome;
     }
 
-    IEnumerator Combo()
-    {
-        int luck = Random.Range(0, 7);
-
-        for (int i = 0; i <= luck; i++)
-        {
-            switch (i)
-            {
-                case 0:
-                    attackInfo = attackList[0];
-                    yield return Punch();
-                    break;
-                case 1:
-                    attackInfo = attackList[1];
-                    yield return Uppercut();
-                    break;
-                case 2:
-                    attackInfo = attackList[2];
-                    yield return Kick();
-                    break;
-                case 3:
-                    attackInfo = attackList[0];
-                    yield return Punch();
-                    break;
-                case 4:
-                    attackInfo = attackList[0];
-                    yield return Punch();
-                    break;
-                case 5:
-                    attackInfo = attackList[2];
-                    yield return Kick();
-                    break;
-                case 6:
-                    attackInfo = attackList[4];
-                    yield return Jump_Kick();
-                    break;
-                default:
-                    Debug.Break();
-                    break;
-            }
-        }
-    }
-
     IEnumerator Jump_Kick()
     {
-        attackInfo.GetOutcome();
+        attack.GetOutcome();
 
-        yield return MoveInRange(attackInfo.range);
+        yield return MoveInRange(new Vector3(-1f, 0, 0));
 
 
         float maxTime = 0.4f;
@@ -171,9 +158,9 @@ public class Sakura : Combat_Character
         animationController.Clip("Sakura Jump Kick");
 
         yield return WaitForKeyFrame();
-        Coroutine outcome = StartCoroutine(ApplyOutcome());
+        Coroutine outcome = StartCoroutine(ApplyOutcome(attack.info[0]));
 
-        if (attackInfo.Success != 0)
+        if (attack.Success != 0)
             yield return outcome;
 
         GetComponent<Rigidbody>().isKinematic = false;
@@ -193,7 +180,9 @@ public class Sakura : Combat_Character
 
     IEnumerator Throw_Kunai()
     {
-        attackInfo.GetOutcome();
+        attack.GetOutcome();
+
+        yield return MoveInRange(new Vector3(-1.75f, 0, 0));
 
         animationController.Clip("Sakura Kunai");
 
@@ -208,13 +197,13 @@ public class Sakura : Combat_Character
         yield return new WaitWhile(() => kunai.transform.position.x <= enemyTransform.position.x);
 
 
-        if (attackInfo.Success != 0)
+        if (attack.Success != 0)
         {
             StopCoroutine(tragectory);
             Destroy(kunai);
         }
 
-        Coroutine outcome = StartCoroutine(ApplyOutcome());
+        Coroutine outcome = StartCoroutine(ApplyOutcome(attack.info[0]));
 
         yield return tragectory;
 
@@ -228,28 +217,23 @@ public class Sakura : Combat_Character
 
     IEnumerator Multi_Hit()
     {
-        attackInfo.GetOutcome();
+        attack.GetOutcome();
 
-        yield return MoveInRange(attackInfo.range);
+        yield return MoveInRange(new Vector3(-0.35f, 0, 0));
 
         animationController.Clip("Sakura Multi Hit");
 
         yield return WaitForKeyFrame();
-        Coroutine outcome = StartCoroutine(ApplyOutcome());
 
-        if (attackInfo.Success != 0)
+        Coroutine outcome = StartCoroutine(ApplyOutcome(attack.info[0]));
+
+        for (int i = 1; i < 4; i++)
         {
-
             yield return WaitForKeyFrame();
-            outcome = StartCoroutine(ApplyOutcome());
 
-            yield return WaitForKeyFrame();
-            outcome = StartCoroutine(ApplyOutcome());
-
-            yield return WaitForKeyFrame();
-            outcome = StartCoroutine(ApplyOutcome());
-
-        }
+            if (attack.Success != 0)
+                outcome = StartCoroutine(ApplyOutcome(attack.info[i]));
+        } 
 
         yield return animationController.coroutine;
         animationController.Clip("Sakura Idle");
