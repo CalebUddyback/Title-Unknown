@@ -15,11 +15,12 @@ public class Sakura : Combat_Character
             {
                 chargeTime = 1f,
                 maxCharges = 3,
+                numOfTargets = 3,
 
-                requiredMenus = new string[]
+                requiredMenus = new Attack.RequiredMenu[]
                 {
-                    "Charges",
-                    "Confirm"
+                    new Attack.RequiredMenu("Charges"),
+                    new Attack.RequiredMenu("Targets", "Charges"),
                 },
 
                 info = new Attack.Info[]
@@ -33,10 +34,7 @@ public class Sakura : Combat_Character
             new Attack("Jump Kick", nameof(Jump_Kick))
             {
 
-                requiredMenus = new string[]
-                {
-                    "Confirm"
-                },
+
 
                 info = new Attack.Info[]
                 {
@@ -46,10 +44,7 @@ public class Sakura : Combat_Character
 
             new Attack("Throw Kunai", nameof(Throw_Kunai))
             {
-                requiredMenus = new string[]
-                {
-                    "Confirm"
-                },
+
 
                 info = new Attack.Info[]
                 {
@@ -61,10 +56,7 @@ public class Sakura : Combat_Character
             {
                 chargeTime = 1,
 
-                requiredMenus = new string[]
-                {
-                    "Confirm"
-                },
+ 
 
                 info = new Attack.Info[]
                 {
@@ -77,9 +69,67 @@ public class Sakura : Combat_Character
         };
     }
 
+    IEnumerator Combo1()
+    {
+        bool done = false;
+
+        while (!done)
+        {
+            int i = 0;
+
+
+            switch (i)
+            {
+                case 0:
+                    Combat_Menu reqMenu = Menu.OpenSubmenu("Charges");
+
+                    yield return Menu.CurrentCD.coroutine;
+
+                    int charges = reqMenu.ButtonChoice;
+
+                    if (reqMenu.ButtonChoice > -1)
+                    {
+                        i++;
+                        continue;
+                    }
+                    else
+                        break;
+
+                case 1:
+
+                    List<Transform> targets = new List<Transform>();
+
+                    // for each charge
+
+
+                    reqMenu = Menu.OpenSubmenu("Targets");
+
+                    if (Facing == 1)
+                        targets.Add(TurnController.right_Players[reqMenu.ButtonChoice].transform);
+                    else
+                        targets.Add(TurnController.right_Players[reqMenu.ButtonChoice].transform);
+
+                    continue;
+
+                case 2:
+
+                    Combat_Menu confirmMenu = Menu.OpenSubmenu("Confirm");
+
+                    yield return Menu.CurrentCD.coroutine;
+
+                    continue;
+            }
+
+        }
+
+        transform.root.GetComponent<Combat_Character>().AttackChoice(attack);
+    }
+
     IEnumerator Combo(int[] input)
     {
         int charge = input[0];
+
+        enemyTransform = targets[0];
 
         attack.GetOutcome();
 
@@ -100,6 +150,8 @@ public class Sakura : Combat_Character
 
         // two
 
+        enemyTransform = targets[1];
+
         attack.GetOutcome();
 
         yield return MoveInRange(new Vector3(-0.35f, 0, 0));
@@ -118,6 +170,8 @@ public class Sakura : Combat_Character
             yield break;
 
         // three
+
+        enemyTransform = targets[2];
 
         attack.GetOutcome();
 
@@ -194,8 +248,11 @@ public class Sakura : Combat_Character
 
         Coroutine tragectory = StartCoroutine(ProjectileArch(kunai.transform, new Vector3(0.8f, 0f, 0f), 0.4f));
 
-        yield return new WaitWhile(() => kunai.transform.position.x <= enemyTransform.position.x);
 
+        if(Facing == 1)
+            yield return new WaitWhile(() => kunai.transform.position.x <= enemyTransform.position.x);
+        else
+            yield return new WaitWhile(() => kunai.transform.position.x >= enemyTransform.position.x);
 
         if (attack.Success != 0)
         {
@@ -263,7 +320,7 @@ public class Sakura : Combat_Character
         yield return null;
         animationController.Clip("Sakura Dodge");
 
-        yield return MoveAmount(new Vector3(0.3f,0,0));
+        yield return MoveAmount(new Vector3(0.3f * -Facing, 0, 0));
 
         yield return animationController.coroutine;
         animationController.Clip("Sakura Idle");

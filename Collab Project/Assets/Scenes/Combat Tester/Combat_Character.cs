@@ -4,6 +4,8 @@ using UnityEngine;
 
 public abstract class Combat_Character : MonoBehaviour
 {
+    public bool cpu = false;
+
     public Vector3 startingPos;
 
     public Transform enemyTransform;
@@ -25,7 +27,26 @@ public abstract class Combat_Character : MonoBehaviour
         public string methodName;
         public float chargeTime = 0.5f;
         public int maxCharges = 0;
-        public string[] requiredMenus;
+        public int numOfTargets = 0;
+
+        public class RequiredMenu
+        {
+            public string Menu { get; private set; } = "";
+            public string DependantMenu { get; private set; } = "";
+
+            public RequiredMenu(string menu, string dependantMenu)
+            {
+                Menu = menu;
+                DependantMenu = dependantMenu;
+            }
+
+            public RequiredMenu(string menu)
+            {
+                Menu = menu;
+            }
+        }
+
+        public RequiredMenu[] requiredMenus;
         public Info[] info;
         public Coroutine coroutine;
 
@@ -99,67 +120,109 @@ public abstract class Combat_Character : MonoBehaviour
 
     int[] attack_Requirments;
 
+    public int attackCharge = 0;
+
+    public List<Transform> targets = new List<Transform>();
+
+    public int Facing { get; set; } = 1;
+
 
     [Header("Turn Controller")]
 
-    public UnityEngine.UI.Image timer;
+    public bool turn = false;
 
     public float actual_Progess;
 
+    public Character_Hud Hud;
 
-    private void Start()
+    public Turn_Controller TurnController { get; set; }
+
+
+    [Header("Stats")]
+
+    //public string characterName = "No Name";
+
+    public float focusSpeed = 1f;
+
+
+
+
+    public void StartFocus()
     { 
         StartCoroutine(Focusing());
     }
 
+    public bool TurnTime { get; private set; } = true;
+
+    public void ToggleTurnTime()
+    {
+        TurnTime = !TurnTime;
+    }
+
+    public void ToggleTurnTime(bool set)
+    {
+        TurnTime = set;
+    }
+
     IEnumerator Focusing()
     {
-        float speed = 1f;
 
-        timer.color = Color.blue;
+        //timer.color = Color.blue;
 
-        timer.fillAmount = 0;
+        Hud.timer.fillAmount = 0;
 
-        actual_Progess = 0;
+        float requiredFocus = 3;
 
-        while (actual_Progess < speed)
+        actual_Progess = requiredFocus;
+
+        while (0 <= actual_Progess)
         {
-            timer.fillAmount = actual_Progess / speed;
+            yield return new WaitUntil(() => TurnTime);
 
-            actual_Progess += Time.deltaTime;
+            actual_Progess -= Time.deltaTime * focusSpeed;
+
+            Hud.timer.fillAmount = (requiredFocus - actual_Progess) / requiredFocus;
 
             yield return null;
         }
 
+        Hud.timer.fillAmount = 1;
 
-        timer.fillAmount = 1;
+        actual_Progess = 0;
 
-        actual_Progess = speed;
+        TurnController.AddToTurnQueue(this);
 
-        StartTurn();
     }
 
     IEnumerator Charging(float chargeTime)
     {
-        timer.color = Color.red;
 
-        timer.fillAmount = 0;
+        Menu.ResetMenus();
 
-        actual_Progess = 0;
+        turn = false;
 
-        while (actual_Progess < chargeTime)
+        //timer.color = Color.red;
+
+        Hud.timer.fillAmount = 0;
+
+        actual_Progess = chargeTime;
+
+        while (0 <= actual_Progess)
         {
-            timer.fillAmount = actual_Progess / chargeTime;
+            yield return new WaitUntil(() => TurnTime);
 
-            actual_Progess += Time.deltaTime;
+            actual_Progess -= Time.deltaTime;
+
+            Hud.timer.fillAmount = (chargeTime - actual_Progess) / chargeTime;
 
             yield return null;
         }
 
-
-        timer.fillAmount = 1;
+        Hud.timer.fillAmount = 1;
 
         actual_Progess = chargeTime;
+
+        TurnController.AddToActionQueue(this);
     }
 
     private void Update()
@@ -174,8 +237,19 @@ public abstract class Combat_Character : MonoBehaviour
 
     public void StartTurn()
     {
-        startingPos = transform.position;
-        Menu.gameObject.SetActive(true);
+        turn = true;
+
+        if (!cpu)
+            Menu.gameObject.SetActive(true);
+        else
+            CpuDecisionMaking();
+
+        //timer.color = Color.white;
+    }
+
+    public void EndTurn()
+    {
+        
     }
 
     public Transform uiPoint;
@@ -199,12 +273,24 @@ public abstract class Combat_Character : MonoBehaviour
         Menu.gameObject.transform.position = RectTransformUtility.WorldToScreenPoint(mcamera, targPos);
     }
 
+    public virtual void CpuDecisionMaking()
+    {
+        int i = Random.Range(0, attackList.Count);
 
-    /// <summary>
-    /// Used to put attack name on Action Menu Button
-    /// </summary>
-    /// <param name="index"></param>
-    /// <returns></returns>
+        int r;
+
+        Attack atk = attackList[i];
+
+        if (atk.requiredMenus != null)
+        {
+            r = Random.Range(0, atk.maxCharges);
+
+            AttackChoice(attackList[i], new int[] { r });
+        }
+        else
+            AttackChoice(attackList[i]);
+
+    }
 
     public string AttackName(int index)
     {
@@ -213,9 +299,7 @@ public abstract class Combat_Character : MonoBehaviour
 
     public void AttackChoice(Attack atk)
     {
-        attack = atk;
-
-        StartCoroutine(AttackChoice());
+        AttackChoice(atk, new int[0]);
     }
 
     public void AttackChoice(Attack atk, int[] requirments)
@@ -223,16 +307,16 @@ public abstract class Combat_Character : MonoBehaviour
         attack = atk;
         attack_Requirments = requirments;
 
-        StartCoroutine(AttackChoice());
+        StartCoroutine(Charging(attack.chargeTime));
     }
 
-    public IEnumerator AttackChoice()
+    public IEnumerator StartAttack()
     {
-        Menu.ResetMenus();
+        //Menu.ResetMenus();
 
         Attack main = attack;     //This allows for combos to change attackchoice without breaking this coroutine
 
-        yield return Charging(attack.chargeTime);
+        //yield return Charging(attack.chargeTime);
 
         main.Execute(this, attack_Requirments);
 
@@ -255,7 +339,7 @@ public abstract class Combat_Character : MonoBehaviour
     {
         Vector3 startPos = transform.position;
 
-        Vector3 targetPos = new Vector3(enemyTransform.position.x + range.x, transform.position.y , 0);
+        Vector3 targetPos = new Vector3(enemyTransform.position.x + range.x * Facing, transform.position.y , enemyTransform.position.z);
 
         if (startPos == targetPos)
             yield break;
@@ -310,7 +394,7 @@ public abstract class Combat_Character : MonoBehaviour
 
 
         Vector3 startPos = transform.position;
-        Vector3 targetPos = enemyTransform.position + range;
+        Vector3 targetPos = new Vector3(enemyTransform.position.x + range.x * Facing, enemyTransform.transform.position.y + range.y, enemyTransform.position.z);
 
         float archHeight = 0.25f;
 
@@ -363,6 +447,8 @@ public abstract class Combat_Character : MonoBehaviour
         }
 
         transform.position = startingPos;
+
+        EndTurn();
     }
 
     public IEnumerator WaitForKeyFrame()
@@ -422,7 +508,7 @@ public abstract class Combat_Character : MonoBehaviour
 
 
         Vector3 startPos = instance.position;
-        Vector3 targetPos = enemyTransform.position + range;
+        Vector3 targetPos = new Vector3(enemyTransform.position.x + range.x * Facing, enemyTransform.transform.position.y + range.y, enemyTransform.position.z);
 
         float archHeight = 0.1f;
 

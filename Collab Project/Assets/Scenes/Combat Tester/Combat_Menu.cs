@@ -7,9 +7,9 @@ using UnityEngine.UI;
 
 public abstract class Combat_Menu : MonoBehaviour
 {
-    public int buttonChoice = -2;       // -2 (Waiting), -1 (Return)
+    public int ButtonChoice { get; private set; } = -2;       // -2 (Waiting), -1 (Return)
 
-    public bool requirement_Menu = false;  // Decide in inspector
+    public int dependant_Variable = 0;
 
     public Combat_Menu_Controller Controller { get; private set; }
 
@@ -19,21 +19,21 @@ public abstract class Combat_Menu : MonoBehaviour
 
         foreach(Transform button in GetComponent<SubMenu>().content)
         {
-            button.GetComponent<Button>().onClick.AddListener(() => buttonChoice = button.GetSiblingIndex());
+            button.GetComponent<Button>().onClick.AddListener(() => ButtonChoice = button.GetSiblingIndex());
         }
 
-        GetComponent<SubMenu>().returnButton.onClick.AddListener(() => buttonChoice = -1);
+        GetComponent<SubMenu>().returnButton.onClick.AddListener(() => ButtonChoice = -1);
     }
 
     public virtual IEnumerator WaitForChoice()
     {
-        buttonChoice = -2;
+        ButtonChoice = -2;
 
-        yield return new WaitUntil(() => buttonChoice != -2);
+        yield return new WaitUntil(() => ButtonChoice != -2);
 
         //print("Button: " + buttonChoice);
 
-        if (buttonChoice == -1)
+        if (ButtonChoice == -1)
         {
             Return();
         }
@@ -41,7 +41,7 @@ public abstract class Combat_Menu : MonoBehaviour
 
     public void Return()
     {
-        buttonChoice = -1;
+        ButtonChoice = -1;
 
         Controller.CloseSubmenu();
     }

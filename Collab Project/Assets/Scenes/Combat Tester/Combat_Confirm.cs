@@ -8,7 +8,7 @@ public class Combat_Confirm : Combat_Menu
     {
         yield return base.WaitForChoice();
 
-        switch (buttonChoice)
+        switch (ButtonChoice)
         {
             case 0:
                 Return();

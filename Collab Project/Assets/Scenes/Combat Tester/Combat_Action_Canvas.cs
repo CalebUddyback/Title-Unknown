@@ -9,7 +9,7 @@ public class Combat_Action_Canvas : Combat_Menu
     {
         yield return base.WaitForChoice();
 
-        switch (buttonChoice)
+        switch (ButtonChoice)
         {
             case 0:
 

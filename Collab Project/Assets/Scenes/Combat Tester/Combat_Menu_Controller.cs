@@ -10,16 +10,19 @@ public class Combat_Menu_Controller : MonoBehaviour
 
     public void ResetMenus()
     {
-        menuStack[0].GetComponent<CanvasGroup>().interactable = true;
-
-        for (int i = 1; i < menuStack.Count; i++)
+        if (menuStack.Count > 0)
         {
-            menuStack[i].gameObject.SetActive(false);
-            menuStack[i].GetComponent<CanvasGroup>().interactable = true;
-        }
+            menuStack[0].GetComponent<CanvasGroup>().interactable = true;
 
-        menuStack.Clear();
-        gameObject.SetActive(false);
+            for (int i = 1; i < menuStack.Count; i++)
+            {
+                menuStack[i].gameObject.SetActive(false);
+                menuStack[i].GetComponent<CanvasGroup>().interactable = true;
+            }
+
+            menuStack.Clear();
+            gameObject.SetActive(false);
+        }
     }
 
     private void OnEnable()
@@ -30,8 +33,14 @@ public class Combat_Menu_Controller : MonoBehaviour
 
     /* Use to add to menu stack and change alpha */
 
-    public void OpenSubmenu(Combat_Menu nextSubmenu)
+    public Combat_Menu OpenSubmenu(Combat_Menu nextSubmenu)
     {
+        if (nextSubmenu.gameObject.activeSelf)
+        {
+            Debug.Log("Menu already opened");
+            return null;
+        }
+
         nextSubmenu.gameObject.SetActive(true);
 
         menuStack.Add(nextSubmenu);
@@ -41,11 +50,18 @@ public class Combat_Menu_Controller : MonoBehaviour
         CurrentCD = new CoroutineWithData(this, nextSubmenu.WaitForChoice());
 
         //print("Moving to " + nextSubmenu.gameObject.name);
+
+        return nextSubmenu;
     }
 
-    public void OpenSubmenu(Transform nextSubmenu)
+    public Combat_Menu OpenSubmenu(Transform nextSubmenu)
     {
-        OpenSubmenu(nextSubmenu.GetComponent<Combat_Menu>());
+        return OpenSubmenu(nextSubmenu.GetComponent<Combat_Menu>());
+    }
+
+    public Combat_Menu OpenSubmenu(string nextSubmenu)
+    {
+        return OpenSubmenu(transform.Find(nextSubmenu).GetComponent<Combat_Menu>());
     }
 
     public void CloseSubmenu()
