@@ -3,8 +3,14 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class Combat_Action_Canvas : Combat_Menu
+public class SubMenu_Actions : SubMenu
 {
+    public override void AdditionalSetup()
+    {
+        AddButtonListeners();
+    }
+
+
     public override IEnumerator WaitForChoice()
     {
         yield return base.WaitForChoice();
@@ -12,8 +18,7 @@ public class Combat_Action_Canvas : Combat_Menu
         switch (ButtonChoice)
         {
             case 0:
-
-                Controller.OpenSubmenu(transform.parent.Find("Attacks"));
+                SubMenu subMenu =  SubMenuController.OpenSubMenu("Attacks", transform.root.GetComponent<Combat_Character>().GetAttackNames());
                 break;
 
             default:

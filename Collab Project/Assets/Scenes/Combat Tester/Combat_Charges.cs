@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Combat_Charges : Combat_Menu
+public class Combat_Charges : SubMenu
 {
     public override IEnumerator WaitForChoice()
     {
@@ -10,6 +10,6 @@ public class Combat_Charges : Combat_Menu
 
         Combat_Character character = transform.root.GetComponent<Combat_Character>();
 
-        character.attackCharge = ButtonChoice;
+        //character.attackCharge = ButtonChoice;
     }
 }

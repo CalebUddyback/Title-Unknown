@@ -3,17 +3,18 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class Combat_Attack_Canvas : Combat_Menu
+public class Combat_Attack_Canvas1 : SubMenu
 {
-    public GameObject buttonPrefab;
-    public Transform buttonContainer;
-
     private void Awake()
     {
+        List<string> attackNames = new List<string>();
+        
         foreach(Combat_Character.Attack attack in transform.root.GetComponent<Combat_Character>().attackList)
         {
-            Instantiate(buttonPrefab, buttonContainer).transform.GetChild(0).GetComponent<Text>().text = attack.name;
+            attackNames.Add(attack.name);
         }
+        
+        AddButtons(attackNames);
     }
 
 
@@ -34,14 +35,14 @@ public class Combat_Attack_Canvas : Combat_Menu
         if (attack.requiredMenus != null)
         {
 
-            Combat_Menu reqMenu = transform.parent.Find(attack.requiredMenus[i].Menu).GetComponent<Combat_Menu>();
+            SubMenu reqMenu = transform.parent.Find(attack.requiredMenus[i].Menu).GetComponent<SubMenu>();
 
-            Controller.OpenSubmenu(reqMenu);
+            SubMenuController.OpenSubMenu(reqMenu);
 
             while (i < attack.requiredMenus.Length)
             {
 
-                yield return Controller.CurrentCD.coroutine;
+                yield return SubMenuController.CurrentCD.coroutine;
 
                 if (reqMenu.ButtonChoice == -1)
                 {
@@ -52,7 +53,7 @@ public class Combat_Attack_Canvas : Combat_Menu
                     outputs.RemoveAt(i);
                     i--;
 
-                    reqMenu = transform.parent.Find(attack.requiredMenus[i].Menu).GetComponent<Combat_Menu>();
+                    reqMenu = transform.parent.Find(attack.requiredMenus[i].Menu).GetComponent<SubMenu>();
                 }
                 else
                 {
@@ -63,23 +64,23 @@ public class Combat_Attack_Canvas : Combat_Menu
                     outputs.Add(reqMenu.ButtonChoice);
                     i++;
 
-                    reqMenu = transform.parent.Find(attack.requiredMenus[i].Menu).GetComponent<Combat_Menu>();
+                    reqMenu = transform.parent.Find(attack.requiredMenus[i].Menu).GetComponent<SubMenu>();
 
-                    Controller.OpenSubmenu(reqMenu);
+                    SubMenuController.OpenSubMenu(reqMenu);
 
-                    if(attack.requiredMenus[i].DependantMenu != "")
-                    {
-                        reqMenu.dependant_Variable = transform.parent.Find(attack.requiredMenus[i].DependantMenu).GetComponent<Combat_Menu>().ButtonChoice;
-                    }
+                    //if(attack.requiredMenus[i].DependantMenu != "")
+                    //{
+                    //    reqMenu.dependant_Variable = transform.parent.Find(attack.requiredMenus[i].DependantMenu).GetComponent<SubMenu>().ButtonChoice;
+                    //}
                 }
             }
         }
 
-        Combat_Menu confirmMenu = transform.parent.Find("Confirm").GetComponent<Combat_Menu>();
+        SubMenu confirmMenu = transform.parent.Find("Confirm").GetComponent<SubMenu>();
 
-        Controller.OpenSubmenu(confirmMenu);
+        SubMenuController.OpenSubMenu(confirmMenu);
 
-        yield return Controller.CurrentCD.coroutine;
+        yield return SubMenuController.CurrentCD.coroutine;
 
         if (confirmMenu.ButtonChoice == -1)
         {
@@ -87,6 +88,6 @@ public class Combat_Attack_Canvas : Combat_Menu
                 goto Reloop;
         }
 
-        transform.root.GetComponent<Combat_Character>().AttackChoice(attack, outputs.ToArray());
+        //transform.root.GetComponent<Combat_Character>().AttackChoice(attack, outputs.ToArray());
     }
 }

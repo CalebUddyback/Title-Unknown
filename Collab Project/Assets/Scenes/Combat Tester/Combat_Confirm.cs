@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Combat_Confirm : Combat_Menu
+public class Combat_Confirm : SubMenu
 {
     public override IEnumerator WaitForChoice()
     {

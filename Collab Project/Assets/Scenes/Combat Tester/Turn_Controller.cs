@@ -14,7 +14,7 @@ public class Turn_Controller : MonoBehaviour
 
     public Transform left_Positions, right_Positions;
 
-    private List<Combat_Character> allPlayers;
+    private List<Combat_Character> all_Players;
 
     private Queue<Combat_Character> turnQueue = new Queue<Combat_Character>();
 
@@ -25,14 +25,48 @@ public class Turn_Controller : MonoBehaviour
         StartCoroutine(InitializeCharacters());
     }
 
+    public List<string> GetPlayerNames(int i)
+    {
+
+        List<string> names = new List<string>();
+
+        if (i == 1)
+        {
+            foreach (Combat_Character character in right_Players)
+            {
+                names.Add(character.name);
+            }
+
+        }
+
+        if (i == -1)
+        {
+            foreach (Combat_Character character in left_Players)
+            {
+                names.Add(character.name);
+            }
+        }
+
+        if (i == 0)
+        {
+            foreach (Combat_Character character in all_Players)
+            {
+                names.Add(character.name);
+            }
+        }
+
+
+        return names;
+    }
+
     IEnumerator InitializeCharacters()
     {
         yield return null;
 
-        allPlayers = new List<Combat_Character>(left_Players);
-        allPlayers.AddRange(right_Players);
+        all_Players = new List<Combat_Character>(left_Players);
+        all_Players.AddRange(right_Players);
 
-        foreach (Combat_Character character in allPlayers)
+        foreach (Combat_Character character in all_Players)
         {
             character.TurnController = this;
 
@@ -85,19 +119,21 @@ public class Turn_Controller : MonoBehaviour
             {
                 Combat_Character character = actionQueue.Dequeue();
 
-                foreach (Combat_Character c in allPlayers)
+                foreach (Combat_Character c in all_Players)
                 {
                     c.ToggleTurnTime();
                 }
 
                 yield return character.StartAttack();
 
+                character.StartFocus();
+
 
                 // Make timer BLUE
 
                 character.Hud.timer.color = Color.blue;
 
-                foreach (Combat_Character c in allPlayers)
+                foreach (Combat_Character c in all_Players)
                 {
                     c.ToggleTurnTime();
                 }
@@ -108,7 +144,7 @@ public class Turn_Controller : MonoBehaviour
             {
                 // Stop TurnTimers
 
-                foreach (Combat_Character c in allPlayers)
+                foreach (Combat_Character c in all_Players)
                 {
                     c.ToggleTurnTime();
                 }
@@ -122,15 +158,15 @@ public class Turn_Controller : MonoBehaviour
 
                 // Move Camera 
 
-                Vector3 targetPos = new Vector3(0, 0.618f, character.transform.position.z - 2.5f);
+                Vector3 camTargetPos = new Vector3(0, 0.618f, character.transform.position.z - 2.5f);
 
-                yield return character.mcamera.GetComponent<MainCamera>().LerpMove(targetPos, 0.5f);
+                yield return character.mcamera.GetComponent<MainCamera>().LerpMove(camTargetPos, 0.5f);
 
 
                 character.StartTurn();
 
 
-                yield return new WaitUntil(() => !character.turn);
+                yield return new WaitUntil(() => !character.spotLight);
 
                 // Make timer RED
 
@@ -138,13 +174,13 @@ public class Turn_Controller : MonoBehaviour
 
                 // Reset Camera
 
-                targetPos = new Vector3(0, 0.618f, -2.5f);
+                camTargetPos = new Vector3(0, 0.618f, -2.5f);
 
-                yield return character.mcamera.GetComponent<MainCamera>().LerpMove(targetPos, 0.5f);
+                yield return character.mcamera.GetComponent<MainCamera>().LerpMove(camTargetPos, 0.5f);
 
                 // Continue TurnTimers
 
-                foreach (Combat_Character c in allPlayers)
+                foreach (Combat_Character c in all_Players)
                 {
                     c.ToggleTurnTime();
                 }

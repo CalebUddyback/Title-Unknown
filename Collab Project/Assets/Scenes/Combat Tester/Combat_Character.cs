@@ -12,7 +12,7 @@ public abstract class Combat_Character : MonoBehaviour
 
     private Combat_Character enemy => enemyTransform.GetComponent<Combat_Character>();
 
-    public Combat_Menu_Controller Menu;
+    public SubMenu_Controller SubMenuController;
 
     public AnimationController animationController;
 
@@ -50,6 +50,8 @@ public abstract class Combat_Character : MonoBehaviour
         public Info[] info;
         public Coroutine coroutine;
 
+        public IEnumerator exe;
+
         public Attack(string name, string methodName)
         {
             this.name = name;
@@ -66,9 +68,9 @@ public abstract class Combat_Character : MonoBehaviour
             }
         }
 
-        public void Execute(MonoBehaviour owner, int[] requirments)
+        public void Execute(MonoBehaviour owner)
         {
-            coroutine = owner.StartCoroutine(methodName, requirments);
+            coroutine = owner.StartCoroutine(methodName);
         }
 
         public int Critical { get; private set;}
@@ -112,24 +114,33 @@ public abstract class Combat_Character : MonoBehaviour
 
             print(outcome);
         }
+
     }
 
     public List<Attack> attackList;
 
+    public List<string> GetAttackNames()
+    {
+        List<string> list = new List<string>();
+
+        foreach(Attack attack in attackList)
+        {
+            list.Add(attack.name);
+        }
+
+        return list;
+    }
+
     public Attack attack;
 
-    int[] attack_Requirments;
-
-    public int attackCharge = 0;
-
-    public List<Transform> targets = new List<Transform>();
+    //public List<Transform> targets = new List<Transform>();
 
     public int Facing { get; set; } = 1;
 
 
     [Header("Turn Controller")]
 
-    public bool turn = false;
+    public bool spotLight = false;
 
     public float actual_Progess;
 
@@ -144,12 +155,17 @@ public abstract class Combat_Character : MonoBehaviour
 
     public float focusSpeed = 1f;
 
-
+    public int subMenuStage = 0;
 
 
     public void StartFocus()
     { 
         StartCoroutine(Focusing());
+    }
+
+    public void StartCharging(float t)
+    {
+        StartCoroutine(Charging(t));
     }
 
     public bool TurnTime { get; private set; } = true;
@@ -197,9 +213,9 @@ public abstract class Combat_Character : MonoBehaviour
     IEnumerator Charging(float chargeTime)
     {
 
-        Menu.ResetMenus();
+        SubMenuController.ResetMenus();
 
-        turn = false;
+        spotLight = false;
 
         //timer.color = Color.red;
 
@@ -237,14 +253,36 @@ public abstract class Combat_Character : MonoBehaviour
 
     public void StartTurn()
     {
-        turn = true;
+        spotLight = true;
 
-        if (!cpu)
-            Menu.gameObject.SetActive(true);
-        else
+        if (cpu)
             CpuDecisionMaking();
+        else
+            SubMenuController.gameObject.SetActive(true);
 
-        //timer.color = Color.white;
+    }
+
+    public IEnumerator SubMenuOutput(string subMenu, List<string> buttonLabels)
+    {
+        switch (subMenuStage)
+        {
+            case 0:
+
+                SubMenuController.OpenSubMenu(subMenu, buttonLabels);
+
+                subMenuStage = 1;
+
+                goto case 1;
+
+            case 1:
+
+                yield return SubMenuController.CurrentCD.coroutine;
+
+                if (SubMenuController.currentSubMenu.ButtonChoice > -1)
+                    subMenuStage = 0;
+
+                break;
+        }
     }
 
     public void EndTurn()
@@ -270,7 +308,7 @@ public abstract class Combat_Character : MonoBehaviour
             targPos -= camForward * distanceInFrontOfCamera;
         }
 
-        Menu.gameObject.transform.position = RectTransformUtility.WorldToScreenPoint(mcamera, targPos);
+        SubMenuController.gameObject.transform.position = RectTransformUtility.WorldToScreenPoint(mcamera, targPos);
     }
 
     public virtual void CpuDecisionMaking()
@@ -285,54 +323,41 @@ public abstract class Combat_Character : MonoBehaviour
         {
             r = Random.Range(0, atk.maxCharges);
 
-            AttackChoice(attackList[i], new int[] { r });
+            AttackChoice(attackList[i]);
         }
         else
             AttackChoice(attackList[i]);
 
     }
 
-    public string AttackName(int index)
-    {
-        return attackList[index].name;
-    }
-
     public void AttackChoice(Attack atk)
     {
-        AttackChoice(atk, new int[0]);
-    }
-
-    public void AttackChoice(Attack atk, int[] requirments)
-    {
         attack = atk;
-        attack_Requirments = requirments;
-
-        StartCoroutine(Charging(attack.chargeTime));
     }
 
     public IEnumerator StartAttack()
     {
         //Menu.ResetMenus();
 
-        Attack main = attack;     //This allows for combos to change attackchoice without breaking this coroutine
+        //Attack attack = this.attack;     //This allows for combos to change attackchoice without breaking this coroutine
 
         //yield return Charging(attack.chargeTime);
 
-        main.Execute(this, attack_Requirments);
+        //attack.Execute(this);
 
-        yield return main.coroutine;
+        //yield return attack.coroutine;
+
+        yield return attack.exe;
 
         yield return new WaitForSeconds(0.3f);
 
         Coroutine charReset = StartCoroutine(ResetPos());
 
-        Coroutine enemyRest = StartCoroutine(enemy.ResetPos());
+        Coroutine enemyReset = StartCoroutine(enemy.ResetPos());
 
         yield return charReset;
 
-        StartCoroutine(Focusing());
-
-        yield return enemyRest;
+        yield return enemyReset;
     }
 
     public IEnumerator MoveInRange(Vector3 range)

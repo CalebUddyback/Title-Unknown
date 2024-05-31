@@ -3,12 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class Combat_Targets : Combat_Menu
+public class Combat_Targets : SubMenu
 {
-    public GameObject buttonPrefab;
-    public Transform buttonContainer;
-
-
     private void Awake()
     {
         if (transform.root.GetComponent<Combat_Character>().Facing == 1)
@@ -28,27 +24,25 @@ public class Combat_Targets : Combat_Menu
 
         Combat_Character character = transform.root.GetComponent<Combat_Character>();
 
-        character.targets.Add(character.TurnController.right_Players[ButtonChoice].transform);
+        //character.targets.Add(character.TurnController.right_Players[ButtonChoice].transform);
 
-        if (dependant_Variable > 0)
-        {
-            for (int i = 0; i < dependant_Variable; i++)
-            {
-                //Combat_Menu menu = new GameObject("Targets " + i, typeof(Combat_Menu), typeof(SubMenu)).GetComponent<Combat_Menu>();
-
-                Combat_Menu menu = Instantiate(gameObject, Controller.transform).GetComponent<Combat_Menu>();
-                menu.GetComponent<CanvasGroup>().interactable = true;
-                menu.transform.SetSiblingIndex(transform.GetSiblingIndex() + i + 1);
-                menu.gameObject.SetActive(false);
-                menu.GetComponent<Combat_Targets>().dependant_Variable = 0;
-                Controller.OpenSubmenu(menu);
-
-                yield return Controller.CurrentCD.coroutine;
-
-                character.targets.Add(character.TurnController.right_Players[ButtonChoice].transform);
-            }
-
-        }
+        //if (dependant_Variable > 0)
+        //{
+        //    for (int i = 0; i < dependant_Variable; i++)
+        //    {
+        //        SubMenu menu = Instantiate(gameObject, SubMenuController.transform).GetComponent<SubMenu>();
+        //        menu.GetComponent<CanvasGroup>().interactable = true;
+        //        menu.transform.SetSiblingIndex(transform.GetSiblingIndex() + i + 1);
+        //        menu.gameObject.SetActive(false);
+        //        menu.GetComponent<Combat_Targets>().dependant_Variable = 0;
+        //        SubMenuController.OpenSubMenu(menu);
+        //
+        //        yield return SubMenuController.CurrentCD.coroutine;
+        //
+        //        //character.targets.Add(character.TurnController.right_Players[ButtonChoice].transform);
+        //    }
+        //
+        //}
 
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -28,7 +29,9 @@ public class Sakura : Combat_Character
                     new Attack.Info(5),
                     new Attack.Info(7),
                     new Attack.Info(10)
-                }
+                },
+
+
             },
 
             new Attack("Jump Kick", nameof(Jump_Kick))
@@ -69,66 +72,109 @@ public class Sakura : Combat_Character
         };
     }
 
-    IEnumerator Combo1()
+    private void Start()
+    {
+       
+    }
+
+    IEnumerator Combo()
     {
         bool done = false;
 
+        int charge = 0;
+
+        List<Transform> targets = new List<Transform>();
+
+        int i = 0;
+        int t = 0;
+
+
         while (!done)
         {
-            int i = 0;
-
 
             switch (i)
             {
                 case 0:
-                    Combat_Menu reqMenu = Menu.OpenSubmenu("Charges");
 
-                    yield return Menu.CurrentCD.coroutine;
+                    yield return SubMenuOutput("Charges", Enumerable.Range(1, attack.maxCharges).Select(n=>n.ToString()).ToList());
 
-                    int charges = reqMenu.ButtonChoice;
-
-                    if (reqMenu.ButtonChoice > -1)
+                    if (SubMenuController.currentSubMenu.ButtonChoice > -1)
                     {
                         i++;
-                        continue;
+
+                        charge = SubMenuController.currentSubMenu.ButtonChoice;
                     }
                     else
-                        break;
+                    {
+                        subMenuStage = 0;
+                        attack = null;
+                        yield break;
+                    }
+
+
+                    break;
 
                 case 1:
 
-                    List<Transform> targets = new List<Transform>();
+                    if (t > 0)
+                        t--;
 
-                    // for each charge
+                    while (-1 < t && t <= charge)
+                    {
+                        yield return SubMenuOutput("Targets", TurnController.GetPlayerNames(Facing));
 
+                        if (SubMenuController.currentSubMenu.ButtonChoice > -1)
+                        {
+                            if (Facing == 1)
+                                targets.Add(TurnController.right_Players[SubMenuController.currentSubMenu.ButtonChoice].transform);
+                            else
+                                targets.Add(TurnController.right_Players[SubMenuController.currentSubMenu.ButtonChoice].transform);
 
-                    reqMenu = Menu.OpenSubmenu("Targets");
+                            t++;
+                        }
+                        else
+                        {
+                            t--;
+                        }
+                    }
 
-                    if (Facing == 1)
-                        targets.Add(TurnController.right_Players[reqMenu.ButtonChoice].transform);
+                    if (t > 0)
+                    {
+                        i++;
+                    }
                     else
-                        targets.Add(TurnController.right_Players[reqMenu.ButtonChoice].transform);
+                    {
+                        i--;
+                        t = 0;
+                    }
 
-                    continue;
+                    break;
 
                 case 2:
 
-                    Combat_Menu confirmMenu = Menu.OpenSubmenu("Confirm");
+                    yield return SubMenuOutput("Confirm", new List<string>() {"Confirm"});
 
-                    yield return Menu.CurrentCD.coroutine;
+                    if (SubMenuController.currentSubMenu.ButtonChoice > -1)
+                    {
+                        done = true;
+                    }
+                    else
+                    {
+                        i--;
+                    }
 
-                    continue;
+                    break;
             }
 
         }
 
-        transform.root.GetComponent<Combat_Character>().AttackChoice(attack);
+
+        attack.exe = Combo(charge, targets);
     }
 
-    IEnumerator Combo(int[] input)
-    {
-        int charge = input[0];
 
+    IEnumerator Combo(int charge, List<Transform> targets)
+    {
         enemyTransform = targets[0];
 
         attack.GetOutcome();
@@ -189,6 +235,84 @@ public class Sakura : Combat_Character
     }
 
     IEnumerator Jump_Kick()
+    {
+        bool done = false;
+
+        int charge = 0;
+
+        List<Transform> targets = new List<Transform>();
+
+        int i = 0;
+
+        while (!done)
+        {
+
+            switch (i)
+            {
+                case 0:
+
+                    SubMenu reqMenu = SubMenuController.CreateSubMenu("Charges");
+
+                    reqMenu.AddButtons(new List<string>() { "1", "2", "3" });
+
+                    yield return SubMenuController.CurrentCD.coroutine;
+
+                    charge = reqMenu.ButtonChoice;
+
+                    if (reqMenu.ButtonChoice > -1)
+                        i++;
+
+                    break;
+
+                case 1:
+
+                    // for each charge
+
+
+                    reqMenu = SubMenuController.CreateSubMenu("Targets");
+
+                    reqMenu.AddButtons(TurnController.GetPlayerNames(Facing));
+
+                    yield return SubMenuController.CurrentCD.coroutine;
+
+                    if (reqMenu.ButtonChoice > -1)
+                    {
+                        if (Facing == 1)
+                            targets.Add(TurnController.right_Players[reqMenu.ButtonChoice].transform);
+                        else
+                            targets.Add(TurnController.right_Players[reqMenu.ButtonChoice].transform);
+
+
+                        i++;
+                    }
+                    else
+                    {
+                        i--;
+                    }
+
+                    break;
+
+                case 2:
+
+                    SubMenu confirmMenu = SubMenuController.OpenSubMenu("Confirm");
+
+                    yield return SubMenuController.CurrentCD.coroutine;
+
+                    if (confirmMenu.ButtonChoice > -1)
+                        done = true;
+                    else
+                        i--;
+
+                    break;
+            }
+
+        }
+
+
+        attack.exe = Jump_Kick(charge, targets);
+    }
+
+    IEnumerator Jump_Kick(int charge, List<Transform> targets)
     {
         attack.GetOutcome();
 
