@@ -18,7 +18,7 @@ public class SubMenu_Actions : SubMenu
         switch (ButtonChoice)
         {
             case 0:
-                SubMenu subMenu =  SubMenuController.OpenSubMenu("Attacks", transform.root.GetComponent<Combat_Character>().GetAttackNames());
+                yield return SubMenuController.OpenSubMenu("Attacks", transform.root.GetComponent<Combat_Character>().GetAttackNames());
                 break;
 
             default:

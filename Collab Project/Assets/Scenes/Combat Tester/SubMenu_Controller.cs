@@ -6,12 +6,14 @@ public class SubMenu_Controller : MonoBehaviour
 {
     public List<SubMenu> menuStack = new List<SubMenu>();
 
-    [HideInInspector]
-    public SubMenu currentSubMenu;
+
+    public SubMenu CurrentSubMenu {get; private set;}
 
     public CoroutineWithData CurrentCD { get; private set; }
 
     public GameObject subMenuPrefab;
+
+    public int subMenuStage = 0;
 
     public Transform pages;
 
@@ -42,7 +44,7 @@ public class SubMenu_Controller : MonoBehaviour
 
         AdjustPagesAlpha();
 
-        currentSubMenu = newSubMenu;
+        CurrentSubMenu = newSubMenu;
 
         CurrentCD = new CoroutineWithData(this, newSubMenu.WaitForChoice());
 
@@ -51,12 +53,17 @@ public class SubMenu_Controller : MonoBehaviour
 
     /* Use to add to menu stack and change alpha */
 
-    public SubMenu OpenSubMenu(SubMenu nextSubMenu)
+    public SubMenu OpenSubMenu(string nextSubMenuName)
     {
         //nextSubMenu.transform.SetSiblingIndex(menuStack.Count);
 
-        if(currentSubMenu != null)
-            currentSubMenu.gameObject.SetActive(false);
+        if (transform.Find(nextSubMenuName) == null)
+            return null;
+
+        SubMenu nextSubMenu = transform.Find(nextSubMenuName).GetComponent<SubMenu>();
+
+        if (CurrentSubMenu != null)
+            CurrentSubMenu.gameObject.SetActive(false);
 
         nextSubMenu.GetComponent<CanvasGroup>().interactable = true;
         nextSubMenu.gameObject.SetActive(true);
@@ -65,34 +72,32 @@ public class SubMenu_Controller : MonoBehaviour
 
         AdjustPagesAlpha();
 
-        currentSubMenu = nextSubMenu;
+        CurrentSubMenu = nextSubMenu;
 
         CurrentCD = new CoroutineWithData(this, nextSubMenu.WaitForChoice());
 
         return nextSubMenu;
     }
 
-    public SubMenu OpenSubMenu(Transform nextSubmenu)
-    {
-        return OpenSubMenu(nextSubmenu.GetComponent<SubMenu>());
-    }
-
-    public SubMenu OpenSubMenu(string nextSubmenu)
-    {
-        if (transform.Find(nextSubmenu) == null)
-            return null;
-
-        return OpenSubMenu(transform.Find(nextSubmenu).GetComponent<SubMenu>());
-    }
-
-    public SubMenu OpenSubMenu(SubMenu nextSubMenu, List<string> buttonLabels)
+    public IEnumerator OpenSubMenu(string nextSubMenuName, List<string> buttonLabels)
     {
         //nextSubMenu.transform.SetSiblingIndex(menuStack.Count);
 
-        if (currentSubMenu != null)
-            currentSubMenu.gameObject.SetActive(false);
+        if (transform.Find(nextSubMenuName) == null)
+        {
+            print("Menu Name Does Not Exist");
+            yield break;
+        }
+
+        SubMenu nextSubMenu = transform.Find(nextSubMenuName).GetComponent<SubMenu>();
+
+        if (CurrentSubMenu != null)
+            CurrentSubMenu.gameObject.SetActive(false);
 
         nextSubMenu.AddButtons(buttonLabels);
+
+        yield return null;
+
         nextSubMenu.GetComponent<CanvasGroup>().interactable = true;
         nextSubMenu.gameObject.SetActive(true);
 
@@ -100,36 +105,49 @@ public class SubMenu_Controller : MonoBehaviour
 
         AdjustPagesAlpha();
 
-        currentSubMenu = nextSubMenu;
+        CurrentSubMenu = nextSubMenu;
 
         CurrentCD = new CoroutineWithData(this, nextSubMenu.WaitForChoice());
-
-        return nextSubMenu;
     }
 
-    public SubMenu OpenSubMenu(string nextSubmenu, List<string> buttonLabels)
+    public IEnumerator SubMenuStages(string subMenu, List<string> buttonLabels)
     {
-        if (transform.Find(nextSubmenu) == null)
-            return null;
+        switch (subMenuStage)
+        {
+            case 0:
 
-        return OpenSubMenu(transform.Find(nextSubmenu).GetComponent<SubMenu>(), buttonLabels);
+                yield return OpenSubMenu(subMenu, buttonLabels);
+
+                subMenuStage = 1;
+
+                goto case 1;
+
+            case 1:
+
+                yield return CurrentCD.coroutine;
+
+                if (CurrentSubMenu.ButtonChoice > -1)
+                    subMenuStage = 0;
+
+                break;
+        }
     }
 
     public void CloseSubMenu()
     {
         CurrentCD.Stop();
 
-        currentSubMenu.gameObject.SetActive(false);
+        CurrentSubMenu.gameObject.SetActive(false);
         menuStack.RemoveAt(menuStack.Count - 1);
 
 
-        currentSubMenu = menuStack[menuStack.Count - 1];
-        currentSubMenu.GetComponent<CanvasGroup>().interactable = true;
-        currentSubMenu.gameObject.SetActive(true);
+        CurrentSubMenu = menuStack[menuStack.Count - 1];
+        CurrentSubMenu.GetComponent<CanvasGroup>().interactable = true;
+        CurrentSubMenu.gameObject.SetActive(true);
 
         AdjustPagesAlpha();
 
-        CurrentCD = new CoroutineWithData(this, currentSubMenu.WaitForChoice());
+        CurrentCD = new CoroutineWithData(this, CurrentSubMenu.WaitForChoice());
 
     }
 

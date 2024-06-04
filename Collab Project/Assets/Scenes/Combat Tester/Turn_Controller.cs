@@ -117,21 +117,25 @@ public class Turn_Controller : MonoBehaviour
         {
             if (actionQueue.Count > 0)
             {
-                Combat_Character character = actionQueue.Dequeue();
 
                 foreach (Combat_Character c in all_Players)
                 {
                     c.ToggleTurnTime();
                 }
 
-                yield return character.StartAttack();
 
-                character.StartFocus();
+                while (actionQueue.Count > 0)
+                {
+                    Combat_Character character = actionQueue.Dequeue();
 
+                    yield return character.StartAttack();
 
-                // Make timer BLUE
+                    // Make timer BLUE
 
-                character.Hud.timer.color = Color.blue;
+                    character.Hud.timer.color = Color.blue;
+
+                    character.StartFocus();
+                }
 
                 foreach (Combat_Character c in all_Players)
                 {
@@ -149,34 +153,38 @@ public class Turn_Controller : MonoBehaviour
                     c.ToggleTurnTime();
                 }
 
-                Combat_Character character = turnQueue.Dequeue();
+                while(turnQueue.Count > 0)
+                {
+
+                    Combat_Character character = turnQueue.Dequeue();
 
 
-                // Make timer WHITE
+                    // Make timer WHITE
 
-                character.Hud.timer.color = Color.white;
+                    character.Hud.timer.color = Color.white;
 
-                // Move Camera 
+                    // Move Camera 
 
-                Vector3 camTargetPos = new Vector3(0, 0.618f, character.transform.position.z - 2.5f);
+                    Vector3 camTargetPos = new Vector3(0, 0.618f, character.transform.position.z - 2.5f);
 
-                yield return character.mcamera.GetComponent<MainCamera>().LerpMove(camTargetPos, 0.5f);
-
-
-                character.StartTurn();
+                    yield return character.mcamera.GetComponent<MainCamera>().LerpMove(camTargetPos, 0.5f);
 
 
-                yield return new WaitUntil(() => !character.spotLight);
+                    character.StartTurn();
 
-                // Make timer RED
 
-                character.Hud.timer.color = Color.red;
+                    yield return new WaitUntil(() => !character.spotLight);
 
-                // Reset Camera
+                    // Make timer RED
 
-                camTargetPos = new Vector3(0, 0.618f, -2.5f);
+                    character.Hud.timer.color = Color.red;
 
-                yield return character.mcamera.GetComponent<MainCamera>().LerpMove(camTargetPos, 0.5f);
+                    // Reset Camera
+
+                    camTargetPos = new Vector3(0, 0.618f, -2.5f);
+
+                    yield return character.mcamera.GetComponent<MainCamera>().LerpMove(camTargetPos, 0.5f);
+                }
 
                 // Continue TurnTimers
 

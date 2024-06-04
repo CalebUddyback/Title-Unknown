@@ -96,17 +96,17 @@ public class Sakura : Combat_Character
             {
                 case 0:
 
-                    yield return SubMenuOutput("Charges", Enumerable.Range(1, attack.maxCharges).Select(n=>n.ToString()).ToList());
+                    yield return SubMenuController.SubMenuStages("Charges", Enumerable.Range(1, attack.maxCharges).Select(n=>n.ToString()).ToList());
 
-                    if (SubMenuController.currentSubMenu.ButtonChoice > -1)
+                    if (SubMenuController.CurrentSubMenu.ButtonChoice > -1)
                     {
                         i++;
 
-                        charge = SubMenuController.currentSubMenu.ButtonChoice;
+                        charge = SubMenuController.CurrentSubMenu.ButtonChoice;
                     }
                     else
                     {
-                        subMenuStage = 0;
+                        SubMenuController.subMenuStage = 0;
                         attack = null;
                         yield break;
                     }
@@ -121,14 +121,14 @@ public class Sakura : Combat_Character
 
                     while (-1 < t && t <= charge)
                     {
-                        yield return SubMenuOutput("Targets", TurnController.GetPlayerNames(Facing));
+                        yield return SubMenuController.SubMenuStages("Targets", TurnController.GetPlayerNames(Facing));
 
-                        if (SubMenuController.currentSubMenu.ButtonChoice > -1)
+                        if (SubMenuController.CurrentSubMenu.ButtonChoice > -1)
                         {
                             if (Facing == 1)
-                                targets.Add(TurnController.right_Players[SubMenuController.currentSubMenu.ButtonChoice].transform);
+                                targets.Add(TurnController.right_Players[SubMenuController.CurrentSubMenu.ButtonChoice].transform);
                             else
-                                targets.Add(TurnController.right_Players[SubMenuController.currentSubMenu.ButtonChoice].transform);
+                                targets.Add(TurnController.right_Players[SubMenuController.CurrentSubMenu.ButtonChoice].transform);
 
                             t++;
                         }
@@ -152,9 +152,9 @@ public class Sakura : Combat_Character
 
                 case 2:
 
-                    yield return SubMenuOutput("Confirm", new List<string>() {"Confirm"});
+                    yield return SubMenuController.SubMenuStages("Confirm", new List<string>() {"Confirm"});
 
-                    if (SubMenuController.currentSubMenu.ButtonChoice > -1)
+                    if (SubMenuController.CurrentSubMenu.ButtonChoice > -1)
                     {
                         done = true;
                     }
@@ -169,7 +169,7 @@ public class Sakura : Combat_Character
         }
 
 
-        attack.exe = Combo(charge, targets);
+        attack.Execute = Combo(charge, targets);
     }
 
 
@@ -309,7 +309,7 @@ public class Sakura : Combat_Character
         }
 
 
-        attack.exe = Jump_Kick(charge, targets);
+        attack.Execute = Jump_Kick(charge, targets);
     }
 
     IEnumerator Jump_Kick(int charge, List<Transform> targets)

@@ -15,7 +15,7 @@ public class SubMenu_Attacks : SubMenu
 
         combat_Character.AttackChoice(combat_Character.attackList[ButtonChoice]);
 
-        combat_Character.attack.Execute(combat_Character);
+        combat_Character.attack.SubMenus(combat_Character);
 
         yield return combat_Character.attack.coroutine;
 

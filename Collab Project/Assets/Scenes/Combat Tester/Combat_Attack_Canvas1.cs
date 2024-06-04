@@ -37,7 +37,7 @@ public class Combat_Attack_Canvas1 : SubMenu
 
             SubMenu reqMenu = transform.parent.Find(attack.requiredMenus[i].Menu).GetComponent<SubMenu>();
 
-            SubMenuController.OpenSubMenu(reqMenu);
+            //SubMenuController.OpenSubMenu(reqMenu);
 
             while (i < attack.requiredMenus.Length)
             {
@@ -66,7 +66,7 @@ public class Combat_Attack_Canvas1 : SubMenu
 
                     reqMenu = transform.parent.Find(attack.requiredMenus[i].Menu).GetComponent<SubMenu>();
 
-                    SubMenuController.OpenSubMenu(reqMenu);
+                    //SubMenuController.OpenSubMenu(reqMenu);
 
                     //if(attack.requiredMenus[i].DependantMenu != "")
                     //{
@@ -78,7 +78,7 @@ public class Combat_Attack_Canvas1 : SubMenu
 
         SubMenu confirmMenu = transform.parent.Find("Confirm").GetComponent<SubMenu>();
 
-        SubMenuController.OpenSubMenu(confirmMenu);
+        //SubMenuController.OpenSubMenu(confirmMenu);
 
         yield return SubMenuController.CurrentCD.coroutine;
 

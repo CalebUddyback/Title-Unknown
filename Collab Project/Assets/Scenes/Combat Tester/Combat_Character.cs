@@ -50,7 +50,7 @@ public abstract class Combat_Character : MonoBehaviour
         public Info[] info;
         public Coroutine coroutine;
 
-        public IEnumerator exe;
+        public IEnumerator Execute;
 
         public Attack(string name, string methodName)
         {
@@ -68,7 +68,7 @@ public abstract class Combat_Character : MonoBehaviour
             }
         }
 
-        public void Execute(MonoBehaviour owner)
+        public void SubMenus(MonoBehaviour owner)
         {
             coroutine = owner.StartCoroutine(methodName);
         }
@@ -154,9 +154,6 @@ public abstract class Combat_Character : MonoBehaviour
     //public string characterName = "No Name";
 
     public float focusSpeed = 1f;
-
-    public int subMenuStage = 0;
-
 
     public void StartFocus()
     { 
@@ -262,29 +259,6 @@ public abstract class Combat_Character : MonoBehaviour
 
     }
 
-    public IEnumerator SubMenuOutput(string subMenu, List<string> buttonLabels)
-    {
-        switch (subMenuStage)
-        {
-            case 0:
-
-                SubMenuController.OpenSubMenu(subMenu, buttonLabels);
-
-                subMenuStage = 1;
-
-                goto case 1;
-
-            case 1:
-
-                yield return SubMenuController.CurrentCD.coroutine;
-
-                if (SubMenuController.currentSubMenu.ButtonChoice > -1)
-                    subMenuStage = 0;
-
-                break;
-        }
-    }
-
     public void EndTurn()
     {
         
@@ -347,7 +321,7 @@ public abstract class Combat_Character : MonoBehaviour
 
         //yield return attack.coroutine;
 
-        yield return attack.exe;
+        yield return attack.Execute;
 
         yield return new WaitForSeconds(0.3f);
 
