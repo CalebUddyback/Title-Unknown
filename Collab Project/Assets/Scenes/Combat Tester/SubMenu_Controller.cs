@@ -19,6 +19,9 @@ public class SubMenu_Controller : MonoBehaviour
 
     public GameObject pagesPrefab;
 
+    [HideInInspector]
+    public Combat_Character owner => transform.parent.parent.GetComponent<Combat_Character>();
+
     private void OnEnable()
     {
         OpenSubMenu("Actions");
@@ -81,56 +84,39 @@ public class SubMenu_Controller : MonoBehaviour
 
     public IEnumerator OpenSubMenu(string nextSubMenuName, List<string> buttonLabels)
     {
-        //nextSubMenu.transform.SetSiblingIndex(menuStack.Count);
-
         if (transform.Find(nextSubMenuName) == null)
         {
             print("Menu Name Does Not Exist");
             yield break;
         }
 
-        SubMenu nextSubMenu = transform.Find(nextSubMenuName).GetComponent<SubMenu>();
-
-        if (CurrentSubMenu != null)
-            CurrentSubMenu.gameObject.SetActive(false);
-
-        nextSubMenu.AddButtons(buttonLabels);
-
-        yield return null;
-
-        nextSubMenu.GetComponent<CanvasGroup>().interactable = true;
-        nextSubMenu.gameObject.SetActive(true);
-
-        menuStack.Add(nextSubMenu);
-
-        AdjustPagesAlpha();
-
-        CurrentSubMenu = nextSubMenu;
-
-        CurrentCD = new CoroutineWithData(this, nextSubMenu.WaitForChoice());
-    }
-
-    public IEnumerator SubMenuStages(string subMenu, List<string> buttonLabels)
-    {
-        switch (subMenuStage)
+        if (subMenuStage == 0)
         {
-            case 0:
 
-                yield return OpenSubMenu(subMenu, buttonLabels);
+            SubMenu nextSubMenu = transform.Find(nextSubMenuName).GetComponent<SubMenu>();
 
-                subMenuStage = 1;
+            menuStack.Add(nextSubMenu);
 
-                goto case 1;
+            if (CurrentSubMenu != null)
+                CurrentSubMenu.gameObject.SetActive(false);
 
-            case 1:
+            nextSubMenu.AddButtons(buttonLabels);
 
-                yield return CurrentCD.coroutine;
 
-                if (CurrentSubMenu.ButtonChoice > -1)
-                    subMenuStage = 0;
+            yield return null;
 
-                break;
+            nextSubMenu.GetComponent<CanvasGroup>().interactable = true;
+            nextSubMenu.gameObject.SetActive(true);
+
+            AdjustPagesAlpha();
+
+            CurrentSubMenu = nextSubMenu;
+
+            CurrentCD = new CoroutineWithData(this, nextSubMenu.WaitForChoice());
+
         }
+
+        yield return CurrentCD.coroutine;
     }
 
     public void CloseSubMenu()
@@ -148,7 +134,6 @@ public class SubMenu_Controller : MonoBehaviour
         AdjustPagesAlpha();
 
         CurrentCD = new CoroutineWithData(this, CurrentSubMenu.WaitForChoice());
-
     }
 
     void AdjustPagesAlpha()

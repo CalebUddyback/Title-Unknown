@@ -25,6 +25,49 @@ public class Turn_Controller : MonoBehaviour
         StartCoroutine(InitializeCharacters());
     }
 
+    IEnumerator InitializeCharacters()
+    {
+        yield return null;
+
+        all_Players = new List<Combat_Character>(left_Players);
+        all_Players.AddRange(right_Players);
+
+        foreach (Combat_Character character in all_Players)
+        {
+            character.TurnController = this;
+
+            if(left_Players.Contains(character))
+                character.Hud = Instantiate(leftCharaterHudPrefab.GetComponent<Character_Hud>(), left_Huds.transform);
+            else
+                character.Hud = Instantiate(rightCharaterHudPrefab.GetComponent<Character_Hud>(), right_Huds.transform);
+
+            character.Hud.diplayName.text = character.gameObject.name;
+            character.Hud.TurnController = this;
+            character.StartFocus();
+        }
+
+
+        for (int i = 0; i < left_Players.Count; i++)
+        {
+            Combat_Character character = left_Players[i];
+
+             character.transform.position = character.startingPos = left_Positions.GetChild(i).position;
+
+        }
+
+        for (int i = 0; i < right_Players.Count; i++)
+        {
+            Combat_Character character = right_Players[i];
+
+            character.transform.position = character.startingPos = right_Positions.GetChild(i).position;
+            character.Facing = -1;
+
+        }
+
+
+        StartCoroutine(RotateTurns());
+    }
+
     public List<string> GetPlayerNames(int i)
     {
 
@@ -59,46 +102,16 @@ public class Turn_Controller : MonoBehaviour
         return names;
     }
 
-    IEnumerator InitializeCharacters()
+    public bool TurnTime { get; private set; } = true;
+
+    public void ToggleTurnTime()
     {
-        yield return null;
+        TurnTime = !TurnTime;
+    }
 
-        all_Players = new List<Combat_Character>(left_Players);
-        all_Players.AddRange(right_Players);
-
-        foreach (Combat_Character character in all_Players)
-        {
-            character.TurnController = this;
-
-            if(left_Players.Contains(character))
-                character.Hud = Instantiate(leftCharaterHudPrefab.GetComponent<Character_Hud>(), left_Huds.transform);
-            else
-                character.Hud = Instantiate(rightCharaterHudPrefab.GetComponent<Character_Hud>(), right_Huds.transform);
-
-            character.Hud.diplayName.text = character.gameObject.name;
-            character.StartFocus();
-        }
-
-
-        for (int i = 0; i < left_Players.Count; i++)
-        {
-            Combat_Character character = left_Players[i];
-
-             character.transform.position = character.startingPos = left_Positions.GetChild(i).position;
-
-        }
-
-        for (int i = 0; i < right_Players.Count; i++)
-        {
-            Combat_Character character = right_Players[i];
-
-            character.transform.position = character.startingPos = right_Positions.GetChild(i).position;
-            character.Facing = -1;
-
-        }
-
-
-        StartCoroutine(RotateTurns());
+    public void ToggleTurnTime(bool set)
+    {
+        TurnTime = set;
     }
 
     public void AddToTurnQueue(Combat_Character character)
@@ -118,29 +131,22 @@ public class Turn_Controller : MonoBehaviour
             if (actionQueue.Count > 0)
             {
 
-                foreach (Combat_Character c in all_Players)
-                {
-                    c.ToggleTurnTime();
-                }
+                ToggleTurnTime();
 
 
                 while (actionQueue.Count > 0)
                 {
                     Combat_Character character = actionQueue.Dequeue();
 
+                    character.Hud.SetTimerColor(Color.white);
+
                     yield return character.StartAttack();
-
-                    // Make timer BLUE
-
-                    character.Hud.timer.color = Color.blue;
 
                     character.StartFocus();
                 }
 
-                foreach (Combat_Character c in all_Players)
-                {
-                    c.ToggleTurnTime();
-                }
+                ToggleTurnTime();
+
             }
 
 
@@ -148,50 +154,41 @@ public class Turn_Controller : MonoBehaviour
             {
                 // Stop TurnTimers
 
-                foreach (Combat_Character c in all_Players)
-                {
-                    c.ToggleTurnTime();
-                }
+                ToggleTurnTime();
 
-                while(turnQueue.Count > 0)
+                while (turnQueue.Count > 0)
                 {
 
                     Combat_Character character = turnQueue.Dequeue();
 
-
-                    // Make timer WHITE
-
-                    character.Hud.timer.color = Color.white;
+                    character.Hud.SetTimerColor(Color.white);
 
                     // Move Camera 
 
-                    Vector3 camTargetPos = new Vector3(0, 0.618f, character.transform.position.z - 2.5f);
+                    Vector3 camTargetPos = new Vector3(0, 0.55f, character.transform.position.z - 2.5f);
 
                     yield return character.mcamera.GetComponent<MainCamera>().LerpMove(camTargetPos, 0.5f);
-
 
                     character.StartTurn();
 
 
-                    yield return new WaitUntil(() => !character.spotLight);
-
-                    // Make timer RED
-
-                    character.Hud.timer.color = Color.red;
+                    while (character.spotLight)
+                    {
+                        character.MenuPositioning();
+                        yield return null;
+                    }
 
                     // Reset Camera
 
-                    camTargetPos = new Vector3(0, 0.618f, -2.5f);
+                    camTargetPos = new Vector3(0, 0.55f, -2.5f);
 
                     yield return character.mcamera.GetComponent<MainCamera>().LerpMove(camTargetPos, 0.5f);
                 }
 
                 // Continue TurnTimers
 
-                foreach (Combat_Character c in all_Players)
-                {
-                    c.ToggleTurnTime();
-                }
+                ToggleTurnTime();
+
             }
 
             yield return null;

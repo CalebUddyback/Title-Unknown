@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public abstract class Combat_Character : MonoBehaviour
@@ -7,6 +8,8 @@ public abstract class Combat_Character : MonoBehaviour
     public bool cpu = false;
 
     public Vector3 startingPos;
+
+    public List<Transform> targets = new List<Transform>();
 
     public Transform enemyTransform;
 
@@ -25,7 +28,7 @@ public abstract class Combat_Character : MonoBehaviour
     {
         public string name;
         public string methodName;
-        public float chargeTime = 0.5f;
+        public float chargeTime = 1f;
         public int maxCharges = 0;
         public int numOfTargets = 0;
 
@@ -160,92 +163,15 @@ public abstract class Combat_Character : MonoBehaviour
         StartCoroutine(Focusing());
     }
 
-    public void StartCharging(float t)
-    {
-        StartCoroutine(Charging(t));
-    }
-
-    public bool TurnTime { get; private set; } = true;
-
-    public void ToggleTurnTime()
-    {
-        TurnTime = !TurnTime;
-    }
-
-    public void ToggleTurnTime(bool set)
-    {
-        TurnTime = set;
-    }
-
     IEnumerator Focusing()
     {
+        if (cpu)
+            yield break;
 
-        //timer.color = Color.blue;
 
-        Hud.timer.fillAmount = 0;
-
-        float requiredFocus = 3;
-
-        actual_Progess = requiredFocus;
-
-        while (0 <= actual_Progess)
-        {
-            yield return new WaitUntil(() => TurnTime);
-
-            actual_Progess -= Time.deltaTime * focusSpeed;
-
-            Hud.timer.fillAmount = (requiredFocus - actual_Progess) / requiredFocus;
-
-            yield return null;
-        }
-
-        Hud.timer.fillAmount = 1;
-
-        actual_Progess = 0;
+        yield return Hud.Timer(2, Color.blue);
 
         TurnController.AddToTurnQueue(this);
-
-    }
-
-    IEnumerator Charging(float chargeTime)
-    {
-
-        SubMenuController.ResetMenus();
-
-        spotLight = false;
-
-        //timer.color = Color.red;
-
-        Hud.timer.fillAmount = 0;
-
-        actual_Progess = chargeTime;
-
-        while (0 <= actual_Progess)
-        {
-            yield return new WaitUntil(() => TurnTime);
-
-            actual_Progess -= Time.deltaTime;
-
-            Hud.timer.fillAmount = (chargeTime - actual_Progess) / chargeTime;
-
-            yield return null;
-        }
-
-        Hud.timer.fillAmount = 1;
-
-        actual_Progess = chargeTime;
-
-        TurnController.AddToActionQueue(this);
-    }
-
-    private void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            actual_Progess -= 0.5f;
-        }
-
-        MenuPositioning();
     }
 
     public void StartTurn()
@@ -261,13 +187,34 @@ public abstract class Combat_Character : MonoBehaviour
 
     public void EndTurn()
     {
-        
+        SubMenuController.ResetMenus();
+
+        spotLight = false;
+
+        StartCoroutine(Charging(attack.chargeTime));
+    }
+
+    IEnumerator Charging(float chargeTime)
+    {
+        yield return Hud.Timer(chargeTime, Color.red);
+
+        TurnController.AddToActionQueue(this);
+    }
+
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            Hud.EffectProgress(0.5f);
+        }
+
+        //MenuPositioning();
     }
 
     public Transform uiPoint;
     public Camera mcamera;
 
-    void MenuPositioning()
+    public void MenuPositioning()
     {
         Vector3 targPos = uiPoint.position;
 
@@ -327,11 +274,17 @@ public abstract class Combat_Character : MonoBehaviour
 
         Coroutine charReset = StartCoroutine(ResetPos());
 
-        Coroutine enemyReset = StartCoroutine(enemy.ResetPos());
+        List<Coroutine> targetResets = new List<Coroutine>();
+
+        foreach (Transform target in targets.Distinct())
+            targetResets.Add(StartCoroutine(target.GetComponent<Combat_Character>().ResetPos()));
 
         yield return charReset;
 
-        yield return enemyReset;
+        foreach (Coroutine target in targetResets)
+            yield return target;
+
+        targets.Clear();
     }
 
     public IEnumerator MoveInRange(Vector3 range)
@@ -423,84 +376,6 @@ public abstract class Combat_Character : MonoBehaviour
         transform.position = targetPos;
     }
 
-    public IEnumerator ResetPos()
-    {
-        Vector3 currentPos = transform.position;
-
-        float timer = 0;
-        float maxTime = 0.3f;
-
-        while (timer < maxTime)
-        {
-            float xLerp = Mathf.Lerp(currentPos.x, startingPos.x, timer / maxTime);
-
-            //float yLerp = Mathf.Lerp(currentPos.y, startingPos.y, timer / maxTime);
-
-            float zLerp = Mathf.Lerp(currentPos.z, startingPos.z, timer / maxTime);
-
-            transform.position = new Vector3(xLerp, transform.position.y, zLerp);
-
-            timer += Time.deltaTime;
-
-            yield return null;
-        }
-
-        transform.position = startingPos;
-
-        EndTurn();
-    }
-
-    public IEnumerator WaitForKeyFrame()
-    {
-        yield return new WaitUntil(() => animationController.eventFrame == true);
-
-        animationController.eventFrame = false;
-    }
-
-    public IEnumerator ApplyOutcome(Attack.Info info)
-    {
-        switch (attack.Success)
-        {
-            case 0:
-                yield return StartCoroutine(enemyTransform.GetComponent<Combat_Character>().Dodge());
-                break;
-
-            case 0.5f:
-                StartCoroutine(enemy.Block());
-                Instantiate(outcome_Bubble_Prefab, enemy.outcome_Bubble_Pos.position, Quaternion.identity).text.text = (info.damage/2).ToString();
-                yield return Impact();
-                break;
-
-            case 1:
-                StartCoroutine(enemy.Damage());
-                Instantiate(outcome_Bubble_Prefab, enemy.outcome_Bubble_Pos.position, Quaternion.identity).text.text = info.damage.ToString();
-                yield return Impact();
-                break;
-        }
-    }
-
-
-
-    public IEnumerator Impact()
-    {
-        animationController.Pause();
-
-        enemy.animationController.Pause();
-
-        yield return new WaitForSeconds(0.2f); // contact pause
-
-        animationController.Play();
-
-        enemy.animationController.Play();
-    }
-
-
-    public abstract IEnumerator Damage();
-
-    public abstract IEnumerator Block();
-
-    public abstract IEnumerator Dodge();
-
     public IEnumerator ProjectileArch(Transform instance, Vector3 range, float maxTime)
     {
         /* This Method Works for Flying enemies */
@@ -540,5 +415,82 @@ public abstract class Combat_Character : MonoBehaviour
             return Quaternion.Euler(0, 0, Mathf.Atan2(forward.y, forward.x) * Mathf.Rad2Deg);
         }
     }
+
+
+    public IEnumerator ResetPos()
+    {
+        Vector3 currentPos = transform.position;
+
+        float timer = 0;
+        float maxTime = 0.3f;
+
+        while (timer < maxTime)
+        {
+            float xLerp = Mathf.Lerp(currentPos.x, startingPos.x, timer / maxTime);
+
+            //float yLerp = Mathf.Lerp(currentPos.y, startingPos.y, timer / maxTime);
+
+            float zLerp = Mathf.Lerp(currentPos.z, startingPos.z, timer / maxTime);
+
+            transform.position = new Vector3(xLerp, transform.position.y, zLerp);
+
+            timer += Time.deltaTime;
+
+            yield return null;
+        }
+
+        transform.position = startingPos;
+    }
+
+
+    public IEnumerator WaitForKeyFrame()
+    {
+        yield return new WaitUntil(() => animationController.eventFrame == true);
+
+        animationController.eventFrame = false;
+    }
+
+    public IEnumerator Impact()
+    {
+        animationController.Pause();
+
+        enemy.animationController.Pause();
+
+        yield return new WaitForSeconds(0.2f); // contact pause
+
+        animationController.Play();
+
+        enemy.animationController.Play();
+    }
+
+    public IEnumerator ApplyOutcome(Attack.Info info)
+    {
+        switch (attack.Success)
+        {
+            case 0:
+                Instantiate(outcome_Bubble_Prefab, enemy.outcome_Bubble_Pos.position, Quaternion.identity).text.text = "DODGE";
+                yield return StartCoroutine(enemyTransform.GetComponent<Combat_Character>().Dodge());
+                break;
+
+            case 0.5f:
+                StartCoroutine(enemy.Block());
+                Instantiate(outcome_Bubble_Prefab, enemy.outcome_Bubble_Pos.position, Quaternion.identity).text.text = (info.damage/2).ToString();
+                yield return Impact();
+                break;
+
+            case 1:
+                StartCoroutine(enemy.Damage());
+                Instantiate(outcome_Bubble_Prefab, enemy.outcome_Bubble_Pos.position, Quaternion.identity).text.text = info.damage.ToString();
+                yield return Impact();
+                break;
+        }
+    }
+
+
+    public abstract IEnumerator Damage();
+
+    public abstract IEnumerator Block();
+
+    public abstract IEnumerator Dodge();
 
 }

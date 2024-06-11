@@ -16,7 +16,6 @@ public class Sakura : Combat_Character
             {
                 chargeTime = 1f,
                 maxCharges = 3,
-                numOfTargets = 3,
 
                 requiredMenus = new Attack.RequiredMenu[]
                 {
@@ -36,8 +35,7 @@ public class Sakura : Combat_Character
 
             new Attack("Jump Kick", nameof(Jump_Kick))
             {
-
-
+                chargeTime = 1f,
 
                 info = new Attack.Info[]
                 {
@@ -83,20 +81,17 @@ public class Sakura : Combat_Character
 
         int charge = 0;
 
-        List<Transform> targets = new List<Transform>();
-
         int i = 0;
-        int t = 0;
-
 
         while (!done)
         {
 
             switch (i)
             {
+
                 case 0:
 
-                    yield return SubMenuController.SubMenuStages("Charges", Enumerable.Range(1, attack.maxCharges).Select(n=>n.ToString()).ToList());
+                    yield return SubMenuController.OpenSubMenu("Charges", Enumerable.Range(1, attack.maxCharges).Select(n => n.ToString()).ToList());
 
                     if (SubMenuController.CurrentSubMenu.ButtonChoice > -1)
                     {
@@ -106,8 +101,8 @@ public class Sakura : Combat_Character
                     }
                     else
                     {
-                        SubMenuController.subMenuStage = 0;
                         attack = null;
+
                         yield break;
                     }
 
@@ -116,43 +111,48 @@ public class Sakura : Combat_Character
 
                 case 1:
 
-                    if (t > 0)
-                        t--;
+                    if (targets.Count > 0)
+                        targets.RemoveAt(targets.Count - 1);
 
-                    while (-1 < t && t <= charge)
+                    while (true)
                     {
-                        yield return SubMenuController.SubMenuStages("Targets", TurnController.GetPlayerNames(Facing));
+                        yield return SubMenuController.OpenSubMenu("Targets", TurnController.GetPlayerNames(Facing));
 
                         if (SubMenuController.CurrentSubMenu.ButtonChoice > -1)
                         {
+
                             if (Facing == 1)
                                 targets.Add(TurnController.right_Players[SubMenuController.CurrentSubMenu.ButtonChoice].transform);
                             else
                                 targets.Add(TurnController.right_Players[SubMenuController.CurrentSubMenu.ButtonChoice].transform);
 
-                            t++;
+                            if (targets.Count > charge)
+                            {
+                                i++;
+                                break;
+                            }
+
                         }
                         else
                         {
-                            t--;
+                            if (targets.Count <= 0)
+                            {
+                                i--;
+                                break;
+                            }
+                            else
+                            {
+                                targets.RemoveAt(targets.Count - 1);
+                            }
                         }
                     }
 
-                    if (t > 0)
-                    {
-                        i++;
-                    }
-                    else
-                    {
-                        i--;
-                        t = 0;
-                    }
 
                     break;
 
                 case 2:
 
-                    yield return SubMenuController.SubMenuStages("Confirm", new List<string>() {"Confirm"});
+                    yield return SubMenuController.OpenSubMenu("Confirm", new List<string>() { "Confirm" });
 
                     if (SubMenuController.CurrentSubMenu.ButtonChoice > -1)
                     {
@@ -169,11 +169,10 @@ public class Sakura : Combat_Character
         }
 
 
-        attack.Execute = Combo(charge, targets);
+        attack.Execute = Combo_Action(charge);
     }
 
-
-    IEnumerator Combo(int charge, List<Transform> targets)
+    IEnumerator Combo_Action(int charge)
     {
         enemyTransform = targets[0];
 
@@ -234,15 +233,13 @@ public class Sakura : Combat_Character
         yield return outcome;
     }
 
+
     IEnumerator Jump_Kick()
     {
         bool done = false;
 
-        int charge = 0;
-
-        List<Transform> targets = new List<Transform>();
-
         int i = 0;
+
 
         while (!done)
         {
@@ -251,57 +248,41 @@ public class Sakura : Combat_Character
             {
                 case 0:
 
-                    SubMenu reqMenu = SubMenuController.CreateSubMenu("Charges");
+                    if (targets.Count > 0)
+                        targets.RemoveAt(targets.Count - 1);
 
-                    reqMenu.AddButtons(new List<string>() { "1", "2", "3" });
+  
+                    yield return SubMenuController.OpenSubMenu("Targets", TurnController.GetPlayerNames(Facing));
 
-                    yield return SubMenuController.CurrentCD.coroutine;
+                    if (SubMenuController.CurrentSubMenu.ButtonChoice > -1)
+                    {
+                        if (Facing == 1)
+                            targets.Add(TurnController.right_Players[SubMenuController.CurrentSubMenu.ButtonChoice].transform);
+                        else
+                            targets.Add(TurnController.right_Players[SubMenuController.CurrentSubMenu.ButtonChoice].transform);
 
-                    charge = reqMenu.ButtonChoice;
-
-                    if (reqMenu.ButtonChoice > -1)
                         i++;
+                    }
+                    else
+                    {
+                        attack = null;
+                        yield break;
+                    }
 
                     break;
 
                 case 1:
 
-                    // for each charge
+                    yield return SubMenuController.OpenSubMenu("Confirm", new List<string>() { "Confirm" });
 
-
-                    reqMenu = SubMenuController.CreateSubMenu("Targets");
-
-                    reqMenu.AddButtons(TurnController.GetPlayerNames(Facing));
-
-                    yield return SubMenuController.CurrentCD.coroutine;
-
-                    if (reqMenu.ButtonChoice > -1)
+                    if (SubMenuController.CurrentSubMenu.ButtonChoice > -1)
                     {
-                        if (Facing == 1)
-                            targets.Add(TurnController.right_Players[reqMenu.ButtonChoice].transform);
-                        else
-                            targets.Add(TurnController.right_Players[reqMenu.ButtonChoice].transform);
-
-
-                        i++;
-                    }
-                    else
-                    {
-                        i--;
-                    }
-
-                    break;
-
-                case 2:
-
-                    SubMenu confirmMenu = SubMenuController.OpenSubMenu("Confirm");
-
-                    yield return SubMenuController.CurrentCD.coroutine;
-
-                    if (confirmMenu.ButtonChoice > -1)
                         done = true;
+                    }
                     else
+                    {
                         i--;
+                    }
 
                     break;
             }
@@ -309,11 +290,13 @@ public class Sakura : Combat_Character
         }
 
 
-        attack.Execute = Jump_Kick(charge, targets);
+        attack.Execute = Jump_Kick_Action();
     }
 
-    IEnumerator Jump_Kick(int charge, List<Transform> targets)
+    IEnumerator Jump_Kick_Action()
     {
+        enemyTransform = targets[0];
+
         attack.GetOutcome();
 
         yield return MoveInRange(new Vector3(-1f, 0, 0));
@@ -356,8 +339,70 @@ public class Sakura : Combat_Character
         yield return outcome;
     }
 
+
     IEnumerator Throw_Kunai()
     {
+        bool done = false;
+
+        int i = 0;
+
+
+        while (!done)
+        {
+
+            switch (i)
+            {
+                case 0:
+
+                    if (targets.Count > 0)
+                        targets.RemoveAt(targets.Count - 1);
+
+
+                    yield return SubMenuController.OpenSubMenu("Targets", TurnController.GetPlayerNames(Facing));
+
+                    if (SubMenuController.CurrentSubMenu.ButtonChoice > -1)
+                    {
+                        if (Facing == 1)
+                            targets.Add(TurnController.right_Players[SubMenuController.CurrentSubMenu.ButtonChoice].transform);
+                        else
+                            targets.Add(TurnController.right_Players[SubMenuController.CurrentSubMenu.ButtonChoice].transform);
+
+                        i++;
+                    }
+                    else
+                    {
+                        attack = null;
+                        yield break;
+                    }
+
+                    break;
+
+                case 1:
+
+                    yield return SubMenuController.OpenSubMenu("Confirm", new List<string>() { "Confirm" });
+
+                    if (SubMenuController.CurrentSubMenu.ButtonChoice > -1)
+                    {
+                        done = true;
+                    }
+                    else
+                    {
+                        i--;
+                    }
+
+                    break;
+            }
+
+        }
+
+
+        attack.Execute = Throw_Kunai_Action();
+    }
+
+    IEnumerator Throw_Kunai_Action()
+    {
+        enemyTransform = targets[0];
+
         attack.GetOutcome();
 
         yield return MoveInRange(new Vector3(-1.75f, 0, 0));
@@ -374,9 +419,9 @@ public class Sakura : Combat_Character
 
 
         if(Facing == 1)
-            yield return new WaitWhile(() => kunai.transform.position.x <= enemyTransform.position.x);
+            yield return new WaitWhile(() => kunai.transform.position.x <= targets[0].position.x);
         else
-            yield return new WaitWhile(() => kunai.transform.position.x >= enemyTransform.position.x);
+            yield return new WaitWhile(() => kunai.transform.position.x >= targets[0].position.x);
 
         if (attack.Success != 0)
         {
@@ -398,6 +443,67 @@ public class Sakura : Combat_Character
 
     IEnumerator Multi_Hit()
     {
+        bool done = false;
+
+        int i = 0;
+
+
+        while (!done)
+        {
+
+            switch (i)
+            {
+                case 0:
+
+                    if (targets.Count > 0)
+                        targets.RemoveAt(targets.Count - 1);
+
+
+                    yield return SubMenuController.OpenSubMenu("Targets", TurnController.GetPlayerNames(Facing));
+
+                    if (SubMenuController.CurrentSubMenu.ButtonChoice > -1)
+                    {
+                        if (Facing == 1)
+                            targets.Add(TurnController.right_Players[SubMenuController.CurrentSubMenu.ButtonChoice].transform);
+                        else
+                            targets.Add(TurnController.right_Players[SubMenuController.CurrentSubMenu.ButtonChoice].transform);
+
+                        i++;
+                    }
+                    else
+                    {
+                        attack = null;
+                        yield break;
+                    }
+
+                    break;
+
+                case 1:
+
+                    yield return SubMenuController.OpenSubMenu("Confirm", new List<string>() { "Confirm" });
+
+                    if (SubMenuController.CurrentSubMenu.ButtonChoice > -1)
+                    {
+                        done = true;
+                    }
+                    else
+                    {
+                        i--;
+                    }
+
+                    break;
+            }
+
+        }
+
+
+        attack.Execute = Multi_Hit_Action();
+    }
+
+    IEnumerator Multi_Hit_Action()
+    {
+
+        enemyTransform = targets[0];
         attack.GetOutcome();
 
         yield return MoveInRange(new Vector3(-0.35f, 0, 0));

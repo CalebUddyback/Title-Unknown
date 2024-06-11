@@ -63,15 +63,17 @@ public class SubMenu : MonoBehaviour
 
         yield return new WaitForSeconds(0.1f);
 
-        if (ButtonChoice == -1)
-        {
+        if (ButtonChoice > -1)
+            SubMenuController.subMenuStage = 0;
+        else if (ButtonChoice == -1)
             Return();
-        }
     }
 
     public void Return()
     {
         ButtonChoice = -1;
+
+        SubMenuController.subMenuStage = 1;
 
         SubMenuController.CloseSubMenu();
     }

@@ -11,7 +11,7 @@ public class SubMenu_Attacks : SubMenu
 
         yield return null;      // Give menu time to close if -1
 
-        Combat_Character combat_Character = transform.root.GetComponent<Combat_Character>();
+        Combat_Character combat_Character = SubMenuController.owner;
 
         combat_Character.AttackChoice(combat_Character.attackList[ButtonChoice]);
 
@@ -20,6 +20,6 @@ public class SubMenu_Attacks : SubMenu
         yield return combat_Character.attack.coroutine;
 
         if(combat_Character.attack != null)
-            combat_Character.StartCharging(combat_Character.attack.chargeTime);
+            combat_Character.EndTurn();
     }
 }
