@@ -24,7 +24,7 @@ public class SubMenu_Controller : MonoBehaviour
 
     private void OnEnable()
     {
-        OpenSubMenu("Actions");
+        //OpenSubMenu("Actions");
     }
 
     public bool CheckForSubMenu(string name)
@@ -87,6 +87,7 @@ public class SubMenu_Controller : MonoBehaviour
         if (transform.Find(nextSubMenuName) == null)
         {
             print("Menu Name Does Not Exist");
+            Debug.Break();
             yield break;
         }
 
@@ -171,7 +172,7 @@ public class SubMenu_Controller : MonoBehaviour
         }
 
         menuStack.Clear();
-        gameObject.SetActive(false);
+        //gameObject.SetActive(false);
 
     }
 }

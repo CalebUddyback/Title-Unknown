@@ -17,6 +17,8 @@ public class Character_Hud : MonoBehaviour
     [SerializeField]
     private Text numbers;
 
+    public Transform skills;
+
     float actual_Progress = 0;
 
     public void SetTimerColor(Color color)
@@ -32,7 +34,8 @@ public class Character_Hud : MonoBehaviour
 
         actual_Progress = reqTime;
 
-        numbers.text = Mathf.FloorToInt(actual_Progress).ToString();
+        //numbers.text = Mathf.FloorToInt(actual_Progress).ToString();
+        numbers.text = actual_Progress.ToString("F1");
 
         while (0 <= actual_Progress)
         {
@@ -40,7 +43,8 @@ public class Character_Hud : MonoBehaviour
 
             actual_Progress -= Time.deltaTime;
 
-            numbers.text = Mathf.CeilToInt(actual_Progress).ToString();
+            //numbers.text = Mathf.CeilToInt(actual_Progress).ToString();
+            numbers.text = actual_Progress.ToString("F1");
 
             radialFill.fillAmount = (reqTime - actual_Progress) / reqTime;
         }
@@ -55,5 +59,17 @@ public class Character_Hud : MonoBehaviour
     public void EffectProgress(float amount)
     {
         actual_Progress += amount;
+    }
+
+    public void SkillSlot(int slot, Sprite image)
+    {
+        skills.GetChild(slot).GetChild(0).GetComponent<Image>().sprite = image;
+    }
+
+    public Sprite emptySlot;
+
+    public void ClearSkillSlot(int slot)
+    {
+        skills.GetChild(slot).GetChild(0).GetComponent<Image>().sprite = emptySlot;
     }
 }

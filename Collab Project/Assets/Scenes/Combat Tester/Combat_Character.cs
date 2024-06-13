@@ -2,14 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.UI;
 
 public abstract class Combat_Character : MonoBehaviour
 {
     public bool cpu = false;
 
     public Vector3 startingPos;
-
-    public List<Transform> targets = new List<Transform>();
 
     public Transform enemyTransform;
 
@@ -23,103 +22,104 @@ public abstract class Combat_Character : MonoBehaviour
 
     public Transform outcome_Bubble_Pos;
 
-
-    public class Attack
+    [System.Serializable]
+    public class Attack         //This will have to be seperated and serialized for imagaes to used
     {
+
         public string name;
-        public string methodName;
+        string methodName;
+        public enum Stage { Attack, Defense };
+        public Stage stage;
+        public enum Type {Physical, Magic};
+        public Sprite image;
         public float chargeTime = 1f;
         public int maxCharges = 0;
-        public int numOfTargets = 0;
 
-        public class RequiredMenu
+        [HideInInspector]
+        public List<Transform> targets = new List<Transform>();
+
+        [System.Serializable]
+        public class Info
         {
-            public string Menu { get; private set; } = "";
-            public string DependantMenu { get; private set; } = "";
+            public int damage;
 
-            public RequiredMenu(string menu, string dependantMenu)
+            public Type type;
+
+            public Info(int damage)
             {
-                Menu = menu;
-                DependantMenu = dependantMenu;
+                this.damage = damage;
+                this.type = Type.Physical;
             }
 
-            public RequiredMenu(string menu)
+            public Info(int damage, Type type)
             {
-                Menu = menu;
+                this.damage = damage;
+                this.type = type;
             }
         }
 
-        public RequiredMenu[] requiredMenus;
         public Info[] info;
-        public Coroutine coroutine;
-
-        public IEnumerator Execute;
-
+    
         public Attack(string name, string methodName)
         {
             this.name = name;
             this.methodName = methodName;
         }
+   
 
-        public class Info
+        public IEnumerator SubMenus(MonoBehaviour owner)
         {
-            public int damage;
-
-            public Info(int damage)
-            {
-                this.damage = damage;
-            }
+            yield return owner.StartCoroutine(methodName);
         }
 
-        public void SubMenus(MonoBehaviour owner)
-        {
-            coroutine = owner.StartCoroutine(methodName);
-        }
+        public IEnumerator Action;
+
+        public string RectionName;
 
         public int Critical { get; private set;}
         public float Success { get; private set;}
-
+    
         public void GetOutcome()
-        {
-
-            Success = 0;
-
-            Critical = Random.Range(0, 10) > 4 ? 2 : 1;
-
-            for (int i = 0; i < 2; i++)
-            {
-                float roll = Random.Range(0f, 10f) > 5 ? Success += 0.5f : Success;
-            }
-
-            //Success = 0;
-
-            string outcome = "";
-
-            if (Critical == 2)
-                outcome += "CRITICAL ";
-
-            switch (Success)
-            {
-                case 0:
-                    outcome += "Miss";
-                    break;
-                case 0.5f:
-                    outcome += "Block";
-                    break;
-                case 1:
-                    outcome += "Hit";
-                    break;
-                default:
-                    print("ERROR: " + Success);
-                    break;
-                        
-            }
-
-            print(outcome);
-        }
-
+       {
+           Success = 0;
+    
+           Critical = Random.Range(0, 10) > 4 ? 2 : 1;
+    
+           for (int i = 0; i < 2; i++)
+           {
+               float roll = Random.Range(0f, 10f) > 5 ? Success += 0.5f : Success;
+           }
+    
+           //Success = 0;
+    
+           string outcome = "";
+    
+           if (Critical == 2)
+               outcome += "CRITICAL ";
+    
+           switch (Success)
+           {
+               case 0:
+                   outcome += "Miss";
+                   break;
+               case 0.5f:
+                   outcome += "Block";
+                   break;
+               case 1:
+                   outcome += "Hit";
+                   break;
+               default:
+                   print("ERROR: " + Success);
+                   break;
+                       
+           }
+    
+           print(outcome);
+       }
+    
     }
 
+    [HideInInspector]
     public List<Attack> attackList;
 
     public List<string> GetAttackNames()
@@ -134,7 +134,7 @@ public abstract class Combat_Character : MonoBehaviour
         return list;
     }
 
-    public Attack attack;
+    public Attack chosenAttack;
 
     //public List<Transform> targets = new List<Transform>();
 
@@ -165,11 +165,11 @@ public abstract class Combat_Character : MonoBehaviour
 
     IEnumerator Focusing()
     {
-        if (cpu)
-            yield break;
+        //if (cpu)
+        //    yield break;
 
 
-        yield return Hud.Timer(2, Color.blue);
+        yield return Hud.Timer(focusSpeed, Color.blue);
 
         TurnController.AddToTurnQueue(this);
     }
@@ -179,9 +179,10 @@ public abstract class Combat_Character : MonoBehaviour
         spotLight = true;
 
         if (cpu)
-            CpuDecisionMaking();
+            StartCoroutine(CpuDecisionMaking());
         else
-            SubMenuController.gameObject.SetActive(true);
+            SubMenuController.OpenSubMenu("Actions");
+        //SubMenuController.gameObject.SetActive(true);
 
     }
 
@@ -191,7 +192,7 @@ public abstract class Combat_Character : MonoBehaviour
 
         spotLight = false;
 
-        StartCoroutine(Charging(attack.chargeTime));
+        StartCoroutine(Charging(chosenAttack.chargeTime));
     }
 
     IEnumerator Charging(float chargeTime)
@@ -232,43 +233,16 @@ public abstract class Combat_Character : MonoBehaviour
         SubMenuController.gameObject.transform.position = RectTransformUtility.WorldToScreenPoint(mcamera, targPos);
     }
 
-    public virtual void CpuDecisionMaking()
+    public abstract IEnumerator CpuDecisionMaking();
+
+    public void AttackChoice(Attack attack)
     {
-        int i = Random.Range(0, attackList.Count);
-
-        int r;
-
-        Attack atk = attackList[i];
-
-        if (atk.requiredMenus != null)
-        {
-            r = Random.Range(0, atk.maxCharges);
-
-            AttackChoice(attackList[i]);
-        }
-        else
-            AttackChoice(attackList[i]);
-
-    }
-
-    public void AttackChoice(Attack atk)
-    {
-        attack = atk;
+        chosenAttack = attack;
     }
 
     public IEnumerator StartAttack()
     {
-        //Menu.ResetMenus();
-
-        //Attack attack = this.attack;     //This allows for combos to change attackchoice without breaking this coroutine
-
-        //yield return Charging(attack.chargeTime);
-
-        //attack.Execute(this);
-
-        //yield return attack.coroutine;
-
-        yield return attack.Execute;
+        yield return chosenAttack.Action;
 
         yield return new WaitForSeconds(0.3f);
 
@@ -276,7 +250,7 @@ public abstract class Combat_Character : MonoBehaviour
 
         List<Coroutine> targetResets = new List<Coroutine>();
 
-        foreach (Transform target in targets.Distinct())
+        foreach (Transform target in chosenAttack.targets.Distinct())
             targetResets.Add(StartCoroutine(target.GetComponent<Combat_Character>().ResetPos()));
 
         yield return charReset;
@@ -284,7 +258,7 @@ public abstract class Combat_Character : MonoBehaviour
         foreach (Coroutine target in targetResets)
             yield return target;
 
-        targets.Clear();
+        chosenAttack.targets.Clear();
     }
 
     public IEnumerator MoveInRange(Vector3 range)
@@ -463,9 +437,18 @@ public abstract class Combat_Character : MonoBehaviour
         enemy.animationController.Play();
     }
 
+    public List<Attack> setSkills = new List<Attack>();
+
     public IEnumerator ApplyOutcome(Attack.Info info)
     {
-        switch (attack.Success)
+
+        CoroutineWithData cd = new CoroutineWithData(this, Events(info));
+        yield return cd.coroutine;
+
+        if ((bool)cd.result)
+            yield break;
+
+        switch (chosenAttack.Success)
         {
             case 0:
                 Instantiate(outcome_Bubble_Prefab, enemy.outcome_Bubble_Pos.position, Quaternion.identity).text.text = "DODGE";
@@ -483,6 +466,45 @@ public abstract class Combat_Character : MonoBehaviour
                 Instantiate(outcome_Bubble_Prefab, enemy.outcome_Bubble_Pos.position, Quaternion.identity).text.text = info.damage.ToString();
                 yield return Impact();
                 break;
+        }
+    }
+
+    public IEnumerator Events(Attack.Info myAttackInfo)
+    {
+        List<string> labels = new List<string>();
+
+        foreach (Attack enemyskill in enemy.setSkills)
+        {
+            if (enemyskill.info[0].type == myAttackInfo.type)
+            {
+                labels.Add(enemyskill.name);
+            }
+        }
+
+        if (labels.Count > 0)
+        {
+            animationController.Pause();
+
+            enemy.animationController.Pause();
+
+            yield return enemy.SubMenuController.OpenSubMenu("Prompts", labels);
+
+            if (enemy.SubMenuController.CurrentSubMenu.ButtonChoice > -1)
+            {
+                enemy.StartCoroutine(enemy.setSkills[enemy.SubMenuController.CurrentSubMenu.ButtonChoice].RectionName);
+                enemy.setSkills.RemoveAt(enemy.SubMenuController.CurrentSubMenu.ButtonChoice);
+                enemy.Hud.ClearSkillSlot(enemy.SubMenuController.CurrentSubMenu.ButtonChoice);
+                enemy.SubMenuController.ResetMenus();
+
+                animationController.Play();
+                enemy.animationController.Play();
+
+                yield return true;
+            }
+        }
+        else
+        {
+            yield return false;
         }
     }
 

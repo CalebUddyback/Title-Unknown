@@ -7,6 +7,8 @@ public class SubMenu_Attacks : SubMenu
 {
     public override IEnumerator WaitForChoice()
     {
+        GetComponent<ScrollRect>().verticalScrollbar.value = 1;
+
         yield return base.WaitForChoice();
 
         yield return null;      // Give menu time to close if -1
@@ -15,11 +17,9 @@ public class SubMenu_Attacks : SubMenu
 
         combat_Character.AttackChoice(combat_Character.attackList[ButtonChoice]);
 
-        combat_Character.attack.SubMenus(combat_Character);
+        yield return combat_Character.chosenAttack.SubMenus(combat_Character);
 
-        yield return combat_Character.attack.coroutine;
-
-        if(combat_Character.attack != null)
+        if(combat_Character.chosenAttack != null)
             combat_Character.EndTurn();
     }
 }
