@@ -12,7 +12,7 @@ public abstract class Combat_Character : MonoBehaviour
 
     public Transform enemyTransform;
 
-    private Combat_Character enemy => enemyTransform.GetComponent<Combat_Character>();
+    public Combat_Character enemy => enemyTransform.GetComponent<Combat_Character>();
 
     public SubMenu_Controller SubMenuController;
 
@@ -23,14 +23,14 @@ public abstract class Combat_Character : MonoBehaviour
     public Transform outcome_Bubble_Pos;
 
     [System.Serializable]
-    public class Attack         //This will have to be seperated and serialized for imagaes to used
+    public abstract class Skill
     {
+        [HideInInspector]
+        public Combat_Character character;
 
         public string name;
-        string methodName;
-        public enum Stage { Attack, Defense };
-        public Stage stage;
-        public enum Type {Physical, Magic};
+        public enum Type { Physical, Magic };
+        public enum Range { Close, Far };
         public Sprite image;
         public float chargeTime = 1f;
         public int maxCharges = 0;
@@ -42,91 +42,83 @@ public abstract class Combat_Character : MonoBehaviour
         public class Info
         {
             public int damage;
+            public float critical;
+            public float success;
 
+            public Range range;
             public Type type;
 
-            public Info(int damage)
-            {
-                this.damage = damage;
-                this.type = Type.Physical;
-            }
-
-            public Info(int damage, Type type)
+            public Info(int damage, Type type, Range range)
             {
                 this.damage = damage;
                 this.type = type;
+                this.range = range;
+            }
+
+            public Info(Info info)
+            {
+                this.damage = info.damage;
+                this.type = info.type;
+                this.range = info.range;
             }
         }
 
-        public Info[] info;
-    
-        public Attack(string name, string methodName)
-        {
-            this.name = name;
-            this.methodName = methodName;
-        }
-   
+        public Info[] baseInfo = new Info[] { }, currentInfo = new Info[] { };
 
-        public IEnumerator SubMenus(MonoBehaviour owner)
+        public void SetCurrentInfo()
         {
-            yield return owner.StartCoroutine(methodName);
+            currentInfo = new Info[baseInfo.Length];
+
+            for (int i = 0; i < baseInfo.Length; i++)
+            {
+                currentInfo[i] = new Info(baseInfo[i]);
+            }
         }
 
-        public IEnumerator Action;
+        public abstract IEnumerator SubMenus(MonoBehaviour owner);
 
-        public string RectionName;
+        public IEnumerator Execute;
 
-        public int Critical { get; private set;}
-        public float Success { get; private set;}
-    
+        //public int Critical { get; set; }
+        //public float Success { get; set; }
+
         public void GetOutcome()
-       {
-           Success = 0;
-    
-           Critical = Random.Range(0, 10) > 4 ? 2 : 1;
-    
-           for (int i = 0; i < 2; i++)
-           {
-               float roll = Random.Range(0f, 10f) > 5 ? Success += 0.5f : Success;
-           }
-    
-           //Success = 0;
-    
-           string outcome = "";
-    
-           if (Critical == 2)
-               outcome += "CRITICAL ";
-    
-           switch (Success)
-           {
-               case 0:
-                   outcome += "Miss";
-                   break;
-               case 0.5f:
-                   outcome += "Block";
-                   break;
-               case 1:
-                   outcome += "Hit";
-                   break;
-               default:
-                   print("ERROR: " + Success);
-                   break;
-                       
-           }
-    
-           print(outcome);
-       }
-    
+        {
+            foreach (Info info in currentInfo)
+            {
+                info.critical = Random.Range(0, 10) > 4 ? 2 : 1;
+
+                info.success = 0;
+
+                for (int i = 0; i < 2; i++)
+                {
+                    float roll = Random.Range(0f, 10f) > 5 ? info.success += 0.5f : info.success;
+                }
+
+                //Debug
+
+                //Success = 1;
+            }
+        }
     }
 
-    [HideInInspector]
-    public List<Attack> attackList;
+    public abstract class Spell : Skill
+    {
+        public Turn_Controller.Stage stage;
+
+        public abstract bool Condition(Turn_Controller.Stage stage, Info info);
+
+        public abstract IEnumerator Action2();
+    }
+
+
+    public List<Skill> attackList;
 
     public List<string> GetAttackNames()
     {
         List<string> list = new List<string>();
 
-        foreach(Attack attack in attackList)
+        foreach(Skill attack in attackList)
         {
             list.Add(attack.name);
         }
@@ -134,7 +126,15 @@ public abstract class Combat_Character : MonoBehaviour
         return list;
     }
 
-    public Attack chosenAttack;
+    public Skill chosenAttack;
+
+    //[System.Serializable]
+    //public abstract class Skill
+    //{
+    //
+    //}
+
+    public Spell[] setSpells = new Spell[3];
 
     //public List<Transform> targets = new List<Transform>();
 
@@ -182,7 +182,6 @@ public abstract class Combat_Character : MonoBehaviour
             StartCoroutine(CpuDecisionMaking());
         else
             SubMenuController.OpenSubMenu("Actions");
-        //SubMenuController.gameObject.SetActive(true);
 
     }
 
@@ -235,16 +234,30 @@ public abstract class Combat_Character : MonoBehaviour
 
     public abstract IEnumerator CpuDecisionMaking();
 
-    public void AttackChoice(Attack attack)
+    public void AttackChoice(Skill attack)
     {
         chosenAttack = attack;
     }
 
     public IEnumerator StartAttack()
     {
-        yield return chosenAttack.Action;
+        // RESET SKILL
+
+        chosenAttack.SetCurrentInfo();
+
+        yield return chosenAttack.Execute;
 
         yield return new WaitForSeconds(0.3f);
+
+        // Reset Camera
+
+        mcamera.GetComponent<MainCamera>().BlackOut(0f, 0.5f);
+
+       Coroutine cam =  StartCoroutine(mcamera.GetComponent<MainCamera>().Reset(0.2f));
+
+
+        //  Reset Involved Characters
+
 
         Coroutine charReset = StartCoroutine(ResetPos());
 
@@ -257,6 +270,8 @@ public abstract class Combat_Character : MonoBehaviour
 
         foreach (Coroutine target in targetResets)
             yield return target;
+
+        yield return cam;
 
         chosenAttack.targets.Clear();
     }
@@ -430,81 +445,33 @@ public abstract class Combat_Character : MonoBehaviour
 
         enemy.animationController.Pause();
 
-        yield return new WaitForSeconds(0.2f); // contact pause
+        yield return new WaitForSeconds(0.25f); // contact pause
 
         animationController.Play();
 
         enemy.animationController.Play();
     }
 
-    public List<Attack> setSkills = new List<Attack>();
-
-    public IEnumerator ApplyOutcome(Attack.Info info)
+    public IEnumerator ApplyOutcome(Skill.Info info)
     {
-
-        CoroutineWithData cd = new CoroutineWithData(this, Events(info));
-        yield return cd.coroutine;
-
-        if ((bool)cd.result)
-            yield break;
-
-        switch (chosenAttack.Success)
+        switch (info.success)
         {
             case 0:
-                Instantiate(outcome_Bubble_Prefab, enemy.outcome_Bubble_Pos.position, Quaternion.identity).text.text = "DODGE";
+                Instantiate(outcome_Bubble_Prefab, enemy.outcome_Bubble_Pos.position, Quaternion.identity).Input("DODGE");
                 yield return StartCoroutine(enemyTransform.GetComponent<Combat_Character>().Dodge());
                 break;
 
             case 0.5f:
                 StartCoroutine(enemy.Block());
-                Instantiate(outcome_Bubble_Prefab, enemy.outcome_Bubble_Pos.position, Quaternion.identity).text.text = (info.damage/2).ToString();
+                Instantiate(outcome_Bubble_Prefab, enemy.outcome_Bubble_Pos.position, Quaternion.identity).Input(info.damage/2, "BLOCK");
                 yield return Impact();
                 break;
 
             case 1:
                 StartCoroutine(enemy.Damage());
-                Instantiate(outcome_Bubble_Prefab, enemy.outcome_Bubble_Pos.position, Quaternion.identity).text.text = info.damage.ToString();
+                Instantiate(outcome_Bubble_Prefab, enemy.outcome_Bubble_Pos.position, Quaternion.identity).Input(info.damage);
                 yield return Impact();
                 break;
-        }
-    }
-
-    public IEnumerator Events(Attack.Info myAttackInfo)
-    {
-        List<string> labels = new List<string>();
-
-        foreach (Attack enemyskill in enemy.setSkills)
-        {
-            if (enemyskill.info[0].type == myAttackInfo.type)
-            {
-                labels.Add(enemyskill.name);
-            }
-        }
-
-        if (labels.Count > 0)
-        {
-            animationController.Pause();
-
-            enemy.animationController.Pause();
-
-            yield return enemy.SubMenuController.OpenSubMenu("Prompts", labels);
-
-            if (enemy.SubMenuController.CurrentSubMenu.ButtonChoice > -1)
-            {
-                enemy.StartCoroutine(enemy.setSkills[enemy.SubMenuController.CurrentSubMenu.ButtonChoice].RectionName);
-                enemy.setSkills.RemoveAt(enemy.SubMenuController.CurrentSubMenu.ButtonChoice);
-                enemy.Hud.ClearSkillSlot(enemy.SubMenuController.CurrentSubMenu.ButtonChoice);
-                enemy.SubMenuController.ResetMenus();
-
-                animationController.Play();
-                enemy.animationController.Play();
-
-                yield return true;
-            }
-        }
-        else
-        {
-            yield return false;
         }
     }
 

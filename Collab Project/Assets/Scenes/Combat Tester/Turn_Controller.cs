@@ -20,6 +20,10 @@ public class Turn_Controller : MonoBehaviour
 
     private Queue<Combat_Character> actionQueue = new Queue<Combat_Character>();
 
+    public enum Stage { TURN_START, TURN_END, ACTION_START, IMPACT, ACTION_END}
+
+    public Combat_Character characterTurn;
+
     private void Start()
     {
         StartCoroutine(InitializeCharacters());
@@ -28,6 +32,17 @@ public class Turn_Controller : MonoBehaviour
     IEnumerator InitializeCharacters()
     {
         yield return null;
+
+        left_Players.Clear();
+
+        right_Players.Clear();
+
+        foreach (Transform player in GameObject.Find("Left Players").transform)
+            left_Players.Add(player.GetComponent<Combat_Character>());
+
+        foreach (Transform player in GameObject.Find("Right Players").transform)
+            right_Players.Add(player.GetComponent<Combat_Character>());
+
 
         all_Players = new List<Combat_Character>(left_Players);
         all_Players.AddRange(right_Players);
@@ -136,13 +151,13 @@ public class Turn_Controller : MonoBehaviour
 
                 while (actionQueue.Count > 0)
                 {
-                    Combat_Character character = actionQueue.Dequeue();
+                    characterTurn = actionQueue.Dequeue();
 
-                    character.Hud.SetTimerColor(Color.white);
+                    characterTurn.Hud.SetTimerColor(Color.white);
 
-                    yield return character.StartAttack();
+                    yield return characterTurn.StartAttack();
 
-                    character.StartFocus();
+                    characterTurn.StartFocus();
                 }
 
                 ToggleTurnTime();
@@ -159,30 +174,31 @@ public class Turn_Controller : MonoBehaviour
                 while (turnQueue.Count > 0)
                 {
 
-                    Combat_Character character = turnQueue.Dequeue();
+                    characterTurn = turnQueue.Dequeue();
 
-                    character.Hud.SetTimerColor(Color.white);
+                    characterTurn.Hud.SetTimerColor(Color.white);
+
+                    CoroutineWithData cd = new CoroutineWithData(this, Reactions(Stage.TURN_START, null));
+                    yield return cd.coroutine;
 
                     // Move Camera 
 
-                    Vector3 camTargetPos = new Vector3(0, 0.55f, character.transform.position.z - 2.5f);
+                    Vector3 camTargetPos = new Vector3(0, 0.55f, characterTurn.transform.position.z - 2.5f);
 
-                    yield return character.mcamera.GetComponent<MainCamera>().LerpMove(camTargetPos, 0.5f);
+                    yield return characterTurn.mcamera.GetComponent<MainCamera>().LerpMoveIE(camTargetPos, 0.5f);
 
-                    character.StartTurn();
+                    characterTurn.StartTurn();
 
 
-                    while (character.spotLight)
+                    while (characterTurn.spotLight)
                     {
-                        character.MenuPositioning();
+                        characterTurn.MenuPositioning();
                         yield return null;
                     }
 
                     // Reset Camera
 
-                    camTargetPos = new Vector3(0, 0.55f, -2.5f);
-
-                    yield return character.mcamera.GetComponent<MainCamera>().LerpMove(camTargetPos, 0.5f);
+                    yield return characterTurn.mcamera.GetComponent<MainCamera>().Reset(0f);
                 }
 
                 // Continue TurnTimers
@@ -192,6 +208,67 @@ public class Turn_Controller : MonoBehaviour
             }
 
             yield return null;
+        }
+    }
+
+    /// <summary>
+    /// This Method should be called by Turn Character's stages. 
+    /// This Method should alow one reaction from the opposing team, then the Turn Character's Team (including Turn player). And continue ping-ponging
+    /// When its time to React to a Reaction, all stored reactions should be taken into concideration untill no reaction can/will be made
+    /// Reactions should then be Resolved backwards untill the root action (if not negated).
+    /// </summary>
+    /// <param name="stage"></param>
+    /// <param name="info"></param>
+    /// <returns></returns>
+
+    public IEnumerator Reactions(Stage stage, Combat_Character.Skill.Info info)
+    {
+        foreach (Combat_Character character in all_Players)
+        {
+            List<string> labels = new List<string>();
+
+            for (int i = 0; i < character.setSpells.Length; i++)
+            {
+                if (character.setSpells[i] == null || character.setSpells[i].Condition(stage, info) == false)
+                    continue;
+                else
+                    labels.Add(character.setSpells[i].name);
+            }
+
+            if (labels.Count == 0)
+            {
+                print("No Reactions");
+                yield return 0;
+                break;
+            }
+            else
+            {
+                foreach (Combat_Character c in all_Players)
+                    c.animationController.Pause();
+            }
+
+            character.MenuPositioning();
+
+            yield return character.SubMenuController.OpenSubMenu("Prompts", labels);
+
+            foreach (Combat_Character c in all_Players)
+                c.animationController.Play();
+
+            if (character.SubMenuController.CurrentSubMenu.ButtonChoice == -1)
+            {
+                continue;
+            }
+            else
+            {
+                character.SubMenuController.ResetMenus();
+
+                CoroutineWithData cd = new CoroutineWithData(this, character.setSpells[character.SubMenuController.CurrentSubMenu.ButtonChoice].Action2());
+                yield return cd.coroutine;
+
+                yield return (int)cd.result;
+                break;
+                //yield return character.setSpells[character.SubMenuController.CurrentSubMenu.ButtonChoice].Action2();
+            }
         }
     }
 }

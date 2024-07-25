@@ -127,14 +127,16 @@ public class SubMenu_Controller : MonoBehaviour
         CurrentSubMenu.gameObject.SetActive(false);
         menuStack.RemoveAt(menuStack.Count - 1);
 
+        if(menuStack.Count - 1 > 0)
+        {
+            CurrentSubMenu = menuStack[menuStack.Count - 1];
+            CurrentSubMenu.GetComponent<CanvasGroup>().interactable = true;
+            CurrentSubMenu.gameObject.SetActive(true);
 
-        CurrentSubMenu = menuStack[menuStack.Count - 1];
-        CurrentSubMenu.GetComponent<CanvasGroup>().interactable = true;
-        CurrentSubMenu.gameObject.SetActive(true);
+            AdjustPagesAlpha();
 
-        AdjustPagesAlpha();
-
-        CurrentCD = new CoroutineWithData(this, CurrentSubMenu.WaitForChoice());
+            CurrentCD = new CoroutineWithData(this, CurrentSubMenu.WaitForChoice());
+        }
     }
 
     void AdjustPagesAlpha()
