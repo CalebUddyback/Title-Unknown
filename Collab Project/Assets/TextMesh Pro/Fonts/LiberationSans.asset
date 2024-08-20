@@ -54,9 +54,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 71c1514a6bd24e1e882cebbe1904ce04, type: 3}
   m_Name: LiberationSans
   m_EditorClassIdentifier: 
-  hashCode: 0
+  hashCode: -493008702
   material: {fileID: 4272816947203099833}
-  materialHashCode: 0
+  materialHashCode: 669319842
   m_Version: 1.1.0
   m_SourceFontFileGUID: e3265ab4bf004d28a9537516768c1c75
   m_SourceFontFile_EditorRef: {fileID: 12800000, guid: e3265ab4bf004d28a9537516768c1c75,
@@ -2553,7 +2553,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: LiberationSans Material
-  m_Shader: {fileID: 4800000, guid: 128e987d567d4e2c824d754223b3f3b0, type: 3}
+  m_Shader: {fileID: 4800000, guid: 48bb5f55d8670e349b6e614913f9d910, type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
@@ -2569,7 +2569,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MainTex:
-        m_Texture: {fileID: -3586860274172495045}
+        m_Texture: {fileID: 2800000, guid: f62af9fd0906195438a63c2ae9563d1b, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Floats:
@@ -2577,6 +2577,7 @@ Material:
     - _CullMode: 0
     - _MaskSoftnessX: 0
     - _MaskSoftnessY: 0
+    - _Padding: 5
     - _Stencil: 0
     - _StencilComp: 8
     - _StencilOp: 0

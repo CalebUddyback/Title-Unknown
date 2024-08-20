@@ -29,11 +29,16 @@ public abstract class Combat_Character : MonoBehaviour
         public Combat_Character character;
 
         public string name;
+        public bool effect = false;
+        public string description = "";
         public enum Type { Physical, Magic };
         public enum Range { Close, Far };
-        public Sprite image;
-        public float chargeTime = 1f;
+        public int levels = 0;
+        public bool charging;
         public int maxCharges = 0;
+        public int currentCharges = 0;
+        public float[] chargeTimes;
+        public float focusPenalty = 0;
 
         [HideInInspector]
         public List<Transform> targets = new List<Transform>();
@@ -104,6 +109,8 @@ public abstract class Combat_Character : MonoBehaviour
 
     public abstract class Spell : Skill
     {
+        public Sprite image;
+
         public Turn_Controller.Stage stage;
 
         public abstract bool Condition(Turn_Controller.Stage stage, Info info);
@@ -113,18 +120,6 @@ public abstract class Combat_Character : MonoBehaviour
 
 
     public List<Skill> attackList;
-
-    public List<string> GetAttackNames()
-    {
-        List<string> list = new List<string>();
-
-        foreach(Skill attack in attackList)
-        {
-            list.Add(attack.name);
-        }
-
-        return list;
-    }
 
     public Skill chosenAttack;
 
@@ -156,7 +151,10 @@ public abstract class Combat_Character : MonoBehaviour
 
     //public string characterName = "No Name";
 
-    public float focusSpeed = 1f;
+    public int health;
+
+    [SerializeField]
+    private float focusSpeed = 1f;
 
     public void StartFocus()
     { 
@@ -165,11 +163,18 @@ public abstract class Combat_Character : MonoBehaviour
 
     IEnumerator Focusing()
     {
-        //if (cpu)
-        //    yield break;
+        float totalTime = (chosenAttack != null) ? focusSpeed + chosenAttack.focusPenalty : focusSpeed;
 
+        //yield return Hud.Timer(totalTime, Color.blue);
 
-        yield return Hud.Timer(focusSpeed, Color.blue);
+        Coroutine timer = StartCoroutine(Hud.Timer(totalTime, Color.grey));
+
+        if (chosenAttack != null)
+            yield return new WaitUntil(() => Hud.GetTimeLeft() <= focusSpeed);
+
+        Hud.SetTimerColor(Color.blue);
+
+        yield return timer;
 
         TurnController.AddToTurnQueue(this);
     }
@@ -181,7 +186,12 @@ public abstract class Combat_Character : MonoBehaviour
         if (cpu)
             StartCoroutine(CpuDecisionMaking());
         else
-            SubMenuController.OpenSubMenu("Actions");
+        {
+            if (chosenAttack != null && chosenAttack.charging)
+                StartCoroutine(chosenAttack.SubMenus(this));
+            else
+                StartCoroutine(SubMenuController.OpenSubMenu("Actions", new List<string> { "Attack", "Defend", "Items", "Rest"}));
+        }
 
     }
 
@@ -191,21 +201,21 @@ public abstract class Combat_Character : MonoBehaviour
 
         spotLight = false;
 
-        StartCoroutine(Charging(chosenAttack.chargeTime));
+        //StartCoroutine(Charging(chosenAttack.chargeTime));
     }
 
-    IEnumerator Charging(float chargeTime)
+    public IEnumerator Charging(float chargeTime)
     {
         yield return Hud.Timer(chargeTime, Color.red);
 
-        TurnController.AddToActionQueue(this);
+        TurnController.AddToTurnQueue(this);
     }
 
     private void Update()
     {
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            Hud.EffectProgress(0.5f);
+            Hud.AffectProgress(0.5f);
         }
 
         //MenuPositioning();
@@ -241,13 +251,13 @@ public abstract class Combat_Character : MonoBehaviour
 
     public IEnumerator StartAttack()
     {
-        // RESET SKILL
-
         chosenAttack.SetCurrentInfo();
 
         yield return chosenAttack.Execute;
 
         yield return new WaitForSeconds(0.3f);
+
+        TurnController.descriptionBox.gameObject.SetActive(false);
 
         // Reset Camera
 
@@ -273,7 +283,13 @@ public abstract class Combat_Character : MonoBehaviour
 
         yield return cam;
 
+
+        /* Skill Reset */
+
         chosenAttack.targets.Clear();
+
+        //if(!chosenAttack.charging)
+        //    chosenAttack = null;
     }
 
     public IEnumerator MoveInRange(Vector3 range)
@@ -464,17 +480,25 @@ public abstract class Combat_Character : MonoBehaviour
             case 0.5f:
                 StartCoroutine(enemy.Block());
                 Instantiate(outcome_Bubble_Prefab, enemy.outcome_Bubble_Pos.position, Quaternion.identity).Input(info.damage/2, "BLOCK");
+                enemy.AdjustHealth(info.damage / 2);
                 yield return Impact();
                 break;
 
             case 1:
                 StartCoroutine(enemy.Damage());
                 Instantiate(outcome_Bubble_Prefab, enemy.outcome_Bubble_Pos.position, Quaternion.identity).Input(info.damage);
+                enemy.AdjustHealth(info.damage);
                 yield return Impact();
                 break;
         }
     }
 
+
+    public void AdjustHealth(int amount)
+    {
+        health += amount;
+        Hud.AdjustHealth(health);
+    }
 
     public abstract IEnumerator Damage();
 

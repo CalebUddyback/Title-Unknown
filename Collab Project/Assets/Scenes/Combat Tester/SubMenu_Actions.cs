@@ -5,10 +5,10 @@ using UnityEngine.UI;
 
 public class SubMenu_Actions : SubMenu
 {
-    public override void AdditionalSetup()
-    {
-        AddButtonListeners();
-    }
+    //public override void AdditionalSetup()
+    //{
+    //    AddButtonListeners();
+    //}
 
 
     public override IEnumerator WaitForChoice()
@@ -18,11 +18,11 @@ public class SubMenu_Actions : SubMenu
         switch (ButtonChoice)
         {
             case 0:
-                yield return SubMenuController.OpenSubMenu("Attacks", SubMenuController.owner.GetAttackNames());
+                yield return SubMenuController.OpenSubMenu("Attacks", SubMenuController.owner.attackList);
                 break;
 
             default:
-                yield return WaitForChoice();
+                yield return StartCoroutine(WaitForChoice());
                 break;
         }
     }

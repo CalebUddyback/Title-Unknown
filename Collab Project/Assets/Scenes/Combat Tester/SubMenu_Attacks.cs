@@ -9,7 +9,30 @@ public class SubMenu_Attacks : SubMenu
     {
         GetComponent<ScrollRect>().verticalScrollbar.value = 1;
 
-        yield return base.WaitForChoice();
+        //yield return base.WaitForChoice();
+
+
+        ButtonChoice = -2;
+
+        while( ButtonChoice == -2)
+        {
+
+            // if hovering over button display info
+
+            yield return null;
+        }
+
+
+        GetComponent<CanvasGroup>().interactable = false;
+
+        yield return new WaitForSeconds(0.1f);  // This delay is to prevent quick double clicks (My Mouse is broken :/)
+
+        if (ButtonChoice > -1)
+            SubMenuController.subMenuStage = 0;
+        else if (ButtonChoice == -1)
+            Return();
+
+
 
         yield return null;      // Give menu time to close if -1
 

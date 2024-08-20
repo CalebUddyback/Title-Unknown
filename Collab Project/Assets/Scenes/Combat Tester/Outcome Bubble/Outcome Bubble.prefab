@@ -1024,6 +1024,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   STRING_canvas: {fileID: 8962107406276781541}
   INT_canvas: {fileID: 9197432792279059233}
+  heal_Color: {fileID: 11400000, guid: 952c1898ff55eee41b1d9848dd757869, type: 2}
 --- !u!1 &6301330938495069110
 GameObject:
   m_ObjectHideFlags: 0

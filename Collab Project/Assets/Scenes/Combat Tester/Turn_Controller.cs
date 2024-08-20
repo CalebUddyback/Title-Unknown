@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 
 public class Turn_Controller : MonoBehaviour
 {
@@ -23,6 +24,8 @@ public class Turn_Controller : MonoBehaviour
     public enum Stage { TURN_START, TURN_END, ACTION_START, IMPACT, ACTION_END}
 
     public Combat_Character characterTurn;
+
+    public DescriptionBox descriptionBox;
 
     private void Start()
     {
@@ -198,7 +201,20 @@ public class Turn_Controller : MonoBehaviour
 
                     // Reset Camera
 
-                    yield return characterTurn.mcamera.GetComponent<MainCamera>().Reset(0f);
+                    //yield return characterTurn.mcamera.GetComponent<MainCamera>().Reset(0f);
+
+                    if (!characterTurn.chosenAttack.charging)
+                    {
+                        yield return characterTurn.StartAttack();
+
+                        characterTurn.StartFocus();
+
+                        characterTurn.chosenAttack = null;
+                    }
+                    else
+                    {
+                        StartCoroutine(characterTurn.Charging(1f));
+                    }
                 }
 
                 // Continue TurnTimers
@@ -237,19 +253,20 @@ public class Turn_Controller : MonoBehaviour
 
             if (labels.Count == 0)
             {
-                print("No Reactions");
                 yield return 0;
-                break;
+                continue;
             }
-            else
-            {
-                foreach (Combat_Character c in all_Players)
-                    c.animationController.Pause();
-            }
+
+            print(character.name + " HERE");
+
+            foreach (Combat_Character c in all_Players)
+                c.animationController.Pause();
 
             character.MenuPositioning();
 
             yield return character.SubMenuController.OpenSubMenu("Prompts", labels);
+
+            print(character.SubMenuController.CurrentSubMenu.ButtonChoice);
 
             foreach (Combat_Character c in all_Players)
                 c.animationController.Play();

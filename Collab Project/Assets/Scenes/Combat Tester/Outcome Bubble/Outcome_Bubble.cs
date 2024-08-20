@@ -9,7 +9,9 @@ public class Outcome_Bubble : MonoBehaviour
     public Canvas STRING_canvas;
     public Canvas INT_canvas;
 
-    string numCo, stringCo;
+    string numText, stringText;
+
+    public TMP_ColorGradient heal_Color;
 
     private void Awake()
     {
@@ -33,28 +35,61 @@ public class Outcome_Bubble : MonoBehaviour
 
     public void Input(int num)
     {
-        numCo = num.ToString();
+
+        //numText = (num <= 0) ? (num * -1).ToString() : "+" + num.ToString();
+
+        if(num <= 0)
+        {
+            numText = (num * -1).ToString();
+        }
+        else
+        {
+            numText = "+" + num.ToString();
+
+            foreach (Transform digit in INT_canvas.transform)
+            {
+                digit.GetComponent<TextMeshPro>().colorGradientPreset = heal_Color;
+            }
+        }
+
         INT_canvas.gameObject.SetActive(true);
-        StartCoroutine(NumPlaying(numCo));
+        StartCoroutine(NumPlaying(numText));
+    }
+
+    public void Input(int num, Color clr)
+    {
+
+        numText = (num <= 0) ? (num * -1).ToString() : "+" + num.ToString();
+
+
+        foreach(Transform digit in INT_canvas.transform)
+        {
+            digit.GetComponent<TextMeshPro>().color = clr;
+        }
+
+        INT_canvas.gameObject.SetActive(true);
+        StartCoroutine(NumPlaying(numText));
     }
 
     public void Input(string str)
     {
-        stringCo = str;
+        stringText = str;
         STRING_canvas.gameObject.SetActive(true);
         StartCoroutine(StringPlaying(str));
     }
 
     public void Input(int num, string str)
     {
-        numCo = num.ToString();
-        stringCo = str;
+
+        numText = (num <= 0)  ? (num * -1).ToString() : "+" + num.ToString();
+
+        stringText = str;
 
         INT_canvas.gameObject.SetActive(true);
         STRING_canvas.gameObject.SetActive(true);
 
-        StartCoroutine(NumPlaying(num.ToString()));
-        StartCoroutine(StringPlaying(str));
+        StartCoroutine(NumPlaying(numText));
+        StartCoroutine(StringPlaying(stringText));
     }
 
     IEnumerator NumPlaying(string num)
@@ -84,7 +119,7 @@ public class Outcome_Bubble : MonoBehaviour
             INT_canvas.transform.GetChild(i).GetComponent<Animation>().Play("Fade");
         }
 
-        if(stringCo != null)
+        if(stringText != null)
             STRING_canvas.transform.GetChild(0).GetComponent<Animation>().Play("Fade");
 
 
@@ -98,7 +133,7 @@ public class Outcome_Bubble : MonoBehaviour
         STRING_canvas.transform.GetChild(0).GetComponent<TextMeshPro>().text = str;
         STRING_canvas.transform.GetChild(0).gameObject.SetActive(true);
 
-        if (numCo == null)
+        if (numText == null)
         {
             yield return new WaitForSeconds(0.12f);
 

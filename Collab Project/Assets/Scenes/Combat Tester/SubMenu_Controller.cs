@@ -82,7 +82,7 @@ public class SubMenu_Controller : MonoBehaviour
         return nextSubMenu;
     }
 
-    public IEnumerator OpenSubMenu(string nextSubMenuName, List<string> buttonLabels)
+    public IEnumerator OpenSubMenu(string nextSubMenuName, List<Combat_Character.Skill> skillList)
     {
         if (transform.Find(nextSubMenuName) == null)
         {
@@ -98,8 +98,64 @@ public class SubMenu_Controller : MonoBehaviour
 
             menuStack.Add(nextSubMenu);
 
+
+            if (menuStack.Count == 1 && nextSubMenuName != "Prompts")
+                nextSubMenu.returnButton.gameObject.SetActive(false);
+            else
+                nextSubMenu.returnButton.gameObject.SetActive(true);
+
             if (CurrentSubMenu != null)
                 CurrentSubMenu.gameObject.SetActive(false);
+
+            nextSubMenu.AddButtons(skillList);
+
+
+            yield return null;
+
+            nextSubMenu.GetComponent<CanvasGroup>().interactable = true;
+            nextSubMenu.gameObject.SetActive(true);
+
+            AdjustPagesAlpha();
+
+            CurrentSubMenu = nextSubMenu;
+
+            CurrentCD = new CoroutineWithData(this, nextSubMenu.WaitForChoice());
+
+        }
+
+
+        yield return CurrentCD.coroutine;
+    }
+
+    public IEnumerator OpenSubMenu(string nextSubMenuName, List<string> buttonLabels)
+    {
+        if (transform.Find(nextSubMenuName) == null)
+        {
+            print(nextSubMenuName + " Sub-Menu Does Not Exist");
+            Debug.Break();
+            yield break;
+        }
+
+        if (subMenuStage == 0)
+        {
+
+            SubMenu nextSubMenu = transform.Find(nextSubMenuName).GetComponent<SubMenu>();
+
+            menuStack.Add(nextSubMenu);
+
+
+            // bellow will mess with prompts submenu
+
+            if (menuStack.Count == 1 && nextSubMenuName != "Prompts")
+                nextSubMenu.returnButton.gameObject.SetActive(false);
+            else
+                nextSubMenu.returnButton.gameObject.SetActive(true);
+
+            if (CurrentSubMenu != null)
+            {
+                CurrentSubMenu.gameObject.SetActive(false);
+                //CurrentSubMenu.GetComponent<CanvasGroup>().interactable = false;
+            }
 
             nextSubMenu.AddButtons(buttonLabels);
 
@@ -117,6 +173,7 @@ public class SubMenu_Controller : MonoBehaviour
 
         }
 
+
         yield return CurrentCD.coroutine;
     }
 
@@ -127,7 +184,7 @@ public class SubMenu_Controller : MonoBehaviour
         CurrentSubMenu.gameObject.SetActive(false);
         menuStack.RemoveAt(menuStack.Count - 1);
 
-        if(menuStack.Count - 1 > 0)
+        if(menuStack.Count - 1 >= 0)
         {
             CurrentSubMenu = menuStack[menuStack.Count - 1];
             CurrentSubMenu.GetComponent<CanvasGroup>().interactable = true;
@@ -167,7 +224,6 @@ public class SubMenu_Controller : MonoBehaviour
 
     public void ResetMenus()
     {
-
         for (int i = 0; i < menuStack.Count; i++)
         {
             menuStack[i].gameObject.SetActive(false);
@@ -175,6 +231,5 @@ public class SubMenu_Controller : MonoBehaviour
 
         menuStack.Clear();
         //gameObject.SetActive(false);
-
     }
 }

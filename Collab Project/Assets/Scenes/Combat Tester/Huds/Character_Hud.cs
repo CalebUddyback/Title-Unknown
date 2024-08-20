@@ -2,64 +2,131 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class Character_Hud : MonoBehaviour
 {
     [HideInInspector]
     public Turn_Controller TurnController;
 
-    [HideInInspector]
-    public Text diplayName;
+    public TextMeshProUGUI diplayName;
 
     [SerializeField]
-    private Image radialFill;
-
+    private Image timer_RadialFill;
     [SerializeField]
-    private Text numbers;
-
+    private TextMeshProUGUI timer_numbers;
     public Transform skills;
+    float timer_reqTime = 0;
+    float timer_Progress = 0;
 
-    float actual_Progress = 0;
+    public Image health_Green;
+    public Image health_Red;
+    public TextMeshProUGUI health_Text;
 
     public void SetTimerColor(Color color)
     {
-        radialFill.color = color;
+        timer_RadialFill.color = color;
     }
 
-    public IEnumerator Timer(float reqTime, Color col)
+    public float GetTimeLeft()
     {
-        radialFill.color = col;
+        return timer_Progress;
+    }
 
-        radialFill.fillAmount = 0;
+    public IEnumerator Timer(float reqTime, Color clr)
+    {
+        timer_RadialFill.color = clr;
 
-        actual_Progress = reqTime;
+        timer_RadialFill.fillAmount = 0;
+
+        timer_reqTime = timer_Progress = reqTime;
 
         //numbers.text = Mathf.FloorToInt(actual_Progress).ToString();
-        numbers.text = actual_Progress.ToString("F1");
+        timer_numbers.text = timer_Progress.ToString("F1");
 
-        while (0 <= actual_Progress)
+        while (0 <= timer_Progress)
         {
             yield return new WaitUntil(() => TurnController.TurnTime);
 
-            actual_Progress -= Time.deltaTime;
+            timer_Progress -= Time.deltaTime;
 
             //numbers.text = Mathf.CeilToInt(actual_Progress).ToString();
-            numbers.text = actual_Progress.ToString("F1");
+            timer_numbers.text = timer_Progress.ToString("F1");
 
-            radialFill.fillAmount = (reqTime - actual_Progress) / reqTime;
+            timer_RadialFill.fillAmount = (timer_reqTime - timer_Progress) / timer_reqTime;
         }
 
-        radialFill.fillAmount = 1;
+        timer_RadialFill.fillAmount = 1;
 
-        actual_Progress = 0;
+        timer_Progress = 0;
 
-        numbers.text = "";
+        timer_numbers.text = "";
     }
 
-    public void EffectProgress(float amount)
+    public void AffectProgress(float amount)
     {
-        actual_Progress += amount;
+        timer_Progress += amount;
+
+        if (timer_Progress > timer_reqTime)
+        {
+            timer_reqTime = timer_Progress;
+            timer_RadialFill.fillAmount = 0;
+        }
+        else
+        {
+            timer_RadialFill.fillAmount = (timer_reqTime - timer_Progress) / timer_reqTime;
+        }
+
+        timer_numbers.text = timer_Progress.ToString("F1");
     }
+
+    /***** HEALTH *****/
+
+    Coroutine redBarCO;
+
+    public void AdjustHealth(int health)
+    {
+        if (redBarCO != null)
+        {
+            StopCoroutine(redBarCO);
+        }
+
+        redBarCO = StartCoroutine(Adjusting(health));
+    }
+
+    public IEnumerator Adjusting(int health)
+    {
+        health_Text.text = health.ToString();
+
+        health_Green.fillAmount = health / 100f;
+
+        health_Green.GetComponent<Animation>().Play();
+
+        yield return new WaitForSeconds(1);
+
+        //float timer = 0;
+        //float startValue = health_Red.fillAmount;
+        //
+        //while (timer < 1)
+        //{
+        //    health_Red.fillAmount = Mathf.Lerp(startValue, health_Green.fillAmount, timer);
+        //
+        //    timer += Time.deltaTime;
+        //
+        //    yield return null;
+        //}
+
+        while(health_Red.fillAmount > health_Green.fillAmount)
+        {
+            health_Red.fillAmount = Mathf.MoveTowards(health_Red.fillAmount, health_Green.fillAmount, 0.5f * Time.deltaTime);
+            yield return null;
+        }
+
+        health_Red.fillAmount = health_Green.fillAmount;
+
+        redBarCO = null;
+    }
+    
 
     public void SkillSlot(int slot, Sprite image)
     {
