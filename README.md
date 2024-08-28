@@ -1,1 +1,1 @@
-# Board-Game
+# JRPG style game
