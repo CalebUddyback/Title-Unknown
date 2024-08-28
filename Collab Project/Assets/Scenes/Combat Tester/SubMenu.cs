@@ -32,19 +32,10 @@ public class SubMenu : MonoBehaviour
 
     public virtual void AdditionalSetup() { }
 
+    public List<string> test;
+
     public void AddButtons(List<string> stringList)
     {
-        //for (int i = 0; i < buttonContainer.childCount; i++)
-        //{
-        //    Destroy(buttonContainer.GetChild(i).gameObject);
-        //}
-        //
-        //foreach (string label in stringList)
-        //{
-        //    SubMenu_Button buttonInst = Instantiate(buttonPrefab, buttonContainer).GetComponent<SubMenu_Button>();
-        //    buttonInst.transform.GetChild(0).GetComponent<Text>().text = label;
-        //}
-
 
         if (stringList.Count < buttonContainer.childCount)
         {
@@ -65,9 +56,12 @@ public class SubMenu : MonoBehaviour
             }
         }
 
+        test = stringList;
+
         for (int i = 0; i < stringList.Count; i++)
         {
             buttonContainer.GetChild(i).GetChild(0).GetComponent<TextMeshProUGUI>().text = stringList[i];
+            buttonContainer.GetChild(i).gameObject.SetActive(true);
         }
 
         AddButtonListeners();

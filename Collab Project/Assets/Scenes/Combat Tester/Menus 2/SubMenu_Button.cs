@@ -27,9 +27,10 @@ public class SubMenu_Button : MonoBehaviour, IPointerEnterHandler, IPointerExitH
             subMenu.SubMenuController.owner.TurnController.descriptionBox.gameObject.SetActive(true);
             subMenu.SubMenuController.owner.TurnController.descriptionBox.title.text = skillInfo.name;
 
-            subMenu.SubMenuController.owner.TurnController.descriptionBox.DMGTxt.text = Mathf.Abs(skillInfo.baseInfo[0].damage).ToString();
-
-            subMenu.SubMenuController.owner.TurnController.descriptionBox.RECTxt.text = skillInfo.focusPenalty.ToString();
+            subMenu.SubMenuController.owner.TurnController.descriptionBox.DMG_Txt.text = Mathf.Abs(skillInfo.baseInfo[0].damage).ToString();
+            subMenu.SubMenuController.owner.TurnController.descriptionBox.CRT_Txt.text = subMenu.SubMenuController.owner.stats.GetCurrentStats(skillInfo)[Stats.Stat.Crit].ToString();
+            subMenu.SubMenuController.owner.TurnController.descriptionBox.REC_Txt.text = (skillInfo.focusPenalty + subMenu.SubMenuController.owner.focusSpeed).ToString();
+            subMenu.SubMenuController.owner.TurnController.descriptionBox.HIT_Txt.text = subMenu.SubMenuController.owner.stats.GetCurrentStats(skillInfo)[Stats.Stat.PhHit].ToString();
 
             string typeText = "[" + skillInfo.baseInfo[0].type.ToString().ToUpper();
 

@@ -47,24 +47,27 @@ public abstract class Combat_Character : MonoBehaviour
         public class Info
         {
             public int damage;
-            public float critical;
-            public float success;
+            public int critical;
+            public int accuracy;
+            public int HitSuccess { get; set; }
 
             public Range range;
             public Type type;
 
-            public Info(int damage, Type type, Range range)
+            public Info(int damage, int critical, int accuracy, Type type, Range range)
             {
                 this.damage = damage;
+                this.critical = critical;
+                this.accuracy = accuracy;
                 this.type = type;
                 this.range = range;
             }
 
             public Info(Info info)
             {
-                this.damage = info.damage;
-                this.type = info.type;
-                this.range = info.range;
+                damage = info.damage;
+                type = info.type;
+                range = info.range;
             }
         }
 
@@ -93,12 +96,7 @@ public abstract class Combat_Character : MonoBehaviour
             {
                 info.critical = Random.Range(0, 10) > 4 ? 2 : 1;
 
-                info.success = 0;
-
-                for (int i = 0; i < 2; i++)
-                {
-                    float roll = Random.Range(0f, 10f) > 5 ? info.success += 0.5f : info.success;
-                }
+                info.HitSuccess = Random.Range(0, 99) < 75 ? 1 : 0;
 
                 //Debug
 
@@ -106,6 +104,8 @@ public abstract class Combat_Character : MonoBehaviour
             }
         }
     }
+
+    /* SPELLS NEED A MONOBEHAVIOR ASPECT SO THAT AN INSTANCE (COMPONENT) CAN BE ADDED TO SKILL SLOT */ 
 
     public abstract class Spell : Skill
     {
@@ -115,7 +115,7 @@ public abstract class Combat_Character : MonoBehaviour
 
         public abstract bool Condition(Turn_Controller.Stage stage, Info info);
 
-        public abstract IEnumerator Action2();
+        public abstract IEnumerator Action2(int slot);
     }
 
 
@@ -140,8 +140,6 @@ public abstract class Combat_Character : MonoBehaviour
 
     public bool spotLight = false;
 
-    public float actual_Progess;
-
     public Character_Hud Hud;
 
     public Turn_Controller TurnController { get; set; }
@@ -154,7 +152,10 @@ public abstract class Combat_Character : MonoBehaviour
     public int health;
 
     [SerializeField]
-    private float focusSpeed = 1f;
+    public float focusSpeed = 1f;
+
+
+    public Stats stats;
 
     public void StartFocus()
     { 
@@ -165,18 +166,23 @@ public abstract class Combat_Character : MonoBehaviour
     {
         float totalTime = (chosenAttack != null) ? focusSpeed + chosenAttack.focusPenalty : focusSpeed;
 
-        //yield return Hud.Timer(totalTime, Color.blue);
 
-        Coroutine timer = StartCoroutine(Hud.Timer(totalTime, Color.grey));
+        Hud.SetTimer(totalTime, Color.grey);
 
-        if (chosenAttack != null)
-            yield return new WaitUntil(() => Hud.GetTimeLeft() <= focusSpeed);
+        yield return new WaitUntil(() => Hud.GetTimeLeft() <= focusSpeed);
 
         Hud.SetTimerColor(Color.blue);
 
-        yield return timer;
-
-        TurnController.AddToTurnQueue(this);
+        //Coroutine timer = StartCoroutine(Hud.Timer(totalTime, Color.grey));
+        //
+        //if (chosenAttack != null)
+        //    yield return new WaitUntil(() => Hud.GetTimeLeft() <= focusSpeed);
+        //
+        //Hud.SetTimerColor(Color.blue);
+        //
+        //yield return timer;
+        //
+        //TurnController.AddToTurnQueue(this);
     }
 
     public void StartTurn()
@@ -206,9 +212,9 @@ public abstract class Combat_Character : MonoBehaviour
 
     public IEnumerator Charging(float chargeTime)
     {
-        yield return Hud.Timer(chargeTime, Color.red);
-
-        TurnController.AddToTurnQueue(this);
+        Hud.SetTimer(chargeTime, Color.red);
+        yield return null;
+        //yield return Hud.Timer(chargeTime, Color.red);
     }
 
     private void Update()
@@ -247,6 +253,29 @@ public abstract class Combat_Character : MonoBehaviour
     public void AttackChoice(Skill attack)
     {
         chosenAttack = attack;
+    }
+
+    public int SetSkill(Spell action, Sprite img)
+    {
+        for (int i = 0; i < 3; i++)
+        {
+            if (setSpells[i] == null)
+            {
+                setSpells[i] = action;
+                Hud.SkillSlot(i, img);
+
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
+    public void ClearSkill(int i)
+    {
+        Hud.ClearSkillSlot(i);
+
+        setSpells[i] = null;
     }
 
     public IEnumerator StartAttack()
@@ -470,23 +499,28 @@ public abstract class Combat_Character : MonoBehaviour
 
     public IEnumerator ApplyOutcome(Skill.Info info)
     {
-        switch (info.success)
+        switch (info.HitSuccess)
         {
             case 0:
                 Instantiate(outcome_Bubble_Prefab, enemy.outcome_Bubble_Pos.position, Quaternion.identity).Input("DODGE");
                 yield return StartCoroutine(enemyTransform.GetComponent<Combat_Character>().Dodge());
                 break;
 
-            case 0.5f:
-                StartCoroutine(enemy.Block());
-                Instantiate(outcome_Bubble_Prefab, enemy.outcome_Bubble_Pos.position, Quaternion.identity).Input(info.damage/2, "BLOCK");
-                enemy.AdjustHealth(info.damage / 2);
-                yield return Impact();
-                break;
-
             case 1:
-                StartCoroutine(enemy.Damage());
-                Instantiate(outcome_Bubble_Prefab, enemy.outcome_Bubble_Pos.position, Quaternion.identity).Input(info.damage);
+
+                if (Mathf.Abs(info.damage) < 5)
+                {
+                    StartCoroutine(enemy.Block());
+                    Instantiate(outcome_Bubble_Prefab, enemy.outcome_Bubble_Pos.position, Quaternion.identity).Input(info.damage);
+                    //Instantiate(outcome_Bubble_Prefab, enemy.outcome_Bubble_Pos.position, Quaternion.identity).Input(info.damage, "BLOCK");
+                }
+                else
+                {
+
+                    StartCoroutine(enemy.Damage());
+                    Instantiate(outcome_Bubble_Prefab, enemy.outcome_Bubble_Pos.position, Quaternion.identity).Input(info.damage);
+                }
+
                 enemy.AdjustHealth(info.damage);
                 yield return Impact();
                 break;
@@ -497,7 +531,8 @@ public abstract class Combat_Character : MonoBehaviour
     public void AdjustHealth(int amount)
     {
         health += amount;
-        Hud.AdjustHealth(health);
+
+        Hud.AdjustHealth(health, amount);
     }
 
     public abstract IEnumerator Damage();

@@ -17,10 +17,10 @@ public class Character_Hud : MonoBehaviour
     private TextMeshProUGUI timer_numbers;
     public Transform skills;
     float timer_reqTime = 0;
-    float timer_Progress = 0;
+    public float timer_Progress = 0;
 
-    public Image health_Green;
-    public Image health_Red;
+    public Image health_Main;
+    public Image health_Back;
     public TextMeshProUGUI health_Text;
 
     public void SetTimerColor(Color color)
@@ -31,6 +31,33 @@ public class Character_Hud : MonoBehaviour
     public float GetTimeLeft()
     {
         return timer_Progress;
+    }
+
+    public void SetTimer(float reqTime, Color clr)
+    {
+        timer_RadialFill.color = clr;
+
+        timer_RadialFill.fillAmount = 0;
+
+        timer_reqTime = timer_Progress = reqTime;
+    }
+
+    public void IncrementTimer(float globalDelta)
+    {
+        timer_Progress = Mathf.Floor((timer_Progress - globalDelta) * 100f) / 100f;
+
+        timer_numbers.text = timer_Progress.ToString("F1");
+
+        timer_RadialFill.fillAmount = Mathf.Floor(((timer_reqTime - timer_Progress) / timer_reqTime) * 100f) / 100f;
+    }
+
+    public void EndTimer()
+    {
+        timer_RadialFill.fillAmount = 1;
+
+        timer_Progress = 0;
+
+        timer_numbers.text = "";
     }
 
     public IEnumerator Timer(float reqTime, Color clr)
@@ -46,14 +73,18 @@ public class Character_Hud : MonoBehaviour
 
         while (0 <= timer_Progress)
         {
-            yield return new WaitUntil(() => TurnController.TurnTime);
+            //yield return new WaitUntil(() => TurnController.TurnTime);
 
-            timer_Progress -= Time.deltaTime;
+            //timer_Progress -= Time.deltaTime;
 
             //numbers.text = Mathf.CeilToInt(actual_Progress).ToString();
             timer_numbers.text = timer_Progress.ToString("F1");
 
-            timer_RadialFill.fillAmount = (timer_reqTime - timer_Progress) / timer_reqTime;
+            timer_RadialFill.fillAmount = Mathf.Floor(((timer_reqTime - timer_Progress) / timer_reqTime) * 100f) / 100f;
+
+            //timer_RadialFill.fillAmount = (timer_reqTime - timer_Progress) / timer_reqTime;
+
+            yield return null;
         }
 
         timer_RadialFill.fillAmount = 1;
@@ -82,49 +113,59 @@ public class Character_Hud : MonoBehaviour
 
     /***** HEALTH *****/
 
-    Coroutine redBarCO;
+    Coroutine backBarCO;
 
-    public void AdjustHealth(int health)
+    public void AdjustHealth(int health, int amount)
     {
-        if (redBarCO != null)
-        {
-            StopCoroutine(redBarCO);
-        }
+        if (backBarCO != null)
+            StopCoroutine(backBarCO);
 
-        redBarCO = StartCoroutine(Adjusting(health));
+        backBarCO = StartCoroutine(Adjusting(health, amount));
     }
 
-    public IEnumerator Adjusting(int health)
+    IEnumerator Adjusting(int health, int amount)
     {
         health_Text.text = health.ToString();
 
-        health_Green.fillAmount = health / 100f;
-
-        health_Green.GetComponent<Animation>().Play();
-
-        yield return new WaitForSeconds(1);
-
-        //float timer = 0;
-        //float startValue = health_Red.fillAmount;
-        //
-        //while (timer < 1)
-        //{
-        //    health_Red.fillAmount = Mathf.Lerp(startValue, health_Green.fillAmount, timer);
-        //
-        //    timer += Time.deltaTime;
-        //
-        //    yield return null;
-        //}
-
-        while(health_Red.fillAmount > health_Green.fillAmount)
+        if (amount < 0)
         {
-            health_Red.fillAmount = Mathf.MoveTowards(health_Red.fillAmount, health_Green.fillAmount, 0.5f * Time.deltaTime);
-            yield return null;
+            health_Back.color = new Color(0.65f, 0.2f, 0.2f);
+
+            health_Main.fillAmount = health / 100f;
+
+            health_Main.GetComponent<Animation>().Play();
+
+            yield return new WaitForSeconds(1);
+
+            while (health_Back.fillAmount > health_Main.fillAmount)
+            {
+                health_Back.fillAmount = Mathf.MoveTowards(health_Back.fillAmount, health_Main.fillAmount, 0.5f * Time.deltaTime);
+                yield return null;
+            }
+
+            health_Back.fillAmount = health_Main.fillAmount;
+
+        }
+        else
+        {
+            health_Back.color = new Color(0.2f, 0.5f, 0.2f);
+
+            health_Back.fillAmount = health / 100f;
+
+            health_Main.GetComponent<Animation>().Play();
+
+            yield return new WaitForSeconds(1);
+
+            while (health_Back.fillAmount > health_Main.fillAmount)
+            {
+                health_Main.fillAmount = Mathf.MoveTowards(health_Main.fillAmount, health_Back.fillAmount, 0.5f * Time.deltaTime);
+                yield return null;
+            }
+
+            health_Main.fillAmount = health_Back.fillAmount;
         }
 
-        health_Red.fillAmount = health_Green.fillAmount;
-
-        redBarCO = null;
+        backBarCO = null;
     }
     
 
@@ -132,6 +173,7 @@ public class Character_Hud : MonoBehaviour
     {
         skills.GetChild(slot).GetChild(0).GetComponent<Image>().sprite = image;
     }
+
 
     public Sprite emptySlot;
 

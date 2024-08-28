@@ -208,8 +208,8 @@ MonoBehaviour:
   timer_RadialFill: {fileID: 1325284410253981153}
   timer_numbers: {fileID: 8341275382322719700}
   skills: {fileID: 725848142248466935}
-  health_Green: {fileID: 1744302888022838485}
-  health_Red: {fileID: 3203370121124667492}
+  health_Main: {fileID: 1744302888022838485}
+  health_Back: {fileID: 3203370121124667492}
   health_Text: {fileID: 810898650453889436}
   emptySlot: {fileID: 21300000, guid: 0bc0d30dce0a9bf4a8fe2fab2ed82b19, type: 3}
 --- !u!1 &1325284410253981159
@@ -550,7 +550,7 @@ GameObject:
   - component: {fileID: 5888768369494405120}
   - component: {fileID: 3203370121124667492}
   m_Layer: 0
-  m_Name: Red Fill
+  m_Name: Back Fill
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -596,7 +596,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 0.08363296, b: 0, a: 1}
+  m_Color: {r: 0.65, g: 0.2, b: 0.2, a: 1}
   m_RaycastTarget: 1
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -923,7 +923,7 @@ GameObject:
   - component: {fileID: 1744302888022838485}
   - component: {fileID: 4716187997896779238}
   m_Layer: 0
-  m_Name: Green Fill
+  m_Name: Main Fill
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -969,7 +969,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 1, b: 0.07667947, a: 1}
+  m_Color: {r: 0.8018868, g: 0.8018868, b: 0.8018868, a: 1}
   m_RaycastTarget: 1
   m_Maskable: 1
   m_OnCullStateChanged:

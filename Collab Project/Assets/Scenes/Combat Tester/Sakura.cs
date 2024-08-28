@@ -9,7 +9,6 @@ public class Sakura : Combat_Character
 
 
     /* This old skill contains code to allow for seperate targeting submenu loop (in submenu override class) */
-    [System.Serializable]
     public class Combo_OLD : Skill
     {
         public Combo_OLD(Combat_Character character)
@@ -23,9 +22,9 @@ public class Sakura : Combat_Character
 
             baseInfo = new Info[]
             {
-                 new Info(50, Type.Physical, Range.Close),
-                 new Info(70, Type.Physical, Range.Close),
-                 new Info(100, Type.Physical, Range.Close)
+                 new Info(50, 0, 0, Type.Physical, Range.Close),
+                 new Info(70, 0 , 0, Type.Physical, Range.Close),
+                 new Info(100, 0, 0, Type.Physical, Range.Close)
             };
 
         }
@@ -233,7 +232,6 @@ public class Sakura : Combat_Character
     public Combo_OLD combo_OLD;
 
 
-    [System.Serializable]
     public class Throw_Kunai_OLD : Skill
     {
         public GameObject kunaiPrefab => Resources.Load<GameObject>("Projectiles/Kunai");
@@ -246,7 +244,7 @@ public class Sakura : Combat_Character
 
             baseInfo = new Info[]
             {
-                new Info(-5, Type.Physical, Range.Far),
+                new Info(-5, 0, 0, Type.Physical, Range.Far),
             };
         }
 
@@ -333,7 +331,7 @@ public class Sakura : Combat_Character
             else
                 yield return new WaitWhile(() => kunai.transform.position.x >= targets[0].position.x);
 
-            if (currentInfo[0].success != 0)
+            if (currentInfo[0].HitSuccess != 0)
             {
                 character.StopCoroutine(tragectory);
                 Destroy(kunai);
@@ -361,18 +359,19 @@ public class Sakura : Combat_Character
             this.character = character;
 
             name = "Punch, Punch, Kick!";
-            effect = true;
-            description = "Upon each successful hit; Stagger target by 0.1 seconds.";
 
             focusPenalty = 0.5f;
             levels = 3;
 
             baseInfo = new Info[]
             {
-                 new Info(-6, Type.Physical, Range.Close),
-                 new Info(-6, Type.Physical, Range.Close),
-                 new Info(-6, Type.Physical, Range.Close),
+                 new Info(-6, -2, 0, Type.Physical, Range.Close),
+                 new Info(-6, 0, 0, Type.Physical, Range.Close),
+                 new Info(-6, 0, 0, Type.Physical, Range.Close),
             };
+
+            effect = true;
+            description = "Upon each successful hit; STAGGER target by 0.1 seconds.";
 
         }
 
@@ -498,7 +497,7 @@ public class Sakura : Combat_Character
 
                     outcome = character.StartCoroutine(character.ApplyOutcome(currentInfo[0]));
 
-                    if (currentInfo[0].success == 1)
+                    if (currentInfo[0].HitSuccess == 1)
                         targets[0].GetComponent<Combat_Character>().Hud.AffectProgress(0.1f);
 
                     yield return character.animationController.coroutine;
@@ -530,7 +529,7 @@ public class Sakura : Combat_Character
             yield return character.WaitForKeyFrame();
             outcome = character.StartCoroutine(character.ApplyOutcome(currentInfo[1]));
 
-            if (currentInfo[1].success == 1)
+            if (currentInfo[1].HitSuccess == 1)
                 targets[0].GetComponent<Combat_Character>().Hud.AffectProgress(0.1f);
 
             yield return character.animationController.coroutine;
@@ -550,7 +549,7 @@ public class Sakura : Combat_Character
             yield return character.WaitForKeyFrame();
             outcome = character.StartCoroutine(character.ApplyOutcome(currentInfo[2]));
 
-            if (currentInfo[2].success == 1)
+            if (currentInfo[2].HitSuccess == 1)
                 targets[0].GetComponent<Combat_Character>().Hud.AffectProgress(0.1f);
 
             yield return character.animationController.coroutine;
@@ -576,8 +575,11 @@ public class Sakura : Combat_Character
 
             baseInfo = new Info[]
             {
-                 new Info(-20, Type.Physical, Range.Close),
+                 new Info(-20, 0, 0, Type.Physical, Range.Close),
             };
+
+            effect = true;
+            description = "Upon each successful hit; STAGGER target by 0.2 seconds.";
         }
 
         public override IEnumerator SubMenus(MonoBehaviour owner)
@@ -667,8 +669,11 @@ public class Sakura : Combat_Character
             yield return character.WaitForKeyFrame();
             Coroutine outcome = character.StartCoroutine(character.ApplyOutcome(character.chosenAttack.currentInfo[0]));
 
-            if (character.chosenAttack.currentInfo[0].success != 0)
+            if (currentInfo[0].HitSuccess == 1)
+            {
+                targets[0].GetComponent<Combat_Character>().Hud.AffectProgress(0.2f);
                 yield return outcome;
+            }
 
             character.GetComponent<Rigidbody>().isKinematic = false;
 
@@ -703,8 +708,11 @@ public class Sakura : Combat_Character
 
             baseInfo = new Info[]
             {
-                new Info(-8, Type.Physical, Range.Far),
+                new Info(-8, 0, 0, Type.Physical, Range.Far),
             };
+
+            effect = true;
+            description = "CHARGE to a max of 2; each charge has a speed penalty of " + focusPenalty.ToString("F1") + " seconds. Each charge will throw an extra kunai.";
         }
 
         public override IEnumerator SubMenus(MonoBehaviour owner)
@@ -737,6 +745,8 @@ public class Sakura : Combat_Character
 
                         yield return null;
 
+                        character.TurnController.descriptionBox.gameObject.SetActive(true);
+
                         yield return character.SubMenuController.OpenSubMenu("Charges", new List<string>() { "Execute", "Charge" });
 
                         if (character.SubMenuController.CurrentSubMenu.ButtonChoice > -1)
@@ -762,6 +772,8 @@ public class Sakura : Combat_Character
                     case 2:
 
                         // Fully Charged
+
+                        character.TurnController.descriptionBox.gameObject.SetActive(true);
 
                         yield return character.SubMenuController.OpenSubMenu("Charges", new List<string>() { "Execute" });
 
@@ -836,6 +848,8 @@ public class Sakura : Combat_Character
                             done = true;
 
                             charging = true;
+
+                            character.TurnController.descriptionBox.gameObject.SetActive(false);
                         }
                         else
                         {
@@ -918,7 +932,7 @@ public class Sakura : Combat_Character
             else
                 yield return new WaitWhile(() => kunai[0].transform.position.x >= targets[0].position.x);
 
-            if (currentInfo[0].success != 0)
+            if (currentInfo[0].HitSuccess != 0)
             {
                 character.StopCoroutine(tragectory);
                 Destroy(kunai[0]);
@@ -955,7 +969,7 @@ public class Sakura : Combat_Character
             else
                 yield return new WaitWhile(() => kunai.transform.position.x >= targets[0].position.x);
 
-            if (currentInfo[0].success != 0)
+            if (currentInfo[0].HitSuccess != 0)
             {
                 character.StopCoroutine(tragectory);
                 Destroy(kunai);
@@ -982,11 +996,13 @@ public class Sakura : Combat_Character
 
             baseInfo = new Info[]
             {
-                new Info(-4, Type.Physical, Range.Close),
-                new Info(-4, Type.Physical, Range.Close),
-                new Info(-4, Type.Physical, Range.Close),
-                new Info(-4, Type.Physical, Range.Close),
+                new Info(-4, 0, 0, Type.Physical, Range.Close),
+                new Info(-4, 0, 0, Type.Physical, Range.Close),
+                new Info(-4, 0, 0, Type.Physical, Range.Close),
+                new Info(-4, 0, 0, Type.Physical, Range.Close),
             };
+
+            description = "Release a flury of 4 punches.";
         }
 
         public override IEnumerator SubMenus(MonoBehaviour owner)
@@ -1105,9 +1121,9 @@ public class Sakura : Combat_Character
             {
                 yield return character.WaitForKeyFrame();
 
-                currentInfo[i].success = currentInfo[0].success;
+                currentInfo[i].HitSuccess = currentInfo[0].HitSuccess;
 
-                if (currentInfo[i].success != 0)
+                if (currentInfo[i].HitSuccess != 0)
                     outcome = character.StartCoroutine(character.ApplyOutcome(currentInfo[i]));
             }
 
@@ -1135,8 +1151,11 @@ public class Sakura : Combat_Character
 
             baseInfo = new Info[]
             {
-                new Info(0, Type.Magic, Range.Far),
+                new Info(0, 0, 0, Type.Magic, Range.Far),
             };
+
+            effect = true;
+            description = "At the point of impact on this character; NEGATE all incoming DAMAGE.";
 
             stage = Turn_Controller.Stage.IMPACT;
 
@@ -1184,9 +1203,7 @@ public class Sakura : Combat_Character
 
             yield return character.WaitForKeyFrame();
 
-            character.Hud.SkillSlot(0, image);
-
-            character.setSpells[0] = this;
+            character.SetSkill(this, image);
 
             yield return character.animationController.coroutine;
             character.animationController.Clip("Sakura Idle");
@@ -1201,26 +1218,24 @@ public class Sakura : Combat_Character
             return false;
         }
 
-        public override IEnumerator Action2()
+        public override IEnumerator Action2(int slot)
         {
             //character.TurnController.characterTurn.chosenAttack.Success = 0.5f;
 
             foreach (Info info in character.TurnController.characterTurn.chosenAttack.currentInfo)
             {
                 info.damage = 0;
-                info.success = 0.5f;
+                info.HitSuccess = 1;
             }
 
-            character.Hud.ClearSkillSlot(0);
-
-            character.setSpells[0] = null;
+            character.ClearSkill(slot);
 
             yield return 0;
         }
     }
     public Defense defense;
 
-
+    [System.Serializable]
     public class Heal : Spell
     {
 
@@ -1234,8 +1249,11 @@ public class Sakura : Combat_Character
 
             baseInfo = new Info[]
             {
-                new Info(10, Type.Magic, Range.Far),
+                new Info(10, 0, 0, Type.Magic, Range.Far),
             };
+
+            effect = true;
+            description = "HEAL this character for " + baseInfo[0].damage + " immediatly. At the start of this character's next turn; this character may HEAL again for " + baseInfo[0].damage + ".";
 
             stage = Turn_Controller.Stage.TURN_START;
 
@@ -1264,7 +1282,8 @@ public class Sakura : Combat_Character
                         }
                         else
                         {
-                            i--;
+                            character.chosenAttack = null;
+                            yield break;
                         }
 
                         break;
@@ -1285,9 +1304,7 @@ public class Sakura : Combat_Character
 
             Instantiate(character.outcome_Bubble_Prefab, character.outcome_Bubble_Pos.position, Quaternion.identity).Input(currentInfo[0].damage);
 
-            character.Hud.SkillSlot(0, image);
-
-            character.setSpells[0] = this;
+            character.SetSkill(this, image);
 
             yield return character.animationController.coroutine;
             character.animationController.Clip("Sakura Idle");
@@ -1301,7 +1318,7 @@ public class Sakura : Combat_Character
             return false;
         }
 
-        public override IEnumerator Action2()
+        public override IEnumerator Action2(int slot)
         {
             character.animationController.Clip("Sakura Buff");
 
@@ -1311,9 +1328,7 @@ public class Sakura : Combat_Character
 
             Instantiate(character.outcome_Bubble_Prefab, character.outcome_Bubble_Pos.position, Quaternion.identity).Input(currentInfo[0].damage);
 
-            character.Hud.ClearSkillSlot(0);
-
-            character.setSpells[0] = null;
+            character.ClearSkill(slot);
 
             yield return character.animationController.coroutine;
             character.animationController.Clip("Sakura Idle");
@@ -1386,7 +1401,7 @@ public class Sakura : Combat_Character
             target = TurnController.left_Players[0].transform;
 
 
-        int r = Random.Range(0, 2);
+        int r = Random.Range(0, 1);
 
         switch (r)
         {

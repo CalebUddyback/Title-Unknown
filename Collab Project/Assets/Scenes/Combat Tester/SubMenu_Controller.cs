@@ -129,6 +129,7 @@ public class SubMenu_Controller : MonoBehaviour
 
     public IEnumerator OpenSubMenu(string nextSubMenuName, List<string> buttonLabels)
     {
+
         if (transform.Find(nextSubMenuName) == null)
         {
             print(nextSubMenuName + " Sub-Menu Does Not Exist");
@@ -143,8 +144,6 @@ public class SubMenu_Controller : MonoBehaviour
 
             menuStack.Add(nextSubMenu);
 
-
-            // bellow will mess with prompts submenu
 
             if (menuStack.Count == 1 && nextSubMenuName != "Prompts")
                 nextSubMenu.returnButton.gameObject.SetActive(false);

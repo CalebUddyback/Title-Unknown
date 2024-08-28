@@ -6,7 +6,7 @@ using TMPro;
 public class DescriptionBox : MonoBehaviour
 {
     public TextMeshProUGUI title;
-    public TextMeshProUGUI DMGTxt, RECTxt;
+    public TextMeshProUGUI DMG_Txt, CRT_Txt, REC_Txt, HIT_Txt;
     public TextMeshProUGUI type;
     public TextMeshProUGUI descriptionText;
 }

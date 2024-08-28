@@ -5,8 +5,6 @@ using TMPro;
 
 public class Turn_Controller : MonoBehaviour
 {
-    public GameObject leftCharaterHudPrefab, rightCharaterHudPrefab;
-
     public Canvas left_Huds, right_Huds;
 
     public List<Combat_Character> left_Players = new List<Combat_Character>();
@@ -18,8 +16,6 @@ public class Turn_Controller : MonoBehaviour
     private List<Combat_Character> all_Players;
 
     private Queue<Combat_Character> turnQueue = new Queue<Combat_Character>();
-
-    private Queue<Combat_Character> actionQueue = new Queue<Combat_Character>();
 
     public enum Stage { TURN_START, TURN_END, ACTION_START, IMPACT, ACTION_END}
 
@@ -54,10 +50,16 @@ public class Turn_Controller : MonoBehaviour
         {
             character.TurnController = this;
 
-            if(left_Players.Contains(character))
-                character.Hud = Instantiate(leftCharaterHudPrefab.GetComponent<Character_Hud>(), left_Huds.transform);
+            if (left_Players.Contains(character))
+            {
+                character.Hud = Instantiate(left_Huds.transform.GetChild(0).gameObject.GetComponent<Character_Hud>(), left_Huds.transform);
+            }
             else
-                character.Hud = Instantiate(rightCharaterHudPrefab.GetComponent<Character_Hud>(), right_Huds.transform);
+            {
+                character.Hud = Instantiate(right_Huds.transform.GetChild(0).gameObject.GetComponent<Character_Hud>(), right_Huds.transform);
+            }
+
+            character.Hud.gameObject.SetActive(true);
 
             character.Hud.diplayName.text = character.gameObject.name;
             character.Hud.TurnController = this;
@@ -120,59 +122,28 @@ public class Turn_Controller : MonoBehaviour
         return names;
     }
 
-    public bool TurnTime { get; private set; } = true;
-
-    public void ToggleTurnTime()
-    {
-        TurnTime = !TurnTime;
-    }
-
-    public void ToggleTurnTime(bool set)
-    {
-        TurnTime = set;
-    }
-
-    public void AddToTurnQueue(Combat_Character character)
-    {
-        turnQueue.Enqueue(character);
-    }
-
-    public void AddToActionQueue(Combat_Character character)
-    {
-        actionQueue.Enqueue(character);
-    }
 
     IEnumerator RotateTurns()
     {
         while (true)
         {
-            if (actionQueue.Count > 0)
+            if (turnQueue.Count <= 0)
             {
+                float globalDelta = Time.deltaTime;
 
-                ToggleTurnTime();
-
-
-                while (actionQueue.Count > 0)
+                foreach (Combat_Character character in all_Players)
                 {
-                    characterTurn = actionQueue.Dequeue();
+                    character.Hud.IncrementTimer(globalDelta);
 
-                    characterTurn.Hud.SetTimerColor(Color.white);
-
-                    yield return characterTurn.StartAttack();
-
-                    characterTurn.StartFocus();
+                    if (character.Hud.GetTimeLeft() <= 0)
+                    {
+                        turnQueue.Enqueue(character);
+                        character.Hud.EndTimer();
+                    }
                 }
-
-                ToggleTurnTime();
-
             }
-
-
-            if (turnQueue.Count > 0)
+            else
             {
-                // Stop TurnTimers
-
-                ToggleTurnTime();
 
                 while (turnQueue.Count > 0)
                 {
@@ -215,11 +186,13 @@ public class Turn_Controller : MonoBehaviour
                     {
                         StartCoroutine(characterTurn.Charging(1f));
                     }
+
+                    if (turnQueue.Count > 0 && turnQueue.Peek().Hud.GetTimeLeft() != 0)
+                    {
+                        print("KNOCK OUT");
+                        turnQueue.Dequeue();
+                    }
                 }
-
-                // Continue TurnTimers
-
-                ToggleTurnTime();
 
             }
 
@@ -236,19 +209,24 @@ public class Turn_Controller : MonoBehaviour
     /// <param name="stage"></param>
     /// <param name="info"></param>
     /// <returns></returns>
+    /// 
 
     public IEnumerator Reactions(Stage stage, Combat_Character.Skill.Info info)
     {
         foreach (Combat_Character character in all_Players)
         {
             List<string> labels = new List<string>();
+            List<int> indexs = new List<int>();
 
             for (int i = 0; i < character.setSpells.Length; i++)
             {
                 if (character.setSpells[i] == null || character.setSpells[i].Condition(stage, info) == false)
                     continue;
                 else
+                {
                     labels.Add(character.setSpells[i].name);
+                    indexs.Add(i);
+                }
             }
 
             if (labels.Count == 0)
@@ -257,16 +235,12 @@ public class Turn_Controller : MonoBehaviour
                 continue;
             }
 
-            print(character.name + " HERE");
-
             foreach (Combat_Character c in all_Players)
                 c.animationController.Pause();
 
             character.MenuPositioning();
 
             yield return character.SubMenuController.OpenSubMenu("Prompts", labels);
-
-            print(character.SubMenuController.CurrentSubMenu.ButtonChoice);
 
             foreach (Combat_Character c in all_Players)
                 c.animationController.Play();
@@ -279,12 +253,11 @@ public class Turn_Controller : MonoBehaviour
             {
                 character.SubMenuController.ResetMenus();
 
-                CoroutineWithData cd = new CoroutineWithData(this, character.setSpells[character.SubMenuController.CurrentSubMenu.ButtonChoice].Action2());
+                CoroutineWithData cd = new CoroutineWithData(this, character.setSpells[indexs[character.SubMenuController.CurrentSubMenu.ButtonChoice]].Action2(indexs[character.SubMenuController.CurrentSubMenu.ButtonChoice]));
                 yield return cd.coroutine;
 
                 yield return (int)cd.result;
                 break;
-                //yield return character.setSpells[character.SubMenuController.CurrentSubMenu.ButtonChoice].Action2();
             }
         }
     }
