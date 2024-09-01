@@ -9,92 +9,93 @@ public class Sakura : Combat_Character
 
 
     /* This old skill contains code to allow for seperate targeting submenu loop (in submenu override class) */
+    /*
     public class Combo_OLD : Skill
     {
-        public Combo_OLD(Combat_Character character)
+        public Combo_OLD(Combat_Character character) : base(character)
         {
             this.character = character;
-
+    
             name = "Combo OLD";
-
+    
             //chargeTimes = 1f;
             levels = 3;
-
+    
             baseInfo = new Info[]
             {
                  new Info(50, 0, 0, Type.Physical, Range.Close),
                  new Info(70, 0 , 0, Type.Physical, Range.Close),
                  new Info(100, 0, 0, Type.Physical, Range.Close)
             };
-
+    
         }
-
+    
         public override IEnumerator SubMenus(MonoBehaviour owner)
         {
-
+    
             bool done = false;
-
+    
             int charge = 0;
-
+    
             int i = 0;
-
+    
             while (!done)
             {
-
+    
                 switch (i)
                 {
-
+    
                     case 0:
-
+    
                         List<string> labels = Enumerable.Range(1, levels).Select(n => n.ToString()).ToList();
-
+    
                         yield return character.SubMenuController.OpenSubMenu("Charges", labels);
-
+    
                         if (character.SubMenuController.CurrentSubMenu.ButtonChoice > -1)
                         {
                             i++;
-
+    
                             charge = character.SubMenuController.CurrentSubMenu.ButtonChoice;
                         }
                         else
                         {
                             character.chosenAttack = null;
-
+    
                             yield break;
                         }
-
-
+    
+    
                         break;
-
+    
                     case 1:
-
+    
                         if (character.chosenAttack.targets.Count > 0)
                             character.chosenAttack.targets.RemoveAt(character.chosenAttack.targets.Count - 1);
-
+    
                         while (true)
                         {
                             yield return character.SubMenuController.OpenSubMenu("Targets", character.TurnController.GetPlayerNames(character.Facing));
-
+    
                             if (character.SubMenuController.CurrentSubMenu.ButtonChoice > -1)
                             {
-
+    
                                 if (character.Facing == 1)
                                     character.chosenAttack.targets.Add(character.TurnController.right_Players[character.SubMenuController.CurrentSubMenu.ButtonChoice].transform);
                                 else
                                     character.chosenAttack.targets.Add(character.TurnController.right_Players[character.SubMenuController.CurrentSubMenu.ButtonChoice].transform);
-
+    
                                 if (character.chosenAttack.targets.Count > charge)
                                 {
                                     i++;
                                     break;
                                 }
-
+    
                             }
                             else
                             {
-
+    
                                 // Returning to this submenu
-
+    
                                 if (character.chosenAttack.targets.Count <= 0)
                                 {
                                     i--;
@@ -106,14 +107,14 @@ public class Sakura : Combat_Character
                                 }
                             }
                         }
-
-
+    
+    
                         break;
-
+    
                     case 2:
-
+    
                         yield return character.SubMenuController.OpenSubMenu("Confirm", new List<string>() { "Confirm" });
-
+    
                         if (character.SubMenuController.CurrentSubMenu.ButtonChoice > -1)
                         {
                             done = true;
@@ -122,246 +123,131 @@ public class Sakura : Combat_Character
                         {
                             i--;
                         }
-
+    
                         break;
                 }
-
+    
             }
-
+    
             Execute = Action(charge);
         }
-
+    
         public IEnumerator Action(int charge)
         {
             character.enemyTransform = targets[0];
-
+    
             character.chosenAttack.GetOutcome();
-
-            /*CAMERA CONTROL*/
-
+    
+            //CAMERA CONTROL
+    
             character.mcamera.GetComponent<MainCamera>().BlackOut(0.9f, 0.5f);
-
+    
             Vector3 camTargetPos = new Vector3(targets[0].position.x, 0.5f, targets[0].position.z - 1.5f);
-
+    
             yield return character.mcamera.GetComponent<MainCamera>().LerpMoveIE(camTargetPos, 0.5f);
-
-
+    
+    
             yield return character.MoveInRange(new Vector3(-0.35f, 0, 0));
-
+    
             character.animationController.Clip("Sakura Punch");
-
+    
             yield return character.WaitForKeyFrame();
-
+    
             //yield return character.TurnController.Reactions(Turn_Controller.Stage.IMPACT, info[0]);
-
+    
             CoroutineWithData cd = new CoroutineWithData(character, character.TurnController.Reactions(Turn_Controller.Stage.IMPACT, currentInfo[0]));
             yield return cd.coroutine;
-
+    
             Coroutine outcome;
-
-
+    
+    
             switch ((int)cd.result)
             {
                 case 0:
-
+    
                     print("Continue");
-
+    
                     outcome = character.StartCoroutine(character.ApplyOutcome(currentInfo[0]));
-
+    
                     yield return character.animationController.coroutine;
                     character.animationController.Clip("Sakura Idle");
-
+    
                     yield return outcome;
-
+    
                     break;
-
+    
                 case 1:
                     print("Pause");
                     break;
-
+    
                 case 2:
                     print("Break");
                     yield break;
-
+    
             }
-
+    
             if (charge == 0)
                 yield break;
-
+    
             // two
-
+    
             character.enemyTransform = targets[1];
-
+    
             //character.chosenAttack.GetOutcome();
-
+    
             yield return character.MoveInRange(new Vector3(-0.35f, 0, 0));
-
+    
             character.animationController.Clip("Sakura Uppercut");
-
+    
             yield return character.WaitForKeyFrame();
             outcome = character.StartCoroutine(character.ApplyOutcome(currentInfo[1]));
-
+    
             yield return character.animationController.coroutine;
             character.animationController.Clip("Sakura Idle");
-
+    
             yield return outcome;
-
+    
             if (charge == 1)
                 yield break;
-
+    
             // three
-
+    
             character.enemyTransform = targets[2];
-
+    
             //character.chosenAttack.GetOutcome();
-
+    
             yield return character.MoveInRange(new Vector3(-0.35f, 0, 0));
-
+    
             character.animationController.Clip("Sakura Kick");
-
+    
             yield return character.WaitForKeyFrame();
             outcome = character.StartCoroutine(character.ApplyOutcome(currentInfo[2]));
-
+    
             yield return character.animationController.coroutine;
             character.animationController.Clip("Sakura Idle");
-
+    
             yield return outcome;
         }  
-
+    
     }
     public Combo_OLD combo_OLD;
-
-
-    public class Throw_Kunai_OLD : Skill
-    {
-        public GameObject kunaiPrefab => Resources.Load<GameObject>("Projectiles/Kunai");
-
-        public Throw_Kunai_OLD(Combat_Character character)
-        {
-            this.character = character;
-
-            name = "Throw Kunai OLD";
-
-            baseInfo = new Info[]
-            {
-                new Info(-5, 0, 0, Type.Physical, Range.Far),
-            };
-        }
-
-        public override IEnumerator SubMenus(MonoBehaviour owner)
-        {
-            bool done = false;
-
-            int i = 0;
-
-
-            while (!done)
-            {
-
-                switch (i)
-                {
-                    case 0:
-
-                        if (targets.Count > 0)
-                            targets.RemoveAt(character.chosenAttack.targets.Count - 1);
-
-
-                        yield return character.SubMenuController.OpenSubMenu("Targets", character.TurnController.GetPlayerNames(character.Facing));
-
-                        if (character.SubMenuController.CurrentSubMenu.ButtonChoice > -1)
-                        {
-                            if (character.Facing == 1)
-                                character.chosenAttack.targets.Add(character.TurnController.right_Players[character.SubMenuController.CurrentSubMenu.ButtonChoice].transform);
-                            else
-                                character.chosenAttack.targets.Add(character.TurnController.right_Players[character.SubMenuController.CurrentSubMenu.ButtonChoice].transform);
-
-                            i++;
-                        }
-                        else
-                        {
-                            character.chosenAttack = null;
-                            yield break;
-                        }
-
-                        break;
-
-                    case 1:
-
-                        yield return character.SubMenuController.OpenSubMenu("Confirm", new List<string>() { "Confirm" });
-
-                        if (character.SubMenuController.CurrentSubMenu.ButtonChoice > -1)
-                        {
-                            done = true;
-                        }
-                        else
-                        {
-                            i--;
-                        }
-
-                        break;
-                }
-
-            }
-
-
-            Execute = Action();
-        }
-
-        public IEnumerator Action()
-        {
-            character.enemyTransform = targets[0];
-
-            GetOutcome();
-
-            yield return character.MoveInRange(new Vector3(-1.75f, 0, 0));
-
-            character.animationController.Clip("Sakura Kunai");
-
-            yield return character.WaitForKeyFrame();
-
-            GameObject kunai = Instantiate(kunaiPrefab, character.animationController.instatiatePoint.position, Quaternion.identity);
-
-            //yield return ProjectileArch(kunai.transform, new Vector3(-0.1f, 0.2f, 0), 0.4f);
-
-            Coroutine tragectory = character.StartCoroutine(character.ProjectileArch(kunai.transform, new Vector3(0.8f, 0f, 0f), 0.4f));
-
-
-            if (character.Facing == 1)
-                yield return new WaitWhile(() => kunai.transform.position.x <= targets[0].position.x);
-            else
-                yield return new WaitWhile(() => kunai.transform.position.x >= targets[0].position.x);
-
-            if (currentInfo[0].HitSuccess != 0)
-            {
-                character.StopCoroutine(tragectory);
-                Destroy(kunai);
-            }
-
-            Coroutine outcome = character.StartCoroutine(character.ApplyOutcome(currentInfo[0]));
-
-            yield return tragectory;
-
-            Destroy(kunai, 2);
-
-            character.animationController.Clip("Sakura Idle");
-
-            yield return outcome;
-        }
-    }
-    public Throw_Kunai_OLD throw_Kunai_OLD;
-
+    */
 
     [System.Serializable]
     public class Combo : Skill
     {
-        public Combo(Combat_Character character)
+        public Combo(Combat_Character character) : base(character)
         {
-            this.character = character;
-
             name = "Punch, Punch, Kick!";
 
-            focusPenalty = 0.5f;
             levels = 3;
+
+            damage = -6;
+            critical = -2;
+            accuracy = 0;
+            focusPenalty = 5;   // this'll be divided by 10
+            type = Type.Physical;
+            range = Range.Close;
 
             baseInfo = new Info[]
             {
@@ -394,7 +280,25 @@ public class Sakura : Combat_Character
 
                         List<string> labels = Enumerable.Range(1, levels).Select(n => n.ToString()).ToList();
 
-                        yield return character.SubMenuController.OpenSubMenu("Levels", labels);
+                        owner.StartCoroutine(character.SubMenuController.OpenSubMenu("Levels", labels));
+
+                        yield return null;
+
+                        while (character.SubMenuController.CurrentSubMenu.ButtonChoice < -1)
+                        {
+                            if (character.SubMenuController.CurrentSubMenu.hoveringButton > -1)
+                            {
+                                character.TurnController.descriptionBox.title.text = name + " Level " + (character.SubMenuController.CurrentSubMenu.hoveringButton + 1); 
+                                character.TurnController.descriptionBox.DMG_Txt.text = Mathf.Abs((currentInfo[0].damage * (character.SubMenuController.CurrentSubMenu.hoveringButton + 1))).ToString();
+                                character.TurnController.descriptionBox.REC_Txt.text = Mathf.Abs(character.focusSpeed + ((focusPenalty/10f) * (character.SubMenuController.CurrentSubMenu.hoveringButton + 1))).ToString();
+                            }
+                            //else
+                            //{
+                            //    character.TurnController.descriptionBox.DMG_Txt.text = Mathf.Abs(currentInfo[0].damage).ToString();
+                            //    character.TurnController.descriptionBox.REC_Txt.text = Mathf.Abs(character.focusSpeed + focusPenalty).ToString();
+                            //}
+                            yield return null;
+                        }
 
                         if (character.SubMenuController.CurrentSubMenu.ButtonChoice > -1)
                         {
@@ -427,7 +331,7 @@ public class Sakura : Combat_Character
                             if (character.Facing == 1)
                                 character.chosenAttack.targets.Add(character.TurnController.right_Players[character.SubMenuController.CurrentSubMenu.ButtonChoice].transform);
                             else
-                                character.chosenAttack.targets.Add(character.TurnController.right_Players[character.SubMenuController.CurrentSubMenu.ButtonChoice].transform);
+                                character.chosenAttack.targets.Add(character.TurnController.left_Players[character.SubMenuController.CurrentSubMenu.ButtonChoice].transform);
 
                             i++;
 
@@ -565,13 +469,16 @@ public class Sakura : Combat_Character
     [System.Serializable]
     public class Jump_Kick : Skill
     {
-        public Jump_Kick(Combat_Character character)
+        public Jump_Kick(Combat_Character character) : base(character)
         {
             this.character = character;
 
             name = "Jump Kick";
 
-            focusPenalty = 1.5f;
+            damage = -20;
+            critical = 0;
+            accuracy = 0;
+            focusPenalty = 15;
 
             baseInfo = new Info[]
             {
@@ -697,14 +604,18 @@ public class Sakura : Combat_Character
     {
         public GameObject kunaiPrefab => Resources.Load<GameObject>("Projectiles/Kunai");
 
-        public Throw_Kunai(Combat_Character character)
+        public Throw_Kunai(Combat_Character character) : base(character)
         {
             this.character = character;
 
             name = "Throw Kunai";
 
             maxCharges = 2;
-            focusPenalty = 0.5f;
+
+            damage = -8;
+            critical = 0;
+            accuracy = 0;
+            focusPenalty = 5;
 
             baseInfo = new Info[]
             {
@@ -712,7 +623,7 @@ public class Sakura : Combat_Character
             };
 
             effect = true;
-            description = "CHARGE to a max of 2; each charge has a speed penalty of " + focusPenalty.ToString("F1") + " seconds. Each charge will throw an extra kunai.";
+            description = "CHARGE to a max of 2; each charge has a speed penalty of " + (focusPenalty/10f).ToString("F1") + " seconds. Each charge will throw an extra kunai.";
         }
 
         public override IEnumerator SubMenus(MonoBehaviour owner)
@@ -988,7 +899,7 @@ public class Sakura : Combat_Character
     [System.Serializable]
     public class Multi_Hit : Skill
     {
-        public Multi_Hit(Combat_Character character)
+        public Multi_Hit(Combat_Character character) : base(character)
         {
             this.character = character;
 
@@ -996,10 +907,7 @@ public class Sakura : Combat_Character
 
             baseInfo = new Info[]
             {
-                new Info(-4, 0, 0, Type.Physical, Range.Close),
-                new Info(-4, 0, 0, Type.Physical, Range.Close),
-                new Info(-4, 0, 0, Type.Physical, Range.Close),
-                new Info(-4, 0, 0, Type.Physical, Range.Close),
+                new Info(-16, 0, 0, Type.Physical, Range.Close),
             };
 
             description = "Release a flury of 4 punches.";
@@ -1097,6 +1005,7 @@ public class Sakura : Combat_Character
             
             Coroutine outcome = null;
 
+            currentInfo[0].damage /= 4;
 
             switch ((int)cd.result)
             {
@@ -1114,17 +1023,13 @@ public class Sakura : Combat_Character
                     yield break;
             
             }
-            //
-            //
-            //
+
             for (int i = 1; i < 4; i++)
             {
                 yield return character.WaitForKeyFrame();
 
-                currentInfo[i].HitSuccess = currentInfo[0].HitSuccess;
-
-                if (currentInfo[i].HitSuccess != 0)
-                    outcome = character.StartCoroutine(character.ApplyOutcome(currentInfo[i]));
+                if (currentInfo[0].HitSuccess != 0)
+                    outcome = character.StartCoroutine(character.ApplyOutcome(currentInfo[0]));
             }
 
 
@@ -1141,13 +1046,16 @@ public class Sakura : Combat_Character
     public class Defense : Spell
     {
 
-        public Defense(Combat_Character character)
+        public Defense(Combat_Character character) : base(character)
         {
             this.character = character;
 
             name = "Block";
 
-            focusPenalty = 1.1f;
+            damage = 0;
+            critical = 0;
+            accuracy = 0;
+            focusPenalty = 11;
 
             baseInfo = new Info[]
             {
@@ -1239,13 +1147,16 @@ public class Sakura : Combat_Character
     public class Heal : Spell
     {
 
-        public Heal(Combat_Character character)
+        public Heal(Combat_Character character) : base(character)
         {
             this.character = character;
 
             name = "Heal";
 
-            focusPenalty = 1f;
+            damage = 0;
+            critical = 0;
+            accuracy = 0;
+            focusPenalty = 10;
 
             baseInfo = new Info[]
             {

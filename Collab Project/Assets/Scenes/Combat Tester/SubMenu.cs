@@ -11,7 +11,7 @@ public class SubMenu : MonoBehaviour
     public Button returnButton;
     public TextMeshProUGUI title;
 
-
+    public int hoveringButton = -1;
     public int ButtonChoice = -2;       // -2 (Waiting), -1 (Return)
 
     public SubMenu_Controller SubMenuController { get; private set; }
@@ -60,8 +60,10 @@ public class SubMenu : MonoBehaviour
 
         for (int i = 0; i < stringList.Count; i++)
         {
-            buttonContainer.GetChild(i).GetChild(0).GetComponent<TextMeshProUGUI>().text = stringList[i];
+            SubMenu_Button buttonInst = buttonContainer.GetChild(i).GetComponent<SubMenu_Button>();
+            buttonInst.buttonText.text = stringList[i];
             buttonContainer.GetChild(i).gameObject.SetActive(true);
+            buttonInst.subMenu = this;
         }
 
         AddButtonListeners();
@@ -104,7 +106,8 @@ public class SubMenu : MonoBehaviour
         for (int i = 0; i < skillList.Count; i++)
         {
             SubMenu_Button buttonInst = buttonContainer.GetChild(i).GetComponent<SubMenu_Button>();
-            buttonInst.StoreSkillInfo(skillList[i]);
+            buttonInst.buttonText.text = skillList[i].name;
+            buttonInst.StoreSkillInfo(i);
             buttonInst.subMenu = this;
         }
 

@@ -38,10 +38,66 @@ public abstract class Combat_Character : MonoBehaviour
         public int maxCharges = 0;
         public int currentCharges = 0;
         public float[] chargeTimes;
-        public float focusPenalty = 0;
 
         [HideInInspector]
         public List<Transform> targets = new List<Transform>();
+
+        public int damage;
+        public int critical;
+        public int accuracy;
+        public int focusPenalty;
+        public Type type;
+        public Range range;
+
+        public enum Stat
+        {
+            DMG,
+            CRT,
+            HIT,
+            REC,
+        }
+
+        [Header("Buffs/Debuffs")]
+        public List<StatChanger> statChangers = new List<StatChanger>();
+
+        public Skill(Combat_Character character)  //This is needed for a default inheritance contructor call
+        {
+            this.character = character;
+            damage = 0;
+            critical = 0;
+            accuracy = 0;
+            focusPenalty = 0;
+            type = Type.Physical;
+            range = Range.Close;
+        }
+
+        private Dictionary<Stat, int> GetBaseStats()
+        {
+            var baseDirectory = new Dictionary<Stat, int>
+            {
+                {Stat.DMG, damage },
+                {Stat.CRT, critical },
+                {Stat.HIT, accuracy },
+                {Stat.REC, focusPenalty },
+            };
+
+            return baseDirectory;
+        }
+
+        public Dictionary<Stat, int> GetCurrentStats()
+        {
+            Dictionary<Stat, int> currentDirectory = GetBaseStats();
+
+            foreach(StatChanger changer in statChangers)
+            {
+                foreach(KeyValuePair<Stat, int> stat in changer.skill_statChanges)
+                {
+                    currentDirectory[stat.Key] += stat.Value;
+                }
+            }
+
+            return currentDirectory;
+        }
 
         [System.Serializable]
         public class Info
@@ -113,6 +169,14 @@ public abstract class Combat_Character : MonoBehaviour
 
         public Turn_Controller.Stage stage;
 
+        public Spell(Combat_Character character) : base(character)
+        {
+            damage = 0;
+            critical = 0;
+            accuracy = 0;
+            focusPenalty = 0;
+        }
+
         public abstract bool Condition(Turn_Controller.Stage stage, Info info);
 
         public abstract IEnumerator Action2(int slot);
@@ -164,7 +228,7 @@ public abstract class Combat_Character : MonoBehaviour
 
     IEnumerator Focusing()
     {
-        float totalTime = (chosenAttack != null) ? focusSpeed + chosenAttack.focusPenalty : focusSpeed;
+        float totalTime = (chosenAttack != null) ? focusSpeed + chosenAttack.focusPenalty/10f : focusSpeed;
 
 
         Hud.SetTimer(totalTime, Color.grey);
@@ -253,6 +317,7 @@ public abstract class Combat_Character : MonoBehaviour
     public void AttackChoice(Skill attack)
     {
         chosenAttack = attack;
+        chosenAttack.SetCurrentInfo();
     }
 
     public int SetSkill(Spell action, Sprite img)
@@ -280,13 +345,11 @@ public abstract class Combat_Character : MonoBehaviour
 
     public IEnumerator StartAttack()
     {
-        chosenAttack.SetCurrentInfo();
-
         yield return chosenAttack.Execute;
 
         yield return new WaitForSeconds(0.3f);
 
-        TurnController.descriptionBox.gameObject.SetActive(false);
+        TurnController.descriptionBox.container.SetActive(false);
 
         // Reset Camera
 

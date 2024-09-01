@@ -78,7 +78,7 @@ public class Stats : ScriptableObject
 
         foreach (StatChanger buff in statChangers)
         {
-            foreach (KeyValuePair<Stat, int> stat in buff.statChanges)
+            foreach (KeyValuePair<Stat, int> stat in buff.character_statChanges)
             {
                 currentDirectory[stat.Key] += stat.Value;
             }
@@ -97,14 +97,21 @@ public class Stats : ScriptableObject
         return currentDirectory;
     }
 
-    public Dictionary<Stat, int> GetCombatStats( Combat_Character target)
+    public Dictionary<Stat, int> GetCombatStats(Combat_Character owner, Combat_Character target)
     {
         Dictionary<Stat, int> ownerDirectory = GetCurrentStats();
+
         Dictionary<Stat, int> targetDirectory = target.stats.GetCurrentStats();
 
-        ownerDirectory[Stat.Crit] -= targetDirectory[Stat.CritAvo];
-        ownerDirectory[Stat.PhHit] -= targetDirectory[Stat.PhAvo];
-        //ownerDirectory[Stat.MgHit] -= targetDirectory[Stat.MgAvo];
+
+
+        float ownerSuccess = ownerDirectory[Stat.Crit] + owner.chosenAttack.baseInfo[0].critical;
+
+        ownerDirectory[Stat.Crit] = Mathf.RoundToInt((ownerSuccess / (ownerSuccess + targetDirectory[Stat.CritAvo])) * 100f);
+
+        ownerSuccess = ownerDirectory[Stat.PhHit] + owner.chosenAttack.baseInfo[0].accuracy;
+
+        ownerDirectory[Stat.PhHit] = Mathf.RoundToInt((ownerSuccess / (ownerSuccess + targetDirectory[Stat.PhAvo])) * 100f);
 
         return ownerDirectory;
     }

@@ -30,7 +30,10 @@ public class SubMenu_Attacks : SubMenu
         if (ButtonChoice > -1)
             SubMenuController.subMenuStage = 0;
         else if (ButtonChoice == -1)
+        {
+            //SubMenuController.owner.chosenAttack = null;
             Return();
+        }
 
 
 

@@ -44,7 +44,9 @@ public class Character_Hud : MonoBehaviour
 
     public void IncrementTimer(float globalDelta)
     {
-        timer_Progress = Mathf.Floor((timer_Progress - globalDelta) * 100f) / 100f;
+        //timer_Progress = Mathf.Floor((timer_Progress - globalDelta) * 1000f) / 1000f;
+
+        timer_Progress -= globalDelta;
 
         timer_numbers.text = timer_Progress.ToString("F1");
 

@@ -144,6 +144,10 @@ public class Turn_Controller : MonoBehaviour
             }
             else
             {
+                foreach (Combat_Character character in all_Players)
+                {
+                    character.Hud.timer_Progress = Mathf.Ceil((character.Hud.timer_Progress) * 10f) / 10f;
+                }
 
                 while (turnQueue.Count > 0)
                 {
@@ -193,7 +197,6 @@ public class Turn_Controller : MonoBehaviour
                         turnQueue.Dequeue();
                     }
                 }
-
             }
 
             yield return null;

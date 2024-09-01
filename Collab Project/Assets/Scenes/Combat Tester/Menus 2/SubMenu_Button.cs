@@ -12,11 +12,15 @@ public class SubMenu_Button : MonoBehaviour, IPointerEnterHandler, IPointerExitH
     public TextMeshProUGUI buttonText;
     public string HoverTxt = "";
 
-    public void StoreSkillInfo(Combat_Character.Skill skill)
+    public int storedIndex = -1;
+
+    public void StoreSkillInfo(int index)
     {
-        buttonText.text = skill.name;
-        HoverTxt = skill.description;
-        skillInfo = skill;
+        storedIndex = index;
+
+        //buttonText.text = skill.name;
+        //HoverTxt = skill.description;
+        //skillInfo = skill;
     }
 
 
@@ -24,26 +28,31 @@ public class SubMenu_Button : MonoBehaviour, IPointerEnterHandler, IPointerExitH
     {
         if (subMenu != null)
         {
-            subMenu.SubMenuController.owner.TurnController.descriptionBox.gameObject.SetActive(true);
-            subMenu.SubMenuController.owner.TurnController.descriptionBox.title.text = skillInfo.name;
-
-            subMenu.SubMenuController.owner.TurnController.descriptionBox.DMG_Txt.text = Mathf.Abs(skillInfo.baseInfo[0].damage).ToString();
-            subMenu.SubMenuController.owner.TurnController.descriptionBox.CRT_Txt.text = subMenu.SubMenuController.owner.stats.GetCurrentStats(skillInfo)[Stats.Stat.Crit].ToString();
-            subMenu.SubMenuController.owner.TurnController.descriptionBox.REC_Txt.text = (skillInfo.focusPenalty + subMenu.SubMenuController.owner.focusSpeed).ToString();
-            subMenu.SubMenuController.owner.TurnController.descriptionBox.HIT_Txt.text = subMenu.SubMenuController.owner.stats.GetCurrentStats(skillInfo)[Stats.Stat.PhHit].ToString();
-
-            string typeText = "[" + skillInfo.baseInfo[0].type.ToString().ToUpper();
-
-            if (skillInfo.effect)
-            {
-                typeText += " / EFFECT";
-            }
-
-            typeText += "]";
-
-            subMenu.SubMenuController.owner.TurnController.descriptionBox.type.text = typeText;
-
-            subMenu.SubMenuController.owner.TurnController.descriptionBox.descriptionText.text = HoverTxt;
+            //subMenu.SubMenuController.owner.TurnController.descriptionBox.gameObject.SetActive(true);
+            //subMenu.SubMenuController.owner.TurnController.descriptionBox.title.text = skillInfo.name;
+            //
+            //subMenu.SubMenuController.owner.TurnController.descriptionBox.DMG_Txt.text = Mathf.Abs(skillInfo.baseInfo[0].damage).ToString();
+            //subMenu.SubMenuController.owner.TurnController.descriptionBox.CRT_Txt.text = subMenu.SubMenuController.owner.stats.GetCurrentStats(skillInfo)[Stats.Stat.Crit].ToString();
+            //subMenu.SubMenuController.owner.TurnController.descriptionBox.REC_Txt.text = (skillInfo.focusPenalty + subMenu.SubMenuController.owner.focusSpeed).ToString();
+            //subMenu.SubMenuController.owner.TurnController.descriptionBox.HIT_Txt.text = subMenu.SubMenuController.owner.stats.GetCurrentStats(skillInfo)[Stats.Stat.PhHit].ToString();
+            //
+            //string typeText = "[" + skillInfo.baseInfo[0].type.ToString().ToUpper();
+            //
+            //if (skillInfo.effect)
+            //{
+            //    typeText += " / EFFECT";
+            //}
+            //
+            //typeText += "]";
+            //
+            //subMenu.SubMenuController.owner.TurnController.descriptionBox.type.text = typeText;
+            //
+            //subMenu.SubMenuController.owner.TurnController.descriptionBox.descriptionText.text = HoverTxt;
+            //
+            //
+            //
+            subMenu.hoveringButton = transform.GetSiblingIndex();
+            subMenu.SubMenuController.owner.TurnController.descriptionBox.UpdateInfo();
         }
     }
 
@@ -51,7 +60,10 @@ public class SubMenu_Button : MonoBehaviour, IPointerEnterHandler, IPointerExitH
     {
         if (subMenu != null)
         {
-            subMenu.SubMenuController.owner.TurnController.descriptionBox.gameObject.SetActive(false);
+            //subMenu.SubMenuController.owner.TurnController.descriptionBox.gameObject.SetActive(false);
+
+            subMenu.hoveringButton = -1;
+            subMenu.SubMenuController.owner.TurnController.descriptionBox.UpdateInfo();
         }
     }
 }
