@@ -31,133 +31,60 @@ public abstract class Combat_Character : MonoBehaviour
         public string name;
         public bool effect = false;
         public string description = "";
+
+        public class Skill_Stats
+        {
+            public int attack;
+            public int accuracy;
+            public int critical;
+            public int mana;
+
+            public StatChanger statChanger;
+        }
+        public Skill_Stats[] skill_Stats;
+
         public enum Type { Physical, Magic };
+        public Type type = Type.Physical;
         public enum Range { Close, Far };
-        public int levels = 0;
+        public Range range = Range.Close;
+
+        public int level = 0;
+        public int maxLevel = 0;
+
         public bool charging;
-        public int maxCharges = 0;
-        public int currentCharges = 0;
-        public float[] chargeTimes;
+        public string chargeAnimation = "";
+
+        public int CritSuccess { get; set; }
+        public int HitSuccess { get; set; }
 
         [HideInInspector]
         public List<Transform> targets = new List<Transform>();
 
-        public int damage;
-        public int critical;
-        public int accuracy;
-        public int focusPenalty;
-        public Type type;
-        public Range range;
-
-        public enum Stat
-        {
-            DMG,
-            CRT,
-            HIT,
-            REC,
-        }
-
-        [Header("Buffs/Debuffs")]
-        public List<StatChanger> statChangers = new List<StatChanger>();
-
-        public Skill(Combat_Character character)  //This is needed for a default inheritance contructor call
-        {
-            this.character = character;
-            damage = 0;
-            critical = 0;
-            accuracy = 0;
-            focusPenalty = 0;
-            type = Type.Physical;
-            range = Range.Close;
-        }
-
-        private Dictionary<Stat, int> GetBaseStats()
-        {
-            var baseDirectory = new Dictionary<Stat, int>
-            {
-                {Stat.DMG, damage },
-                {Stat.CRT, critical },
-                {Stat.HIT, accuracy },
-                {Stat.REC, focusPenalty },
-            };
-
-            return baseDirectory;
-        }
-
-        public Dictionary<Stat, int> GetCurrentStats()
-        {
-            Dictionary<Stat, int> currentDirectory = GetBaseStats();
-
-            foreach(StatChanger changer in statChangers)
-            {
-                foreach(KeyValuePair<Stat, int> stat in changer.skill_statChanges)
-                {
-                    currentDirectory[stat.Key] += stat.Value;
-                }
-            }
-
-            return currentDirectory;
-        }
-
-        [System.Serializable]
-        public class Info
-        {
-            public int damage;
-            public int critical;
-            public int accuracy;
-            public int HitSuccess { get; set; }
-
-            public Range range;
-            public Type type;
-
-            public Info(int damage, int critical, int accuracy, Type type, Range range)
-            {
-                this.damage = damage;
-                this.critical = critical;
-                this.accuracy = accuracy;
-                this.type = type;
-                this.range = range;
-            }
-
-            public Info(Info info)
-            {
-                damage = info.damage;
-                type = info.type;
-                range = info.range;
-            }
-        }
-
-        public Info[] baseInfo = new Info[] { }, currentInfo = new Info[] { };
-
-        public void SetCurrentInfo()
-        {
-            currentInfo = new Info[baseInfo.Length];
-
-            for (int i = 0; i < baseInfo.Length; i++)
-            {
-                currentInfo[i] = new Info(baseInfo[i]);
-            }
-        }
+        public Skill(Combat_Character character) => this.character = character;
 
         public abstract IEnumerator SubMenus(MonoBehaviour owner);
 
         public IEnumerator Execute;
 
-        //public int Critical { get; set; }
-        //public float Success { get; set; }
-
-        public void GetOutcome()
+        public void GetOutcome(Skill_Stats stats, Transform t)
         {
-            foreach (Info info in currentInfo)
-            {
-                info.critical = Random.Range(0, 10) > 4 ? 2 : 1;
+            Combat_Character target = t.GetComponent<Combat_Character>();
 
-                info.HitSuccess = Random.Range(0, 99) < 75 ? 1 : 0;
+            var chances = character.character_Stats.GetCombatStats(stats, target);
 
-                //Debug
+            int critRoll = Random.Range(0, 100);
 
-                //Success = 1;
-            }
+            CritSuccess = critRoll < chances[Character_Stats.Stat.Crit] ? 3 : 1;
+
+            int hitRoll = (Random.Range(0, 100) + Random.Range(0, 100)) / 2;
+
+            HitSuccess = hitRoll < chances[Character_Stats.Stat.PhHit] ? 1 : 0;
+
+            print(character.name + ": " + hitRoll  + " (<" + chances[Character_Stats.Stat.PhHit] + "?) " + critRoll + " (<" + chances[Character_Stats.Stat.Crit] + "?)");
+
+            //Debug
+
+            //Success = 1;
         }
     }
 
@@ -171,13 +98,10 @@ public abstract class Combat_Character : MonoBehaviour
 
         public Spell(Combat_Character character) : base(character)
         {
-            damage = 0;
-            critical = 0;
-            accuracy = 0;
-            focusPenalty = 0;
+ 
         }
 
-        public abstract bool Condition(Turn_Controller.Stage stage, Info info);
+        public abstract bool Condition(Turn_Controller.Stage stage, Skill info);
 
         public abstract IEnumerator Action2(int slot);
     }
@@ -187,15 +111,7 @@ public abstract class Combat_Character : MonoBehaviour
 
     public Skill chosenAttack;
 
-    //[System.Serializable]
-    //public abstract class Skill
-    //{
-    //
-    //}
-
     public Spell[] setSpells = new Spell[3];
-
-    //public List<Transform> targets = new List<Transform>();
 
     public int Facing { get; set; } = 1;
 
@@ -215,11 +131,9 @@ public abstract class Combat_Character : MonoBehaviour
 
     public int health;
 
-    [SerializeField]
-    public float focusSpeed = 1f;
+    public int mana;
 
-
-    public Stats stats;
+    public Character_Stats character_Stats;
 
     public void StartFocus()
     { 
@@ -228,30 +142,24 @@ public abstract class Combat_Character : MonoBehaviour
 
     IEnumerator Focusing()
     {
-        float totalTime = (chosenAttack != null) ? focusSpeed + chosenAttack.focusPenalty/10f : focusSpeed;
 
+        //float totalTime = (chosenAttack != null) ? stats.GetCurrentStats()[Stats.Stat.AS] + chosenAttack.GetCurrentStats()[Skill.Stat.REC] : stats.GetCurrentStats()[Stats.Stat.AS];
+
+        float totalTime = character_Stats.GetCurrentStats()[Character_Stats.Stat.AS];
 
         Hud.SetTimer(totalTime, Color.grey);
 
-        yield return new WaitUntil(() => Hud.GetTimeLeft() <= focusSpeed);
+        yield return new WaitUntil(() => Hud.GetTimeLeft() <= character_Stats.GetCurrentStats()[Character_Stats.Stat.AS]);
 
         Hud.SetTimerColor(Color.blue);
 
-        //Coroutine timer = StartCoroutine(Hud.Timer(totalTime, Color.grey));
-        //
-        //if (chosenAttack != null)
-        //    yield return new WaitUntil(() => Hud.GetTimeLeft() <= focusSpeed);
-        //
-        //Hud.SetTimerColor(Color.blue);
-        //
-        //yield return timer;
-        //
-        //TurnController.AddToTurnQueue(this);
     }
 
     public void StartTurn()
     {
         spotLight = true;
+
+        character_Stats.IncrementStatChangers();
 
         if (cpu)
             StartCoroutine(CpuDecisionMaking());
@@ -317,7 +225,6 @@ public abstract class Combat_Character : MonoBehaviour
     public void AttackChoice(Skill attack)
     {
         chosenAttack = attack;
-        chosenAttack.SetCurrentInfo();
     }
 
     public int SetSkill(Spell action, Sprite img)
@@ -537,6 +444,9 @@ public abstract class Combat_Character : MonoBehaviour
         }
 
         transform.position = startingPos;
+
+        if(chosenAttack != null && chosenAttack.charging && chosenAttack.chargeAnimation != "")
+            animationController.Clip(chosenAttack.chargeAnimation);      // this should be a check on the chosenskill to see if charge was BROKEN and whether to continue or not
     }
 
 
@@ -547,45 +457,50 @@ public abstract class Combat_Character : MonoBehaviour
         animationController.eventFrame = false;
     }
 
-    public IEnumerator Impact()
+    public IEnumerator Impact(float timer)
     {
         animationController.Pause();
 
         enemy.animationController.Pause();
 
-        yield return new WaitForSeconds(0.25f); // contact pause
+        yield return new WaitForSeconds(timer); // contact pause
 
         animationController.Play();
 
         enemy.animationController.Play();
     }
 
-    public IEnumerator ApplyOutcome(Skill.Info info)
+    public IEnumerator ApplyOutcome(int success, int critical, float damage)
     {
-        switch (info.HitSuccess)
+
+        damage *= -1;
+        damage *= critical;
+
+        switch (success)
         {
             case 0:
-                Instantiate(outcome_Bubble_Prefab, enemy.outcome_Bubble_Pos.position, Quaternion.identity).Input("DODGE");
+                Instantiate(outcome_Bubble_Prefab, enemy.outcome_Bubble_Pos.position, Quaternion.identity).Input("MISS");
                 yield return StartCoroutine(enemyTransform.GetComponent<Combat_Character>().Dodge());
                 break;
 
             case 1:
 
-                if (Mathf.Abs(info.damage) < 5)
+                if (damage > -5 && damage <= 0)
                 {
                     StartCoroutine(enemy.Block());
-                    Instantiate(outcome_Bubble_Prefab, enemy.outcome_Bubble_Pos.position, Quaternion.identity).Input(info.damage);
-                    //Instantiate(outcome_Bubble_Prefab, enemy.outcome_Bubble_Pos.position, Quaternion.identity).Input(info.damage, "BLOCK");
                 }
                 else
                 {
-
                     StartCoroutine(enemy.Damage());
-                    Instantiate(outcome_Bubble_Prefab, enemy.outcome_Bubble_Pos.position, Quaternion.identity).Input(info.damage);
                 }
 
-                enemy.AdjustHealth(info.damage);
-                yield return Impact();
+                if (critical != 1)
+                    Instantiate(outcome_Bubble_Prefab, enemy.outcome_Bubble_Pos.position, Quaternion.identity).Input(Mathf.RoundToInt(damage), "CRITICAL", Color.yellow);
+                else
+                    Instantiate(outcome_Bubble_Prefab, enemy.outcome_Bubble_Pos.position, Quaternion.identity).Input(Mathf.RoundToInt(damage));
+
+                enemy.AdjustHealth(Mathf.RoundToInt(damage));
+                yield return Impact(0.25f * critical);
                 break;
         }
     }
@@ -596,6 +511,13 @@ public abstract class Combat_Character : MonoBehaviour
         health += amount;
 
         Hud.AdjustHealth(health, amount);
+    }
+
+    public void AdjustMana(int amount)
+    {
+        mana += amount;
+
+        Hud.AdjustMana(mana, amount);
     }
 
     public abstract IEnumerator Damage();

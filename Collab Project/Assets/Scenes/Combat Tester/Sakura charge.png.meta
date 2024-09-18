@@ -1,0 +1,293 @@
+fileFormatVersion: 2
+guid: 01833c6fd3f29634587ecf528fff7377
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -6250922733887019707
+    second: Sakura charge_0
+  - first:
+      213: -6875991268341181285
+    second: Sakura charge_1
+  - first:
+      213: 8890067264026040675
+    second: Sakura charge_2
+  - first:
+      213: -5940227674265992927
+    second: Sakura charge_3
+  - first:
+      213: -7580250427075838332
+    second: Sakura charge_4
+  - first:
+      213: -1990312309637018135
+    second: Sakura charge_5
+  - first:
+      213: 6094640190519889838
+    second: Sakura charge_6
+  - first:
+      213: -5320533646837160895
+    second: Sakura charge_0
+  - first:
+      213: -1810913232018465327
+    second: Sakura charge_1
+  - first:
+      213: -5591335413992282597
+    second: Sakura charge_2
+  - first:
+      213: 1741132724512349076
+    second: Sakura charge_3
+  - first:
+      213: -6150434581533650433
+    second: Sakura charge_4
+  - first:
+      213: 1331489421819583030
+    second: Sakura charge_5
+  - first:
+      213: 51627462959474232
+    second: Sakura charge_6
+  externalObjects: {}
+  serializedVersion: 11
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 0
+    aniso: -1
+    mipBias: -100
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  applyGammaDecoding: 0
+  platformSettings:
+  - serializedVersion: 3
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: Sakura charge_0
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 1
+        width: 22
+        height: 42
+      alignment: 6
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 144e1cc66daa926b0800000000000000
+      internalID: -5320533646837160895
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sakura charge_1
+      rect:
+        serializedVersion: 2
+        x: 32
+        y: 1
+        width: 25
+        height: 42
+      alignment: 9
+      pivot: {x: 0.08, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 1dd1c7692085ed6e0800000000000000
+      internalID: -1810913232018465327
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sakura charge_2
+      rect:
+        serializedVersion: 2
+        x: 63
+        y: 1
+        width: 24
+        height: 42
+      alignment: 9
+      pivot: {x: 0.083333336, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b16adeca0169762b0800000000000000
+      internalID: -5591335413992282597
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sakura charge_3
+      rect:
+        serializedVersion: 2
+        x: 96
+        y: 0
+        width: 23
+        height: 42
+      alignment: 6
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 49bdd5fecfeb92810800000000000000
+      internalID: 1741132724512349076
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sakura charge_4
+      rect:
+        serializedVersion: 2
+        x: 123
+        y: 2
+        width: 25
+        height: 42
+      alignment: 6
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: ff19861a55445aaa0800000000000000
+      internalID: -6150434581533650433
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sakura charge_5
+      rect:
+        serializedVersion: 2
+        x: 156
+        y: 1
+        width: 25
+        height: 42
+      alignment: 9
+      pivot: {x: 0.08, y: -0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 63a1fb913966a7210800000000000000
+      internalID: 1331489421819583030
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sakura charge_6
+      rect:
+        serializedVersion: 2
+        x: 190
+        y: 0
+        width: 23
+        height: 42
+      alignment: 9
+      pivot: {x: 0.04347826, y: -0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 836aa5e67ea67b000800000000000000
+      internalID: 51627462959474232
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+  spritePackingTag: 
+  pSDRemoveMatte: 0
+  pSDShowRemoveMatteOption: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

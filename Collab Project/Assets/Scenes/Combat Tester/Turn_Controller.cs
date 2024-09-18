@@ -50,6 +50,8 @@ public class Turn_Controller : MonoBehaviour
         {
             character.TurnController = this;
 
+            character.character_Stats.ClearStatChangers();        //This is only for DEBUGING
+
             if (left_Players.Contains(character))
             {
                 character.Hud = Instantiate(left_Huds.transform.GetChild(0).gameObject.GetComponent<Character_Hud>(), left_Huds.transform);
@@ -214,7 +216,7 @@ public class Turn_Controller : MonoBehaviour
     /// <returns></returns>
     /// 
 
-    public IEnumerator Reactions(Stage stage, Combat_Character.Skill.Info info)
+    public IEnumerator Reactions(Stage stage, Combat_Character.Skill info)
     {
         foreach (Combat_Character character in all_Players)
         {
@@ -244,6 +246,8 @@ public class Turn_Controller : MonoBehaviour
             character.MenuPositioning();
 
             yield return character.SubMenuController.OpenSubMenu("Prompts", labels);
+
+            yield return character.SubMenuController.CurrentCD.coroutine;
 
             foreach (Combat_Character c in all_Players)
                 c.animationController.Play();

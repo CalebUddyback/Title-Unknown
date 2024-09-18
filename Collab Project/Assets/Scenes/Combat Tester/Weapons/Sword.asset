@@ -9,16 +9,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 88dcc4cf74d52114a96a5e9635bae512, type: 3}
-  m_Name: Sakura
+  m_Script: {fileID: 11500000, guid: 4c75a65007db7ce4e9f3cabba70ee390, type: 3}
+  m_Name: Sword
   m_EditorClassIdentifier: 
-  health: 0
-  strength: 2
-  defense: 0
-  magic: 1
-  resistance: 1
-  dexterity: 6
-  luck: 4
-  speed: 20
-  weapon: {fileID: 11400000, guid: 8036eb8e8a6f4904fb130ffa837c3c18, type: 2}
-  statChangers: []
+  weapon_Type: 0
+  title: Basic Sword
+  attack: 5
+  accuracy: 70
+  critical: 2
+  weight: 5

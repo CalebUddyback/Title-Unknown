@@ -21,7 +21,7 @@ public class AnimationController : MonoBehaviour
 
         if (!trigger.Contains("Idle"))
         {
-            print("Playing " + trigger);
+            //print("Playing " + trigger);
             coroutine = StartCoroutine(Playing());
         }
     }

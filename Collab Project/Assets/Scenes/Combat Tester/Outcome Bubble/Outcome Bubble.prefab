@@ -761,7 +761,7 @@ MonoBehaviour:
     m_Top: 0
     m_Bottom: 0
   m_ChildAlignment: 4
-  m_StartCorner: 2
+  m_StartCorner: 0
   m_StartAxis: 1
   m_CellSize: {x: 1, y: 0.3}
   m_Spacing: {x: 0, y: -0.06}
@@ -1130,7 +1130,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: BLOCK
+  m_text: CRITICAL
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: f9da29f1f4a9b5641838bb31fe2a9941, type: 2}
   m_sharedMaterial: {fileID: 4272816947203099833, guid: f9da29f1f4a9b5641838bb31fe2a9941,
@@ -1174,7 +1174,7 @@ MonoBehaviour:
   m_lineSpacingMax: 0
   m_paragraphSpacing: 0
   m_charWidthMaxAdj: 0
-  m_enableWordWrapping: 1
+  m_enableWordWrapping: 0
   m_wordWrappingRatios: 0.4
   m_overflowMode: 0
   m_linkedTextComponent: {fileID: 0}

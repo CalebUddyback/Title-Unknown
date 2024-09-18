@@ -35,7 +35,6 @@ public class Outcome_Bubble : MonoBehaviour
 
     public void Input(int num)
     {
-
         //numText = (num <= 0) ? (num * -1).ToString() : "+" + num.ToString();
 
         if(num <= 0)
@@ -82,6 +81,28 @@ public class Outcome_Bubble : MonoBehaviour
     {
 
         numText = (num <= 0)  ? (num * -1).ToString() : "+" + num.ToString();
+
+        stringText = str;
+
+        INT_canvas.gameObject.SetActive(true);
+        STRING_canvas.gameObject.SetActive(true);
+
+        StartCoroutine(NumPlaying(numText));
+        StartCoroutine(StringPlaying(stringText));
+    }
+
+    public void Input(int num, string str, Color clr)
+    {
+
+        numText = (num <= 0) ? (num * -1).ToString() : "+" + num.ToString();
+
+        STRING_canvas.transform.GetChild(0).GetComponent<TextMeshPro>().color = clr;
+
+        foreach (Transform digit in INT_canvas.transform)
+        {
+            digit.GetComponent<TextMeshPro>().color = clr;
+        }
+
 
         stringText = str;
 

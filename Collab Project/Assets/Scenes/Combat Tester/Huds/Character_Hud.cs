@@ -23,6 +23,16 @@ public class Character_Hud : MonoBehaviour
     public Image health_Back;
     public TextMeshProUGUI health_Text;
 
+    public Image mana_Main;
+    public Image mana_Back;
+    public TextMeshProUGUI mana_Text;
+
+    public void Start()
+    {
+        health_Main.fillAmount = 1;
+        mana_Main.fillAmount = 1;
+    }
+
     public void SetTimerColor(Color color)
     {
         timer_RadialFill.color = color;
@@ -115,17 +125,17 @@ public class Character_Hud : MonoBehaviour
 
     /***** HEALTH *****/
 
-    Coroutine backBarCO;
+    Coroutine hpBackBarCO;
 
     public void AdjustHealth(int health, int amount)
     {
-        if (backBarCO != null)
-            StopCoroutine(backBarCO);
+        if (hpBackBarCO != null)
+            StopCoroutine(hpBackBarCO);
 
-        backBarCO = StartCoroutine(Adjusting(health, amount));
+        hpBackBarCO = StartCoroutine(AdjustingHealth(health, amount));
     }
 
-    IEnumerator Adjusting(int health, int amount)
+    IEnumerator AdjustingHealth(int health, int amount)
     {
         health_Text.text = health.ToString();
 
@@ -167,9 +177,66 @@ public class Character_Hud : MonoBehaviour
             health_Main.fillAmount = health_Back.fillAmount;
         }
 
-        backBarCO = null;
+        hpBackBarCO = null;
     }
-    
+
+    /***** MANA *****/
+
+    Coroutine mpBackBarCO;
+
+    public void AdjustMana(int mana, int amount)
+    {
+        if (mpBackBarCO != null)
+            StopCoroutine(mpBackBarCO);
+
+        mpBackBarCO = StartCoroutine(AdjustingMana(mana, amount));
+    }
+
+    IEnumerator AdjustingMana(int mana, int amount)
+    {
+        mana_Text.text = mana.ToString();
+
+        if (amount < 0)
+        {
+            //mana_Back.color = new Color(0.7f, 0.85f, 1f);
+
+            mana_Main.fillAmount = mana / 100f;
+
+            mana_Main.GetComponent<Animation>().Play();
+
+            yield return new WaitForSeconds(1);
+
+            while (mana_Back.fillAmount > mana_Main.fillAmount)
+            {
+                mana_Back.fillAmount = Mathf.MoveTowards(mana_Back.fillAmount, mana_Main.fillAmount, 0.5f * Time.deltaTime);
+                yield return null;
+            }
+
+            mana_Back.fillAmount = mana_Main.fillAmount;
+
+        }
+        else
+        {
+            //mana_Back.color = new Color(0.7f, 0.85f, 1f);
+
+            mana_Back.fillAmount = mana / 100f;
+
+            mana_Main.GetComponent<Animation>().Play();
+
+            yield return new WaitForSeconds(1);
+
+            while (mana_Back.fillAmount > mana_Main.fillAmount)
+            {
+                mana_Main.fillAmount = Mathf.MoveTowards(mana_Main.fillAmount, mana_Back.fillAmount, 0.5f * Time.deltaTime);
+                yield return null;
+            }
+
+            mana_Main.fillAmount = mana_Back.fillAmount;
+        }
+
+        mpBackBarCO = null;
+    }
+
 
     public void SkillSlot(int slot, Sprite image)
     {

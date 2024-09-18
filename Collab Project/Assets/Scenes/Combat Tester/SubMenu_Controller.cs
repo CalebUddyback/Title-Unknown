@@ -173,7 +173,7 @@ public class SubMenu_Controller : MonoBehaviour
         }
 
 
-        yield return CurrentCD.coroutine;
+        //yield return CurrentCD.coroutine;
     }
 
     public void CloseSubMenu()

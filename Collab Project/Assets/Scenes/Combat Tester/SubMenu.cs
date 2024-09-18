@@ -32,8 +32,6 @@ public class SubMenu : MonoBehaviour
 
     public virtual void AdditionalSetup() { }
 
-    public List<string> test;
-
     public void AddButtons(List<string> stringList)
     {
 
@@ -55,8 +53,6 @@ public class SubMenu : MonoBehaviour
                 Instantiate(buttonPrefab, buttonContainer);
             }
         }
-
-        test = stringList;
 
         for (int i = 0; i < stringList.Count; i++)
         {
