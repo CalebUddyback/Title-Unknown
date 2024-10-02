@@ -13,7 +13,7 @@ public class SubMenu_Attacks : SubMenu
 
         //yield return base.WaitForChoice();
 
-        DescriptionBox dBox = SubMenuController.owner.TurnController.descriptionBox;
+        DescriptionBox dBox = SubMenuController.owner.TurnController.left_descriptionBox;
 
         ButtonChoice = -2;
 
@@ -56,7 +56,7 @@ public class SubMenu_Attacks : SubMenu
                     dBox.ATK_Mult.SetActive(false);
                 }
 
-                dBox.ATK_Num.text = Mathf.Abs(combat_Character.character_Stats.GetCurrentStats()[Character_Stats.Stat.ATK]).ToString();
+                //dBox.ATK_Num.text = Mathf.Abs(combat_Character.character_Stats.GetCurrentStats()[Character_Stats.Stat.ATK]).ToString();
                 dBox.ATK_Num.color = Color.white;
 
                 dBox.REC_Num.text = combat_Character.character_Stats.GetCurrentStats()[Character_Stats.Stat.AS].ToString();
@@ -115,11 +115,11 @@ public class SubMenu_Attacks : SubMenu
 
         yield return null;      // Give menu time to close if -1
 
-        combat_Character.AttackChoice(combat_Character.attackList[ButtonChoice]);
+        combat_Character.ActionChoice(combat_Character.attackList[ButtonChoice]);
 
-        yield return combat_Character.chosenAttack.SubMenus(combat_Character);
+        yield return combat_Character.chosenAction.SubMenus(combat_Character);
 
-        if(combat_Character.chosenAttack != null)
+        if(combat_Character.chosenAction != null)
             combat_Character.EndTurn();
     }
 }

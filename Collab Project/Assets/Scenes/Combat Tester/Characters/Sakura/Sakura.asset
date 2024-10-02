@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 88dcc4cf74d52114a96a5e9635bae512, type: 3}
+  m_Name: Sakura
+  m_EditorClassIdentifier: 
+  health: 0
+  strength: 2
+  defense: 0
+  magic: 1
+  resistance: 1
+  dexterity: 6
+  luck: 4
+  speed: 20
+  weapon: {fileID: 11400000, guid: 8036eb8e8a6f4904fb130ffa837c3c18, type: 2}
+  statChangers:
+  - name: Skill Exhaust
+    duration: 0
+    permanent: 0
+    incrementOnTargetsTurn: {fileID: 0}
+    incrementDirection: 0

@@ -21,7 +21,7 @@ public class Turn_Controller : MonoBehaviour
 
     public Combat_Character characterTurn;
 
-    public DescriptionBox descriptionBox;
+    public DescriptionBox left_descriptionBox, right_descriptionBox;
 
     private void Start()
     {
@@ -180,13 +180,13 @@ public class Turn_Controller : MonoBehaviour
 
                     //yield return characterTurn.mcamera.GetComponent<MainCamera>().Reset(0f);
 
-                    if (!characterTurn.chosenAttack.charging)
+                    if (!characterTurn.chosenAction.charging)
                     {
                         yield return characterTurn.StartAttack();
 
                         characterTurn.StartFocus();
 
-                        characterTurn.chosenAttack = null;
+                        characterTurn.chosenAction = null;
                     }
                     else
                     {

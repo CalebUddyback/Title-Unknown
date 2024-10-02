@@ -8,6 +8,8 @@ public abstract class Combat_Character : MonoBehaviour
 {
     public bool cpu = false;
 
+    public string characterName = "";
+
     public Vector3 startingPos;
 
     public Transform enemyTransform;
@@ -107,9 +109,10 @@ public abstract class Combat_Character : MonoBehaviour
     }
 
 
+
     public List<Skill> attackList;
 
-    public Skill chosenAttack;
+    public Skill chosenAction;
 
     public Spell[] setSpells = new Spell[3];
 
@@ -132,6 +135,8 @@ public abstract class Combat_Character : MonoBehaviour
     public int health;
 
     public int mana;
+
+    public bool blocking = false;
 
     public Character_Stats character_Stats;
 
@@ -159,14 +164,16 @@ public abstract class Combat_Character : MonoBehaviour
     {
         spotLight = true;
 
+        blocking = false;
+
         character_Stats.IncrementStatChangers();
 
         if (cpu)
             StartCoroutine(CpuDecisionMaking());
         else
         {
-            if (chosenAttack != null && chosenAttack.charging)
-                StartCoroutine(chosenAttack.SubMenus(this));
+            if (chosenAction != null && chosenAction.charging)
+                StartCoroutine(chosenAction.SubMenus(this));
             else
                 StartCoroutine(SubMenuController.OpenSubMenu("Actions", new List<string> { "Attack", "Defend", "Items", "Rest"}));
         }
@@ -222,9 +229,9 @@ public abstract class Combat_Character : MonoBehaviour
 
     public abstract IEnumerator CpuDecisionMaking();
 
-    public void AttackChoice(Skill attack)
+    public void ActionChoice(Skill attack)
     {
-        chosenAttack = attack;
+        chosenAction = attack;
     }
 
     public int SetSkill(Spell action, Sprite img)
@@ -252,11 +259,14 @@ public abstract class Combat_Character : MonoBehaviour
 
     public IEnumerator StartAttack()
     {
-        yield return chosenAttack.Execute;
+        yield return chosenAction.Execute;
 
         yield return new WaitForSeconds(0.3f);
 
-        TurnController.descriptionBox.container.SetActive(false);
+        if(TurnController.left_Players.Contains(this))
+            TurnController.left_descriptionBox.container.SetActive(false);
+        else
+            TurnController.right_descriptionBox.container.SetActive(false);
 
         // Reset Camera
 
@@ -272,7 +282,7 @@ public abstract class Combat_Character : MonoBehaviour
 
         List<Coroutine> targetResets = new List<Coroutine>();
 
-        foreach (Transform target in chosenAttack.targets.Distinct())
+        foreach (Transform target in chosenAction.targets.Distinct())
             targetResets.Add(StartCoroutine(target.GetComponent<Combat_Character>().ResetPos()));
 
         yield return charReset;
@@ -285,7 +295,7 @@ public abstract class Combat_Character : MonoBehaviour
 
         /* Skill Reset */
 
-        chosenAttack.targets.Clear();
+        chosenAction.targets.Clear();
 
         //if(!chosenAttack.charging)
         //    chosenAttack = null;
@@ -445,8 +455,8 @@ public abstract class Combat_Character : MonoBehaviour
 
         transform.position = startingPos;
 
-        if(chosenAttack != null && chosenAttack.charging && chosenAttack.chargeAnimation != "")
-            animationController.Clip(chosenAttack.chargeAnimation);      // this should be a check on the chosenskill to see if charge was BROKEN and whether to continue or not
+        if(chosenAction != null && chosenAction.charging && chosenAction.chargeAnimation != "")
+            animationController.Clip(chosenAction.chargeAnimation);      // this should be a check on the chosenskill to see if charge was BROKEN and whether to continue or not
     }
 
 
@@ -476,6 +486,8 @@ public abstract class Combat_Character : MonoBehaviour
         damage *= -1;
         damage *= critical;
 
+        //critical = 3;
+
         switch (success)
         {
             case 0:
@@ -485,7 +497,7 @@ public abstract class Combat_Character : MonoBehaviour
 
             case 1:
 
-                if (damage > -5 && damage <= 0)
+                if (enemy.blocking)
                 {
                     StartCoroutine(enemy.Block());
                 }
@@ -495,7 +507,10 @@ public abstract class Combat_Character : MonoBehaviour
                 }
 
                 if (critical != 1)
+                {
                     Instantiate(outcome_Bubble_Prefab, enemy.outcome_Bubble_Pos.position, Quaternion.identity).Input(Mathf.RoundToInt(damage), "CRITICAL", Color.yellow);
+                    mcamera.GetComponent<MainCamera>().WhiteOut(this, enemy, 0.25f * critical);
+                }
                 else
                     Instantiate(outcome_Bubble_Prefab, enemy.outcome_Bubble_Pos.position, Quaternion.identity).Input(Mathf.RoundToInt(damage));
 
@@ -520,10 +535,167 @@ public abstract class Combat_Character : MonoBehaviour
         Hud.AdjustMana(mana, amount);
     }
 
+
     public abstract IEnumerator Damage();
 
     public abstract IEnumerator Block();
 
     public abstract IEnumerator Dodge();
+
+    public class Defense : Skill
+    {
+        public Defense(Combat_Character character) : base(character)
+        {
+            this.character = character;
+
+            skill_Stats = new Skill_Stats[]
+            {
+                new Skill_Stats
+                {
+                    statChanger = new StatChanger
+                    {
+                        statChanges = new Dictionary<Character_Stats.Stat, float>
+                        {
+                            {Character_Stats.Stat.DEF, 0 },
+                            {Character_Stats.Stat.PhAvo, -1000f },
+                            {Character_Stats.Stat.AS, 0.5f },
+                        }
+                    }
+                }
+
+            };
+        }
+
+        public override IEnumerator SubMenus(MonoBehaviour owner)
+        {
+            bool done = false;
+
+            int i = 0;
+
+            while (!done)
+            {
+
+                switch (i)
+                {
+                    case 0:
+
+                        yield return character.SubMenuController.OpenSubMenu("Confirm", new List<string>() { "Confirm" });
+
+                        yield return character.SubMenuController.CurrentCD.coroutine;
+
+                        if (character.SubMenuController.CurrentSubMenu.ButtonChoice > -1)
+                        {
+                            skill_Stats[0].statChanger.statChanges[Character_Stats.Stat.DEF] = character.character_Stats.GetCurrentStats()[Character_Stats.Stat.STR];
+                            character.character_Stats.AddStatChanger(skill_Stats[0].statChanger);
+
+                            done = true;
+                        }
+                        else
+                        {
+                            character.chosenAction = null;
+                            yield break;
+                        }
+
+                        break;
+                }
+
+            }
+
+            Execute = Action();
+        }
+
+        public IEnumerator Action()
+        {
+            //character.animationController.Clip(character.characterName + " Block");
+
+            character.blocking = true;
+
+            Instantiate(character.outcome_Bubble_Prefab, character.outcome_Bubble_Pos.position, Quaternion.identity).Input("DEFENSE");
+
+            yield return null;
+        }
+    }
+    public Defense defense;
+
+    public class Rest : Skill
+    {
+        public Rest(Combat_Character character) : base(character)
+        {
+            this.character = character;
+
+            skill_Stats = new Skill_Stats[]
+            {
+                new Skill_Stats
+                {
+                    statChanger = new StatChanger
+                    {
+                        statChanges = new Dictionary<Character_Stats.Stat, float>
+                        {
+                            {Character_Stats.Stat.AS, 0.5f },
+                        }
+                    }
+                }
+
+            };
+        }
+
+        public override IEnumerator SubMenus(MonoBehaviour owner)
+        {
+            bool done = false;
+
+            int i = 0;
+
+            while (!done)
+            {
+
+                switch (i)
+                {
+                    case 0:
+
+                        yield return character.SubMenuController.OpenSubMenu("Confirm", new List<string>() { "Confirm" });
+
+                        yield return character.SubMenuController.CurrentCD.coroutine;
+
+                        if (character.SubMenuController.CurrentSubMenu.ButtonChoice > -1)
+                        {
+                            character.character_Stats.AddStatChanger(skill_Stats[0].statChanger);
+
+                            done = true;
+                        }
+                        else
+                        {
+                            character.chosenAction = null;
+                            yield break;
+                        }
+
+                        break;
+                }
+
+            }
+
+            Execute = Action();
+        }
+
+        public IEnumerator Action()
+        {
+            character.animationController.Clip(character.characterName + " Buff");
+
+            yield return character.WaitForKeyFrame();
+
+            Instantiate(character.outcome_Bubble_Prefab, character.outcome_Bubble_Pos.position, Quaternion.identity).Input("REST");
+
+            character.AdjustMana(20);
+
+            yield return character.animationController.coroutine;
+            character.animationController.Clip(character.characterName + " Idle");
+        }
+    }
+    public Rest rest;
+
+    public virtual void InitializeSkills()
+    {
+        defense = new Defense(this);
+        rest = new Rest(this);
+    }
 
 }

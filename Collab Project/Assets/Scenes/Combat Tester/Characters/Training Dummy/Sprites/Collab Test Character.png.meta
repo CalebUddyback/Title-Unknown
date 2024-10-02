@@ -1,0 +1,320 @@
+fileFormatVersion: 2
+guid: d7454089f5a9ac9468ccbc02663edd8d
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 9137526748642497298
+    second: Collab Test Character_0
+  - first:
+      213: -5289084635024409174
+    second: Collab Test Character_1
+  - first:
+      213: 8782821459061619166
+    second: Collab Test Character_2
+  - first:
+      213: -8196306125614773989
+    second: Collab Test Character_0
+  - first:
+      213: 1074374542548745493
+    second: Collab Test Character_1
+  - first:
+      213: 3823210040036925109
+    second: Collab Test Character_3
+  - first:
+      213: -6476844996278375496
+    second: Collab Test Character_4
+  - first:
+      213: 4148359980857795031
+    second: Collab Test Character_5
+  - first:
+      213: -1167185877705970688
+    second: Collab Test Character_6
+  - first:
+      213: 288229991661583521
+    second: Collab Test Character_7
+  - first:
+      213: 6528242886943770529
+    second: Collab Test Character_2
+  - first:
+      213: 202565652656503402
+    second: Collab Test Character_3
+  - first:
+      213: 4722861874417838044
+    second: Collab Test Character_4
+  - first:
+      213: 3271250554628203915
+    second: Collab Test Character_5
+  - first:
+      213: 4229421300332654749
+    second: Collab Test Character_6
+  - first:
+      213: 4533553705407017422
+    second: Collab Test Character_7
+  externalObjects: {}
+  serializedVersion: 11
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 2
+    mipMapFadeDistanceEnd: 2
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: -1
+    mipBias: -100
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 9
+  spritePivot: {x: 0.40625, y: -0}
+  spritePixelsToUnits: 700
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  applyGammaDecoding: 0
+  platformSettings:
+  - serializedVersion: 3
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 1
+    textureFormat: 4
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 1
+    textureFormat: 4
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: Collab Test Character_0
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 197
+        height: 215
+      alignment: 9
+      pivot: {x: 0.40609136, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b198f50310fd04e80800000000000000
+      internalID: -8196306125614773989
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collab Test Character_1
+      rect:
+        serializedVersion: 2
+        x: 197
+        y: 0
+        width: 197
+        height: 214
+      alignment: 9
+      pivot: {x: 0.40609136, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 51d375444f1f8ee00800000000000000
+      internalID: 1074374542548745493
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collab Test Character_2
+      rect:
+        serializedVersion: 2
+        x: 394
+        y: 0
+        width: 196
+        height: 211
+      alignment: 9
+      pivot: {x: 0.39285713, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 1a701cb415af89a50800000000000000
+      internalID: 6528242886943770529
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collab Test Character_3
+      rect:
+        serializedVersion: 2
+        x: 590
+        y: 0
+        width: 201
+        height: 214
+      alignment: 9
+      pivot: {x: 0.41791043, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: a6a394a4368afc200800000000000000
+      internalID: 202565652656503402
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collab Test Character_4
+      rect:
+        serializedVersion: 2
+        x: 791
+        y: 0
+        width: 203
+        height: 215
+      alignment: 9
+      pivot: {x: 0.42364532, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: cd729eb1ad9fa8140800000000000000
+      internalID: 4722861874417838044
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collab Test Character_5
+      rect:
+        serializedVersion: 2
+        x: 994
+        y: 0
+        width: 205
+        height: 214
+      alignment: 9
+      pivot: {x: 0.4292683, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b85e9ef2c01d56d20800000000000000
+      internalID: 3271250554628203915
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collab Test Character_6
+      rect:
+        serializedVersion: 2
+        x: 1199
+        y: 0
+        width: 207
+        height: 211
+      alignment: 9
+      pivot: {x: 0.4347826, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: d907cc3a34ce1ba30800000000000000
+      internalID: 4229421300332654749
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collab Test Character_7
+      rect:
+        serializedVersion: 2
+        x: 1406
+        y: 0
+        width: 205
+        height: 214
+      alignment: 9
+      pivot: {x: 0.4292683, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: ec1f0f4431b6aee30800000000000000
+      internalID: 4533553705407017422
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+  spritePackingTag: 
+  pSDRemoveMatte: 0
+  pSDShowRemoveMatteOption: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

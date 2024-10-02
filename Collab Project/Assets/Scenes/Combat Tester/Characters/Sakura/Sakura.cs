@@ -325,20 +325,20 @@ public class Sakura : Combat_Character
                             {
                                 int hovering = character.SubMenuController.CurrentSubMenu.hoveringButton + 1;
 
-                                character.TurnController.descriptionBox.title.text = name + " Level " + hovering;
+                                character.TurnController.left_descriptionBox.title.text = name + " Level " + hovering;
 
-                                character.TurnController.descriptionBox.ATK_Mult.transform.GetChild(0).GetComponent<TMPro.TextMeshProUGUI>().text = "x" + hovering;
+                                character.TurnController.left_descriptionBox.ATK_Mult.transform.GetChild(0).GetComponent<TMPro.TextMeshProUGUI>().text = "x" + hovering;
 
-                                character.TurnController.descriptionBox.ATK_Mult.SetActive((hovering > 1) ? true : false);
+                                character.TurnController.left_descriptionBox.ATK_Mult.SetActive((hovering > 1) ? true : false);
 
                                 float projectedValue = character.character_Stats.GetCombatStats(skill_Stats[hovering-1])[Character_Stats.Stat.AS];
                                 int comparison = character.character_Stats.CompareStat(Character_Stats.Stat.AS, projectedValue);
-                                character.TurnController.descriptionBox.REC_Num.color = (comparison == 1) ? Color.red : (comparison == -1) ? Color.blue : Color.white;
-                                character.TurnController.descriptionBox.REC_Num.text = projectedValue.ToString();
+                                character.TurnController.left_descriptionBox.REC_Num.color = (comparison == 1) ? Color.red : (comparison == -1) ? Color.blue : Color.white;
+                                character.TurnController.left_descriptionBox.REC_Num.text = projectedValue.ToString();
 
-                                character.TurnController.descriptionBox.HIT_Num.text = (skill_Stats[hovering-1].accuracy != 0) ? skill_Stats[hovering-1].accuracy.ToString() : "-";
+                                character.TurnController.left_descriptionBox.HIT_Num.text = (skill_Stats[hovering-1].accuracy != 0) ? skill_Stats[hovering-1].accuracy.ToString() : "-";
 
-                                character.TurnController.descriptionBox.CRT_Num.text = (skill_Stats[hovering-1].critical != 0) ? skill_Stats[hovering-1].critical.ToString() : "-";
+                                character.TurnController.left_descriptionBox.CRT_Num.text = (skill_Stats[hovering-1].critical != 0) ? skill_Stats[hovering-1].critical.ToString() : "-";
                             }
 
                             yield return null;
@@ -354,7 +354,7 @@ public class Sakura : Combat_Character
                         }
                         else
                         {
-                            character.chosenAttack = null;
+                            character.chosenAction = null;
                             yield break;
                         }
 
@@ -365,8 +365,8 @@ public class Sakura : Combat_Character
 
                         // Returning to this submenu
 
-                        if (character.chosenAttack.targets.Count > 0)
-                            character.chosenAttack.targets.RemoveAt(character.chosenAttack.targets.Count - 1);
+                        if (character.chosenAction.targets.Count > 0)
+                            character.chosenAction.targets.RemoveAt(character.chosenAction.targets.Count - 1);
 
                         Combat_Character target = null;
 
@@ -379,9 +379,9 @@ public class Sakura : Combat_Character
                                 if (character.Facing == 1)
                                     target = character.TurnController.right_Players[character.SubMenuController.CurrentSubMenu.hoveringButton].GetComponent<Combat_Character>();
 
-                                character.TurnController.descriptionBox.ATK_Num.text = character.character_Stats.GetCombatStats(skill_Stats[level-1], target)[Character_Stats.Stat.ATK].ToString();
-                                character.TurnController.descriptionBox.HIT_Num.text = character.character_Stats.GetCombatStats(skill_Stats[level-1], target)[Character_Stats.Stat.PhHit].ToString();
-                                character.TurnController.descriptionBox.CRT_Num.text = character.character_Stats.GetCombatStats(skill_Stats[level-1], target)[Character_Stats.Stat.Crit].ToString();
+                                character.TurnController.left_descriptionBox.ATK_Num.text = character.character_Stats.GetCombatStats(skill_Stats[level-1], target)[Character_Stats.Stat.ATK].ToString();
+                                character.TurnController.left_descriptionBox.HIT_Num.text = character.character_Stats.GetCombatStats(skill_Stats[level-1], target)[Character_Stats.Stat.PhHit].ToString();
+                                character.TurnController.left_descriptionBox.CRT_Num.text = character.character_Stats.GetCombatStats(skill_Stats[level-1], target)[Character_Stats.Stat.Crit].ToString();
                             }
                             yield return null;
                         }
@@ -392,9 +392,9 @@ public class Sakura : Combat_Character
                         {
 
                             if (character.Facing == 1)
-                                character.chosenAttack.targets.Add(character.TurnController.right_Players[character.SubMenuController.CurrentSubMenu.ButtonChoice].transform);
+                                character.chosenAction.targets.Add(character.TurnController.right_Players[character.SubMenuController.CurrentSubMenu.ButtonChoice].transform);
                             else
-                                character.chosenAttack.targets.Add(character.TurnController.left_Players[character.SubMenuController.CurrentSubMenu.ButtonChoice].transform);
+                                character.chosenAction.targets.Add(character.TurnController.left_Players[character.SubMenuController.CurrentSubMenu.ButtonChoice].transform);
 
                             i++;
 
@@ -434,7 +434,7 @@ public class Sakura : Combat_Character
         {
             character.enemyTransform = targets[0];
 
-            GetOutcome(skill_Stats[0], targets[0]);
+            //GetOutcome(skill_Stats[0], targets[0]);
 
             /*CAMERA CONTROL*/
 
@@ -455,6 +455,8 @@ public class Sakura : Combat_Character
 
             CoroutineWithData cd = new CoroutineWithData(character, character.TurnController.Reactions(Turn_Controller.Stage.IMPACT, this));
             yield return cd.coroutine;
+
+            GetOutcome(skill_Stats[0], targets[0]);
 
             Dictionary<Character_Stats.Stat, float> ownerDirectory = character.character_Stats.GetCombatStats(skill_Stats[0]);
 
@@ -556,7 +558,7 @@ public class Sakura : Combat_Character
                 new Skill_Stats
                 {
                     attack = 20,
-                    accuracy = -5,
+                    accuracy = -3,
                     critical = 10,
 
                     statChanger = new StatChanger()
@@ -589,8 +591,8 @@ public class Sakura : Combat_Character
                 {
                     case 0:
 
-                        if (character.chosenAttack.targets.Count > 0)
-                            character.chosenAttack.targets.RemoveAt(character.chosenAttack.targets.Count - 1);
+                        if (character.chosenAction.targets.Count > 0)
+                            character.chosenAction.targets.RemoveAt(character.chosenAction.targets.Count - 1);
 
                         Combat_Character target = null;
 
@@ -606,8 +608,8 @@ public class Sakura : Combat_Character
                                     target = character.TurnController.right_Players[character.SubMenuController.CurrentSubMenu.hoveringButton].GetComponent<Combat_Character>();
 
 
-                                character.TurnController.descriptionBox.HIT_Num.text = character.character_Stats.GetCombatStats(skill_Stats[0], target)[Character_Stats.Stat.PhHit].ToString();
-                                character.TurnController.descriptionBox.CRT_Num.text = character.character_Stats.GetCombatStats(skill_Stats[0], target)[Character_Stats.Stat.Crit].ToString();
+                                character.TurnController.left_descriptionBox.HIT_Num.text = character.character_Stats.GetCombatStats(skill_Stats[0], target)[Character_Stats.Stat.PhHit].ToString();
+                                character.TurnController.left_descriptionBox.CRT_Num.text = character.character_Stats.GetCombatStats(skill_Stats[0], target)[Character_Stats.Stat.Crit].ToString();
                             }
                             yield return null;
                         }
@@ -618,16 +620,16 @@ public class Sakura : Combat_Character
                         {
 
                             if (character.Facing == 1)
-                                character.chosenAttack.targets.Add(character.TurnController.right_Players[character.SubMenuController.CurrentSubMenu.ButtonChoice].transform);
+                                character.chosenAction.targets.Add(character.TurnController.right_Players[character.SubMenuController.CurrentSubMenu.ButtonChoice].transform);
                             else
-                                character.chosenAttack.targets.Add(character.TurnController.left_Players[character.SubMenuController.CurrentSubMenu.ButtonChoice].transform);
+                                character.chosenAction.targets.Add(character.TurnController.left_Players[character.SubMenuController.CurrentSubMenu.ButtonChoice].transform);
 
                             i++;
 
                         }
                         else
                         {
-                            character.chosenAttack = null;
+                            character.chosenAction = null;
                             yield break;
                         }
 
@@ -662,7 +664,7 @@ public class Sakura : Combat_Character
 
         public IEnumerator Action()
         {
-            character.enemyTransform = character.chosenAttack.targets[0];
+            character.enemyTransform = character.chosenAction.targets[0];
 
             GetOutcome(skill_Stats[0], targets[0]);
 
@@ -767,7 +769,7 @@ public class Sakura : Combat_Character
                         i++;
 
                         if (level > 0)
-                            character.TurnController.descriptionBox.title.text = name + " x " + (level + 1);
+                            character.TurnController.left_descriptionBox.title.text = name + " x " + (level + 1);
 
                         break;
 
@@ -779,7 +781,7 @@ public class Sakura : Combat_Character
                             break;
                         }
 
-                        character.TurnController.descriptionBox.container.gameObject.SetActive(true);
+                        character.TurnController.left_descriptionBox.container.gameObject.SetActive(true);
 
                         yield return character.SubMenuController.OpenSubMenu("Charges", new List<string>() { "Execute", "Charge" });
 
@@ -788,16 +790,16 @@ public class Sakura : Combat_Character
                             if (character.SubMenuController.CurrentSubMenu.hoveringButton > -1)
                             {
 
-                                character.TurnController.descriptionBox.ATK_Num.text = Mathf.Abs(character.character_Stats.GetCombatStats(skill_Stats[0])[Character_Stats.Stat.ATK]).ToString();
+                                character.TurnController.left_descriptionBox.ATK_Num.text = Mathf.Abs(character.character_Stats.GetCombatStats(skill_Stats[0])[Character_Stats.Stat.ATK]).ToString();
 
                                 float projectedValue = character.SubMenuController.CurrentSubMenu.hoveringButton + level + 1;
 
-                                character.TurnController.descriptionBox.ATK_Mult.transform.GetChild(0).GetComponent<TMPro.TextMeshProUGUI>().text = "x" + projectedValue;
+                                character.TurnController.left_descriptionBox.ATK_Mult.transform.GetChild(0).GetComponent<TMPro.TextMeshProUGUI>().text = "x" + projectedValue;
 
-                                character.TurnController.descriptionBox.HIT_Num.text = "-";
-                                character.TurnController.descriptionBox.CRT_Num.text = "-";
+                                character.TurnController.left_descriptionBox.HIT_Num.text = "-";
+                                character.TurnController.left_descriptionBox.CRT_Num.text = "-";
 
-                                character.TurnController.descriptionBox.ATK_Mult.SetActive((projectedValue > 1) ? true : false);
+                                character.TurnController.left_descriptionBox.ATK_Mult.SetActive((projectedValue > 1) ? true : false);
 
                             }
                             yield return null;
@@ -818,7 +820,7 @@ public class Sakura : Combat_Character
                         }
                         else
                         {
-                            character.chosenAttack = null;
+                            character.chosenAction = null;
                             level = 0;
                             yield break;
                         }
@@ -829,7 +831,7 @@ public class Sakura : Combat_Character
 
                         // Fully Charged
 
-                        character.TurnController.descriptionBox.container.gameObject.SetActive(true);
+                        character.TurnController.left_descriptionBox.container.gameObject.SetActive(true);
 
                         yield return character.SubMenuController.OpenSubMenu("Charges", new List<string>() { "Execute" });
 
@@ -851,7 +853,7 @@ public class Sakura : Combat_Character
                         // Targets
 
                         if (targets.Count > 0)
-                            targets.RemoveAt(character.chosenAttack.targets.Count - 1);
+                            targets.RemoveAt(character.chosenAction.targets.Count - 1);
 
                         yield return character.SubMenuController.OpenSubMenu("Targets", character.TurnController.GetPlayerNames(character.Facing));
 
@@ -865,8 +867,8 @@ public class Sakura : Combat_Character
                                     target = character.TurnController.right_Players[character.SubMenuController.CurrentSubMenu.hoveringButton].GetComponent<Combat_Character>();
 
 
-                                character.TurnController.descriptionBox.HIT_Num.text = character.character_Stats.GetCombatStats(skill_Stats[0], target)[Character_Stats.Stat.PhHit].ToString();
-                                character.TurnController.descriptionBox.CRT_Num.text = character.character_Stats.GetCombatStats(skill_Stats[0], target)[Character_Stats.Stat.Crit].ToString();
+                                character.TurnController.left_descriptionBox.HIT_Num.text = character.character_Stats.GetCombatStats(skill_Stats[0], target)[Character_Stats.Stat.PhHit].ToString();
+                                character.TurnController.left_descriptionBox.CRT_Num.text = character.character_Stats.GetCombatStats(skill_Stats[0], target)[Character_Stats.Stat.Crit].ToString();
                             }
                             yield return null;
                         }
@@ -876,9 +878,9 @@ public class Sakura : Combat_Character
                         if (character.SubMenuController.CurrentSubMenu.ButtonChoice > -1)
                         {
                             if (character.Facing == 1)
-                                character.chosenAttack.targets.Add(character.TurnController.right_Players[character.SubMenuController.CurrentSubMenu.ButtonChoice].transform);
+                                character.chosenAction.targets.Add(character.TurnController.right_Players[character.SubMenuController.CurrentSubMenu.ButtonChoice].transform);
                             else
-                                character.chosenAttack.targets.Add(character.TurnController.left_Players[character.SubMenuController.CurrentSubMenu.ButtonChoice].transform);
+                                character.chosenAction.targets.Add(character.TurnController.left_Players[character.SubMenuController.CurrentSubMenu.ButtonChoice].transform);
 
                             i = 4;
                         }
@@ -929,7 +931,7 @@ public class Sakura : Combat_Character
 
                             charging = true;
 
-                            character.TurnController.descriptionBox.container.gameObject.SetActive(false);
+                            character.TurnController.left_descriptionBox.container.gameObject.SetActive(false);
                         }
                         else
                         {
@@ -1077,8 +1079,8 @@ public class Sakura : Combat_Character
                 {
                     case 0:
 
-                        if (character.chosenAttack.targets.Count > 0)
-                            character.chosenAttack.targets.RemoveAt(character.chosenAttack.targets.Count - 1);
+                        if (character.chosenAction.targets.Count > 0)
+                            character.chosenAction.targets.RemoveAt(character.chosenAction.targets.Count - 1);
 
                         Combat_Character target = null;
 
@@ -1092,8 +1094,8 @@ public class Sakura : Combat_Character
                                     target = character.TurnController.right_Players[character.SubMenuController.CurrentSubMenu.hoveringButton].GetComponent<Combat_Character>();
 
 
-                                character.TurnController.descriptionBox.HIT_Num.text = character.character_Stats.GetCombatStats(skill_Stats[0], target)[Character_Stats.Stat.PhHit].ToString();
-                                character.TurnController.descriptionBox.CRT_Num.text = character.character_Stats.GetCombatStats(skill_Stats[0], target)[Character_Stats.Stat.Crit].ToString();
+                                character.TurnController.left_descriptionBox.HIT_Num.text = character.character_Stats.GetCombatStats(skill_Stats[0], target)[Character_Stats.Stat.PhHit].ToString();
+                                character.TurnController.left_descriptionBox.CRT_Num.text = character.character_Stats.GetCombatStats(skill_Stats[0], target)[Character_Stats.Stat.Crit].ToString();
                             }
                             yield return null;
                         }
@@ -1103,15 +1105,15 @@ public class Sakura : Combat_Character
                         if (character.SubMenuController.CurrentSubMenu.ButtonChoice > -1)
                         {
                             if (character.Facing == 1)
-                                character.chosenAttack.targets.Add(character.TurnController.right_Players[character.SubMenuController.CurrentSubMenu.ButtonChoice].transform);
+                                character.chosenAction.targets.Add(character.TurnController.right_Players[character.SubMenuController.CurrentSubMenu.ButtonChoice].transform);
                             else
-                                character.chosenAttack.targets.Add(character.TurnController.left_Players[character.SubMenuController.CurrentSubMenu.ButtonChoice].transform);
+                                character.chosenAction.targets.Add(character.TurnController.left_Players[character.SubMenuController.CurrentSubMenu.ButtonChoice].transform);
 
                             i++;
                         }
                         else
                         {
-                            character.chosenAttack = null;
+                            character.chosenAction = null;
                             yield break;
                         }
 
@@ -1211,20 +1213,20 @@ public class Sakura : Combat_Character
 
 
     [System.Serializable]
-    public class Defense : Spell
+    public class Guard : Spell
     {
-        public Defense(Combat_Character character) : base(character)
+        public Guard(Combat_Character character) : base(character)
         {
             this.character = character;
 
-            name = "Block";
+            name = "Guard";
 
             skill_Stats = new Skill_Stats[]
             {
                 new Skill_Stats{
                     statChanger = new StatChanger
                     {
-                        name = "Block Exaust",
+                        name = "Guard Exaust",
 
                         statChanges = new Dictionary<Character_Stats.Stat, float>
                         {
@@ -1235,12 +1237,12 @@ public class Sakura : Combat_Character
                 new Skill_Stats{
                     statChanger = new StatChanger()
                     {
-                        name = "Block 2",
+                        name = "Guard Effects",
 
                         statChanges = new Dictionary<Character_Stats.Stat, float>
                         {
                                 {Character_Stats.Stat.DEF, 100f },
-                                {Character_Stats.Stat.PhAvo, -1 }
+                                {Character_Stats.Stat.PhAvo, -1000f }
                         }
                     },
                 }
@@ -1282,7 +1284,7 @@ public class Sakura : Combat_Character
                         }
                         else
                         {
-                            character.chosenAttack = null;
+                            character.chosenAction = null;
                             yield break;
                         }
 
@@ -1316,7 +1318,9 @@ public class Sakura : Combat_Character
         }
 
         public override IEnumerator Action2(int slot)
-        {   
+        {
+            character.blocking = true;
+
             character.character_Stats.AddStatChanger(skill_Stats[1].statChanger);
 
             character.ClearSkill(slot);
@@ -1324,7 +1328,7 @@ public class Sakura : Combat_Character
             yield return 0;
         }
     }
-    public Defense defense;
+    public Guard guard;
 
     [System.Serializable]
     public class Heal : Spell
@@ -1385,7 +1389,7 @@ public class Sakura : Combat_Character
                 {
                     case 0:
 
-                        character.TurnController.descriptionBox.container.gameObject.SetActive(true);
+                        character.TurnController.left_descriptionBox.container.gameObject.SetActive(true);
 
                         if (charging)
                             level++;
@@ -1412,7 +1416,7 @@ public class Sakura : Combat_Character
                         }
                         else
                         {
-                            character.chosenAttack = null;
+                            character.chosenAction = null;
                             level = 0;
                             yield break;
                         }
@@ -1459,7 +1463,7 @@ public class Sakura : Combat_Character
 
                             character.animationController.Clip(chargeAnimation);
 
-                            character.TurnController.descriptionBox.container.gameObject.SetActive(false);
+                            character.TurnController.left_descriptionBox.container.gameObject.SetActive(false);
                         }
                         else
                         {
@@ -1538,11 +1542,19 @@ public class Sakura : Combat_Character
 
     private void Awake()
     {
+        characterName = "Sakura";
+        InitializeSkills();
+    }
+
+    public override void InitializeSkills()
+    {
+        base.InitializeSkills();
+
         combo = new Combo(this);
         jump_Kick = new Jump_Kick(this);
         throw_Kunai = new Throw_Kunai(this);
         multi_Hit = new Multi_Hit(this);
-        defense = new Defense(this);
+        guard = new Guard(this);
         heal = new Heal(this);
 
         attackList = new List<Skill>()
@@ -1551,7 +1563,7 @@ public class Sakura : Combat_Character
             jump_Kick,
             throw_Kunai,
             multi_Hit,
-            defense,
+            guard,
             heal,
         };
 
@@ -1605,26 +1617,90 @@ public class Sakura : Combat_Character
         {
             case 0:
 
-                AttackChoice(combo);
+                Skill skill = combo;
 
-                chosenAttack.targets.Add(target);
+                ActionChoice(skill);
+
+                chosenAction.targets.Add(target);
                 //chosenAttack.targets.Add(TurnController.left_Players[0].transform);
 
                 int level = 3;
 
-                character_Stats.AddStatChanger(combo.skill_Stats[level-1].statChanger);
+                character_Stats.AddStatChanger(skill.skill_Stats[level-1].statChanger);
 
-                chosenAttack.Execute = combo.Action(level);
+                chosenAction.Execute = ((Combo)skill).Action(level);
+
+                skill.level = 3;
+
+
+                DescriptionBox dBox = SubMenuController.owner.TurnController.left_descriptionBox;
+
+                if(SubMenuController.owner.TurnController.right_Players.Contains(this))
+                    dBox = SubMenuController.owner.TurnController.right_descriptionBox;
+
+
+                Spell spell = skill as Spell;
+
+                if (spell != null)
+                {
+                    dBox.container.GetComponent<UnityEngine.UI.Image>().color = new Color(0.1058824f, 0.254902f, 0.2226822f, 0.7372549f);
+                }
+                else
+                {
+                    dBox.container.GetComponent<UnityEngine.UI.Image>().color = new Color(0.1058824f, 0.1215686f, 0.254902f, 0.7372549f);
+                }
+
+                dBox.title.text = skill.name;
+
+                if (skill.level > 0)
+                {
+                    dBox.ATK_Mult.SetActive(true);
+                    dBox.ATK_Mult.transform.GetChild(0).GetComponent<TMPro.TextMeshProUGUI>().text = "x" + skill.level.ToString();
+                }
+                else
+                {
+                    dBox.ATK_Mult.SetActive(false);
+                }
+
+
+                var output = character_Stats.GetCombatStats(skill.skill_Stats[0], target);
+
+                dBox.ATK_Num.text = output[Character_Stats.Stat.ATK].ToString();
+                dBox.ATK_Num.color = Color.white;
+
+                dBox.HIT_Num.text = output[Character_Stats.Stat.PhHit].ToString().ToString();
+
+                dBox.CRT_Num.text = output[Character_Stats.Stat.Crit].ToString().ToString();
+
+                dBox.REC_Num.text = output[Character_Stats.Stat.AS].ToString().ToString();
+                dBox.REC_Num.color = Color.white;
+
+                dBox.MP_Num.text = skill.skill_Stats[0].mana.ToString();
+
+                string typeText = "[" + skill.type.ToString().ToUpper();
+
+                if (skill.effect)
+                {
+                    typeText += " / EFFECT";
+                }
+
+                typeText += "]";
+
+                dBox.type.text = typeText;
+
+                dBox.descriptionText.text = skill.description;
+
+                dBox.container.SetActive(true);
 
                 break;
 
             case 1:
 
-                AttackChoice(multi_Hit);
+                ActionChoice(multi_Hit);
 
-                chosenAttack.targets.Add(target);
+                chosenAction.targets.Add(target);
 
-                chosenAttack.Execute = multi_Hit.Action();
+                chosenAction.Execute = multi_Hit.Action();
 
                 break;
         }

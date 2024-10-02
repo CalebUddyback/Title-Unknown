@@ -52,7 +52,7 @@ public class SubMenu_Button : MonoBehaviour, IPointerEnterHandler, IPointerExitH
             //
             //
             subMenu.hoveringButton = transform.GetSiblingIndex();
-            subMenu.SubMenuController.owner.TurnController.descriptionBox.UpdateInfo();
+            subMenu.SubMenuController.owner.TurnController.left_descriptionBox.UpdateInfo();
         }
     }
 
@@ -63,7 +63,7 @@ public class SubMenu_Button : MonoBehaviour, IPointerEnterHandler, IPointerExitH
             //subMenu.SubMenuController.owner.TurnController.descriptionBox.gameObject.SetActive(false);
 
             subMenu.hoveringButton = -1;
-            subMenu.SubMenuController.owner.TurnController.descriptionBox.UpdateInfo();
+            subMenu.SubMenuController.owner.TurnController.left_descriptionBox.UpdateInfo();
         }
     }
 }

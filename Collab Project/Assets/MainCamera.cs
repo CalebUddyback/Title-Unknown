@@ -17,7 +17,7 @@ public class MainCamera : MonoBehaviour
 
     public bool fixedTime = false;
 
-    public SpriteRenderer blackOutSprite;
+    public SpriteRenderer blackOutSprite, whiteOutSprite;
 
     void Start()
     {
@@ -157,5 +157,36 @@ public class MainCamera : MonoBehaviour
 
         currentColor.a = targetAlpha;
         blackOutSprite.color = currentColor;
+    }
+
+    public void WhiteOut(Combat_Character owner, Combat_Character target, float speed) => StartCoroutine(WhitingOut(owner, target, speed));
+
+    public IEnumerator WhitingOut(Combat_Character owner, Combat_Character target, float speed)
+    {
+        SpriteRenderer ownerRenderer = owner.transform.GetChild(0).GetComponent<SpriteRenderer>();
+        SpriteRenderer targetRenderer = target.transform.GetChild(0).GetComponent<SpriteRenderer>();
+
+        Material ownerMat = ownerRenderer.material;
+
+        ownerRenderer.material = targetRenderer.material;
+
+        Color currentBGColor = Color.white;
+
+        whiteOutSprite.color = Color.white;
+
+        ownerRenderer.color = Color.black;
+
+        targetRenderer.color = Color.black;
+
+        yield return new WaitForSeconds(speed);
+
+        currentBGColor.a = 0;
+        whiteOutSprite.color = currentBGColor;
+
+        ownerRenderer.color = Color.white;
+
+        ownerRenderer.material = ownerMat;
+
+        targetRenderer.color = Color.white;
     }
 }
