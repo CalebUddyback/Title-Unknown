@@ -17,6 +17,7 @@ public class Weapon : ScriptableObject
 
     public string title;
     public int attack;
+    public int defense;
     public int accuracy;
     public int critical;
     public int weight;

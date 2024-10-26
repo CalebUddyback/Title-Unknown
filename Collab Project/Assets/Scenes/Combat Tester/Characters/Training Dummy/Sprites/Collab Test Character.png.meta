@@ -140,10 +140,10 @@ TextureImporter:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 197
-        height: 215
+        width: 203
+        height: 214
       alignment: 9
-      pivot: {x: 0.40609136, y: 0}
+      pivot: {x: 0.42364532, y: -0}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -159,12 +159,12 @@ TextureImporter:
       name: Collab Test Character_1
       rect:
         serializedVersion: 2
-        x: 197
+        x: 204
         y: 0
-        width: 197
+        width: 198
         height: 214
       alignment: 9
-      pivot: {x: 0.40609136, y: 0}
+      pivot: {x: 0.4090909, y: -0}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -180,12 +180,12 @@ TextureImporter:
       name: Collab Test Character_2
       rect:
         serializedVersion: 2
-        x: 394
+        x: 403
         y: 0
-        width: 196
+        width: 199
         height: 211
       alignment: 9
-      pivot: {x: 0.39285713, y: 0}
+      pivot: {x: 0.39698493, y: -0}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -201,12 +201,12 @@ TextureImporter:
       name: Collab Test Character_3
       rect:
         serializedVersion: 2
-        x: 590
+        x: 603
         y: 0
-        width: 201
+        width: 204
         height: 214
       alignment: 9
-      pivot: {x: 0.41791043, y: 0}
+      pivot: {x: 0.4166667, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -222,7 +222,7 @@ TextureImporter:
       name: Collab Test Character_4
       rect:
         serializedVersion: 2
-        x: 791
+        x: 808
         y: 0
         width: 203
         height: 215
@@ -243,12 +243,12 @@ TextureImporter:
       name: Collab Test Character_5
       rect:
         serializedVersion: 2
-        x: 994
+        x: 1012
         y: 0
-        width: 205
+        width: 207
         height: 214
       alignment: 9
-      pivot: {x: 0.4292683, y: 0}
+      pivot: {x: 0.4347826, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -264,12 +264,12 @@ TextureImporter:
       name: Collab Test Character_6
       rect:
         serializedVersion: 2
-        x: 1199
+        x: 1220
         y: 0
-        width: 207
+        width: 210
         height: 211
       alignment: 9
-      pivot: {x: 0.4347826, y: 0}
+      pivot: {x: 0.44285715, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -285,12 +285,12 @@ TextureImporter:
       name: Collab Test Character_7
       rect:
         serializedVersion: 2
-        x: 1406
+        x: 1431
         y: 0
-        width: 205
+        width: 208
         height: 214
       alignment: 9
-      pivot: {x: 0.4292683, y: 0}
+      pivot: {x: 0.43750003, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []

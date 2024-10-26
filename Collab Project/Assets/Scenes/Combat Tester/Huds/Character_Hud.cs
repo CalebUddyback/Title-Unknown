@@ -11,232 +11,84 @@ public class Character_Hud : MonoBehaviour
 
     public TextMeshProUGUI diplayName;
 
-    [SerializeField]
-    private Image timer_RadialFill;
-    [SerializeField]
-    private TextMeshProUGUI timer_numbers;
+    public TextMeshProUGUI timer_Numbers;
+    public int timer_Progress = 0;
+    private Color timer_BaseColor = new Color(1,1,1,0.5f);
+    public Animation timer_Pulser;
+    public GameObject chargeIndicator;
+
+    public StatBar healthBar, manaBar;
+
     public Transform skills;
-    float timer_reqTime = 0;
-    public float timer_Progress = 0;
 
-    public Image health_Main;
-    public Image health_Back;
-    public TextMeshProUGUI health_Text;
+    /***** TIMER *****/
 
-    public Image mana_Main;
-    public Image mana_Back;
-    public TextMeshProUGUI mana_Text;
-
-    public void Start()
-    {
-        health_Main.fillAmount = 1;
-        mana_Main.fillAmount = 1;
-    }
-
-    public void SetTimerColor(Color color)
-    {
-        timer_RadialFill.color = color;
-    }
-
-    public float GetTimeLeft()
+    public int GetTimeLeft()
     {
         return timer_Progress;
     }
 
-    public void SetTimer(float reqTime, Color clr)
+    public void SetTimerColor(Color clr)
     {
-        timer_RadialFill.color = clr;
-
-        timer_RadialFill.fillAmount = 0;
-
-        timer_reqTime = timer_Progress = reqTime;
+        timer_Numbers.color = clr;
     }
 
-    public void IncrementTimer(float globalDelta)
+    public IEnumerator FadeColorToBase()
     {
-        //timer_Progress = Mathf.Floor((timer_Progress - globalDelta) * 1000f) / 1000f;
+        Color startColor = timer_Numbers.color;
+        Color targetColor = timer_BaseColor;
 
-        timer_Progress -= globalDelta;
+        float timer = 0;
+        float maxTime = 0.3f;
 
-        timer_numbers.text = timer_Progress.ToString("F1");
-
-        timer_RadialFill.fillAmount = Mathf.Floor(((timer_reqTime - timer_Progress) / timer_reqTime) * 100f) / 100f;
-    }
-
-    public void EndTimer()
-    {
-        timer_RadialFill.fillAmount = 1;
-
-        timer_Progress = 0;
-
-        timer_numbers.text = "";
-    }
-
-    public IEnumerator Timer(float reqTime, Color clr)
-    {
-        timer_RadialFill.color = clr;
-
-        timer_RadialFill.fillAmount = 0;
-
-        timer_reqTime = timer_Progress = reqTime;
-
-        //numbers.text = Mathf.FloorToInt(actual_Progress).ToString();
-        timer_numbers.text = timer_Progress.ToString("F1");
-
-        while (0 <= timer_Progress)
+        while (timer < maxTime)
         {
-            //yield return new WaitUntil(() => TurnController.TurnTime);
+            timer_Numbers.color = Color.Lerp(startColor, targetColor, timer / maxTime);
 
-            //timer_Progress -= Time.deltaTime;
-
-            //numbers.text = Mathf.CeilToInt(actual_Progress).ToString();
-            timer_numbers.text = timer_Progress.ToString("F1");
-
-            timer_RadialFill.fillAmount = Mathf.Floor(((timer_reqTime - timer_Progress) / timer_reqTime) * 100f) / 100f;
-
-            //timer_RadialFill.fillAmount = (timer_reqTime - timer_Progress) / timer_reqTime;
+            timer += Time.deltaTime;
 
             yield return null;
         }
 
-        timer_RadialFill.fillAmount = 1;
-
-        timer_Progress = 0;
-
-        timer_numbers.text = "";
+        timer_Numbers.color = targetColor;
     }
 
-    public void AffectProgress(float amount)
+    public IEnumerator AffectTimerProgress(int amount)
     {
-        timer_Progress += amount;
-
-        if (timer_Progress > timer_reqTime)
-        {
-            timer_reqTime = timer_Progress;
-            timer_RadialFill.fillAmount = 0;
-        }
-        else
-        {
-            timer_RadialFill.fillAmount = (timer_reqTime - timer_Progress) / timer_reqTime;
-        }
-
-        timer_numbers.text = timer_Progress.ToString("F1");
-    }
-
-    /***** HEALTH *****/
-
-    Coroutine hpBackBarCO;
-
-    public void AdjustHealth(int health, int amount)
-    {
-        if (hpBackBarCO != null)
-            StopCoroutine(hpBackBarCO);
-
-        hpBackBarCO = StartCoroutine(AdjustingHealth(health, amount));
-    }
-
-    IEnumerator AdjustingHealth(int health, int amount)
-    {
-        health_Text.text = health.ToString();
-
         if (amount < 0)
-        {
-            health_Back.color = new Color(0.65f, 0.2f, 0.2f);
-
-            health_Main.fillAmount = health / 100f;
-
-            health_Main.GetComponent<Animation>().Play();
-
-            yield return new WaitForSeconds(1);
-
-            while (health_Back.fillAmount > health_Main.fillAmount)
-            {
-                health_Back.fillAmount = Mathf.MoveTowards(health_Back.fillAmount, health_Main.fillAmount, 0.5f * Time.deltaTime);
-                yield return null;
-            }
-
-            health_Back.fillAmount = health_Main.fillAmount;
-
-        }
+            SetTimerColor(Color.green);
         else
-        {
-            health_Back.color = new Color(0.2f, 0.5f, 0.2f);
+            SetTimerColor(Color.red);
 
-            health_Back.fillAmount = health / 100f;
-
-            health_Main.GetComponent<Animation>().Play();
-
-            yield return new WaitForSeconds(1);
-
-            while (health_Back.fillAmount > health_Main.fillAmount)
-            {
-                health_Main.fillAmount = Mathf.MoveTowards(health_Main.fillAmount, health_Back.fillAmount, 0.5f * Time.deltaTime);
-                yield return null;
-            }
-
-            health_Main.fillAmount = health_Back.fillAmount;
-        }
-
-        hpBackBarCO = null;
+        yield return ScrollTimerTo(timer_Progress + amount);
     }
 
-    /***** MANA *****/
-
-    Coroutine mpBackBarCO;
-
-    public void AdjustMana(int mana, int amount)
+    public IEnumerator ScrollTimerTo(int changeAmount)
     {
-        if (mpBackBarCO != null)
-            StopCoroutine(mpBackBarCO);
+        Vector3 startPos = timer_Numbers.rectTransform.anchoredPosition;
 
-        mpBackBarCO = StartCoroutine(AdjustingMana(mana, amount));
-    }
+        Vector3 targetPos = new Vector3(0, -1 * timer_Numbers.fontSize * (changeAmount));
+        
+        float timer = 0;
+        float maxTime = 0.3f;
 
-    IEnumerator AdjustingMana(int mana, int amount)
-    {
-        mana_Text.text = mana.ToString();
-
-        if (amount < 0)
+        while (timer < maxTime)
         {
-            //mana_Back.color = new Color(0.7f, 0.85f, 1f);
-
-            mana_Main.fillAmount = mana / 100f;
-
-            mana_Main.GetComponent<Animation>().Play();
-
-            yield return new WaitForSeconds(1);
-
-            while (mana_Back.fillAmount > mana_Main.fillAmount)
-            {
-                mana_Back.fillAmount = Mathf.MoveTowards(mana_Back.fillAmount, mana_Main.fillAmount, 0.5f * Time.deltaTime);
-                yield return null;
-            }
-
-            mana_Back.fillAmount = mana_Main.fillAmount;
-
+            timer_Numbers.rectTransform.anchoredPosition = Vector3.Lerp(startPos, targetPos, timer / maxTime);
+        
+            timer += Time.deltaTime;
+        
+            yield return null;
         }
-        else
-        {
-            //mana_Back.color = new Color(0.7f, 0.85f, 1f);
+        
+        timer_Numbers.rectTransform.anchoredPosition = targetPos;
+        
+        timer_Progress = changeAmount;
 
-            mana_Back.fillAmount = mana / 100f;
+        yield return new WaitForSeconds(0.3f);
 
-            mana_Main.GetComponent<Animation>().Play();
-
-            yield return new WaitForSeconds(1);
-
-            while (mana_Back.fillAmount > mana_Main.fillAmount)
-            {
-                mana_Main.fillAmount = Mathf.MoveTowards(mana_Main.fillAmount, mana_Back.fillAmount, 0.5f * Time.deltaTime);
-                yield return null;
-            }
-
-            mana_Main.fillAmount = mana_Back.fillAmount;
-        }
-
-        mpBackBarCO = null;
+        StartCoroutine(FadeColorToBase());
     }
-
 
     public void SkillSlot(int slot, Sprite image)
     {

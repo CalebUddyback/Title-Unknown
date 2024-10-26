@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using System.Linq;
 
 public class Turn_Controller : MonoBehaviour
 {
@@ -13,15 +14,23 @@ public class Turn_Controller : MonoBehaviour
 
     public Transform left_Positions, right_Positions;
 
-    private List<Combat_Character> all_Players;
+    public List<Combat_Character> all_Players;
 
-    private Queue<Combat_Character> turnQueue = new Queue<Combat_Character>();
+    private List<Combat_Character> readyForActionList = new List<Combat_Character>();
 
     public enum Stage { TURN_START, TURN_END, ACTION_START, IMPACT, ACTION_END}
 
     public Combat_Character characterTurn;
 
     public DescriptionBox left_descriptionBox, right_descriptionBox;
+
+    public MainCamera mainCamera;
+
+    public TieBreaker Tie_Breaker;
+
+    public bool comboState = false;
+
+    public Combo_Counter combo_Counter;
 
     private void Start()
     {
@@ -46,6 +55,9 @@ public class Turn_Controller : MonoBehaviour
         all_Players = new List<Combat_Character>(left_Players);
         all_Players.AddRange(right_Players);
 
+        left_Huds.transform.GetChild(0).gameObject.SetActive(false);
+        right_Huds.transform.GetChild(0).gameObject.SetActive(false);
+
         foreach (Combat_Character character in all_Players)
         {
             character.TurnController = this;
@@ -65,16 +77,19 @@ public class Turn_Controller : MonoBehaviour
 
             character.Hud.diplayName.text = character.gameObject.name;
             character.Hud.TurnController = this;
-            character.StartFocus();
-        }
 
+            character.character_Stats.health = character.character_Stats.max_Health; // remove this line for persistant stats
+            character.Hud.healthBar.Initialize(character.character_Stats.health, character.character_Stats.max_Health); 
+
+            character.character_Stats.mana = character.character_Stats.max_Mana;
+            character.Hud.manaBar.Initialize(character.character_Stats.max_Mana, character.character_Stats.max_Mana);
+        }
 
         for (int i = 0; i < left_Players.Count; i++)
         {
             Combat_Character character = left_Players[i];
 
              character.transform.position = character.startingPos = left_Positions.GetChild(i).position;
-
         }
 
         for (int i = 0; i < right_Players.Count; i++)
@@ -83,11 +98,54 @@ public class Turn_Controller : MonoBehaviour
 
             character.transform.position = character.startingPos = right_Positions.GetChild(i).position;
             character.Facing = -1;
+        }
 
+        Tie_Breaker.PickSide(-1);
+
+        foreach (Combat_Character character in all_Players)
+        {
+            character.Hud.timer_Numbers.text = "";
+
+            character.Hud.timer_Numbers.rectTransform.sizeDelta = new Vector2(6, character.Hud.timer_Numbers.fontSize * 30);
+
+            for (int i = 29; i >= 0; i--)
+            {
+                character.Hud.timer_Numbers.text += i + "\n";
+            }
+
+            yield return null;
+
+            StartCoroutine(character.StartFocus());
         }
 
 
+        yield return new WaitForSeconds(0.3f);
+
+
+        yield return new WaitForSeconds(1f);
+
         StartCoroutine(RotateTurns());
+    }
+
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.UpArrow))
+        {
+            print("Time Affected By Host");
+            foreach (Combat_Character character in all_Players)
+            {
+                StartCoroutine(character.Hud.AffectTimerProgress(1));
+            }
+        }
+
+        if (Input.GetKeyDown(KeyCode.DownArrow))
+        {
+            print("Time Affected By Host");
+            foreach (Combat_Character character in all_Players)
+            {
+                StartCoroutine(character.Hud.AffectTimerProgress(-1));
+            }
+        }
     }
 
     public List<string> GetPlayerNames(int i)
@@ -127,48 +185,81 @@ public class Turn_Controller : MonoBehaviour
 
     IEnumerator RotateTurns()
     {
+        bool tie = false;
+
+        int lowestTime = 0;
+
         while (true)
         {
-            if (turnQueue.Count <= 0)
+
+            if (readyForActionList.Count <= 0)
             {
-                float globalDelta = Time.deltaTime;
+
+                lowestTime = all_Players.OrderBy(o => o.Hud.GetTimeLeft()).ToList()[0].Hud.GetTimeLeft();
 
                 foreach (Combat_Character character in all_Players)
                 {
-                    character.Hud.IncrementTimer(globalDelta);
-
-                    if (character.Hud.GetTimeLeft() <= 0)
+                    if (character.Hud.GetTimeLeft() == lowestTime && !character.Defeated)
                     {
-                        turnQueue.Enqueue(character);
-                        character.Hud.EndTimer();
+                        character.Hud.timer_Pulser.Play("Pulser_Burst");
+                        character.Hud.SetTimerColor(Color.white);
+                        readyForActionList.Add(character);
+
+                        yield return new WaitForSeconds(0.3f);
                     }
                 }
+
+                yield return new WaitForSeconds(1f);        // time to Allow for player to view lowest time indication 
+
+                foreach (Combat_Character character in all_Players)
+                {
+                    if(!character.Defeated)
+                        StartCoroutine(character.Hud.ScrollTimerTo(character.Hud.GetTimeLeft() - lowestTime));
+                }
+
             }
             else
             {
-                foreach (Combat_Character character in all_Players)
-                {
-                    character.Hud.timer_Progress = Mathf.Ceil((character.Hud.timer_Progress) * 10f) / 10f;
-                }
-
-                while (turnQueue.Count > 0)
+                while (readyForActionList.Count > 0)
                 {
 
-                    characterTurn = turnQueue.Dequeue();
+                    List<Combat_Character> favouredList = Tie_Breaker.FavouredSide == -1 ? readyForActionList.Intersect(left_Players).ToList() : readyForActionList.Intersect(right_Players).ToList();
+                    List<Combat_Character> unfavouredList = Tie_Breaker.FavouredSide == -1 ? readyForActionList.Intersect(right_Players).ToList() : readyForActionList.Intersect(left_Players).ToList();
 
-                    characterTurn.Hud.SetTimerColor(Color.white);
+                    if (favouredList.Count > 0 && unfavouredList.Count > 0 && !tie)
+                    {
+                        tie = true;
+                        if (Tie_Breaker.FavouredSide == -1)
+                            Tie_Breaker.animation.Play("Right Blink");
+                        else
+                            Tie_Breaker.animation.Play("Left Blink");
+                    }
+
+                    if (favouredList.Count > 0)
+                        characterTurn = favouredList[0];
+                    else
+                        characterTurn = unfavouredList[0];
+
 
                     CoroutineWithData cd = new CoroutineWithData(this, Reactions(Stage.TURN_START, null));
                     yield return cd.coroutine;
 
                     // Move Camera 
 
-                    Vector3 camTargetPos = new Vector3(0, 0.55f, characterTurn.transform.position.z - 2.5f);
+                    if (!comboState)
+                    {
+                        Vector3 camTargetPos = new Vector3(0, 0.55f, characterTurn.transform.position.z - 2.5f);
 
-                    yield return characterTurn.mcamera.GetComponent<MainCamera>().LerpMoveIE(camTargetPos, 0.5f);
+                        yield return characterTurn.mcamera.GetComponent<MainCamera>().LerpMoveIE(camTargetPos, 0.5f);
+
+                        characterTurn.Hud.GetComponent<Animator>().Play("Turn_Indicate");
+
+                        yield return new WaitForSeconds(0.5f);
+                    }
+
+                    characterTurn.Hud.timer_Pulser.Play("Pulser_Pulse");
 
                     characterTurn.StartTurn();
-
 
                     while (characterTurn.spotLight)
                     {
@@ -180,30 +271,129 @@ public class Turn_Controller : MonoBehaviour
 
                     //yield return characterTurn.mcamera.GetComponent<MainCamera>().Reset(0f);
 
+
+                    characterTurn.Hud.timer_Pulser.Play("Pulser_Burst");
+
                     if (!characterTurn.chosenAction.charging)
                     {
+                        yield return characterTurn.StartFocus();
+
+                        ComboCheck();
+
                         yield return characterTurn.StartAttack();
 
-                        characterTurn.StartFocus();
+                        yield return ResetPositions();
 
                         characterTurn.chosenAction = null;
                     }
                     else
                     {
-                        StartCoroutine(characterTurn.Charging(1f));
+
+                        yield return characterTurn.Charging();
+
+                        ComboCheck();
+
+                        yield return ResetPositions();
                     }
 
-                    if (turnQueue.Count > 0 && turnQueue.Peek().Hud.GetTimeLeft() != 0)
+                    readyForActionList.Remove(characterTurn);
+
+                    if (readyForActionList.Count > 0)
                     {
-                        print("KNOCK OUT");
-                        turnQueue.Dequeue();
+                        for (int i = 0; i < readyForActionList.Count; i++)
+                        {
+                            if (readyForActionList[i].Hud.GetTimeLeft() > 0)
+                            {
+                                print("KNOCK OUT");
+                                readyForActionList.Remove(readyForActionList[i]);
+                            }
+                        }
                     }
+
                 }
+
+                yield return new WaitForSeconds(1f);
+            }
+
+            if (tie)
+            {
+                tie = false;
+                Tie_Breaker.FlipSide();
             }
 
             yield return null;
         }
     }
+
+    public void ComboCheck()
+    {
+        comboState = true;
+
+        foreach (Combat_Character character in all_Players)
+        {
+            if (character.Hud.GetTimeLeft() <= characterTurn.Hud.GetTimeLeft() && character != characterTurn)
+            {
+                comboState = false;
+                break;
+            }
+        }
+    }
+
+    [SerializeField]
+    private List<Transform> comboTargetList;
+
+    public IEnumerator ResetPositions()
+    {
+
+        comboTargetList.AddRange(characterTurn.chosenAction.targets.Distinct());
+
+        if (!comboState)
+        {
+            // Reset involved characters animations
+
+            characterTurn.animationController.Clip(characterTurn.characterName + " Idle");
+
+            foreach (Transform target in comboTargetList)
+                target.GetComponent<Combat_Character>().animationController.Clip(characterTurn.characterName + " Idle");
+
+            yield return new WaitForSeconds(0.4f);
+
+            left_descriptionBox.container.SetActive(false);
+            right_descriptionBox.container.SetActive(false);
+
+            combo_Counter.ResetComboCount();
+
+            characterTurn.Hud.GetComponent<Animator>().Play("Turn_Indicate_End");
+
+            // Reset Camera
+
+            mainCamera.GetComponent<MainCamera>().BlackOut(0f, 0.5f);
+
+            Coroutine cam = StartCoroutine(mainCamera.GetComponent<MainCamera>().Reset(0.2f));
+
+
+            //  Reset Involved Characters
+
+            Coroutine charReset = StartCoroutine(characterTurn.ResetPos());
+
+            List<Coroutine> targetResets = new List<Coroutine>();
+
+            foreach (Transform target in comboTargetList)
+                targetResets.Add(StartCoroutine(target.GetComponent<Combat_Character>().ResetPos()));
+
+            yield return charReset;
+
+            foreach (Coroutine target in targetResets)
+                yield return target;
+
+            yield return cam;
+
+            comboTargetList.Clear();
+        }
+
+        characterTurn.chosenAction.targets.Clear();
+    }
+
 
     /// <summary>
     /// This Method should be called by Turn Character's stages. 
@@ -260,6 +450,8 @@ public class Turn_Controller : MonoBehaviour
             {
                 character.SubMenuController.ResetMenus();
 
+                character.animationController.Clip(character.characterName + " Idle");
+                yield return null;
                 CoroutineWithData cd = new CoroutineWithData(this, character.setSpells[indexs[character.SubMenuController.CurrentSubMenu.ButtonChoice]].Action2(indexs[character.SubMenuController.CurrentSubMenu.ButtonChoice]));
                 yield return cd.coroutine;
 

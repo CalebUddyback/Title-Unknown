@@ -72,11 +72,14 @@ public class MainCamera : MonoBehaviour
 
     public IEnumerator LerpMoveIE(Vector3 newTarget, float speed)
     {
-        fixedTime = true;
-
         Vector3 startPositon = transform.position;
 
         Vector3 newPosition = newTarget + offset;
+
+        if (startPositon == newPosition)
+            yield break;
+
+        fixedTime = true;
 
         float lerp = 0.0f;
 

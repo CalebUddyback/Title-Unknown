@@ -5,6 +5,8 @@ using UnityEngine.UI;
 
 public class SubMenu_Attacks : SubMenu
 {
+    private Combat_Character.Skill displayedSkill;
+
     public override IEnumerator WaitForChoice()
     {
         Combat_Character combat_Character = SubMenuController.owner;
@@ -24,7 +26,7 @@ public class SubMenu_Attacks : SubMenu
 
             if (hoveringButton == -1)
             {
-                dBox.container.SetActive(false);
+                //dBox.container.SetActive(false);
             }
             else
             {
@@ -35,7 +37,7 @@ public class SubMenu_Attacks : SubMenu
 
                 Combat_Character.Spell spell = skill as Combat_Character.Spell;
 
-                if(spell != null)
+                if (spell != null)
                 {
                     dBox.container.GetComponent<Image>().color = new Color(0.1058824f, 0.254902f, 0.2226822f, 0.7372549f);
                 }
@@ -56,7 +58,9 @@ public class SubMenu_Attacks : SubMenu
                     dBox.ATK_Mult.SetActive(false);
                 }
 
-                //dBox.ATK_Num.text = Mathf.Abs(combat_Character.character_Stats.GetCurrentStats()[Character_Stats.Stat.ATK]).ToString();
+
+                //int projectedValue = combat_Character.character_Stats.GetCombatStats(skill.skill_Stats[0])[Character_Stats.Stat.ATK];
+                //dBox.ATK_Num.color = combat_Character.character_Stats.CompareStat(Character_Stats.Stat.ATK, projectedValue, false);
                 dBox.ATK_Num.color = Color.white;
 
                 dBox.REC_Num.text = combat_Character.character_Stats.GetCurrentStats()[Character_Stats.Stat.AS].ToString();
@@ -75,10 +79,10 @@ public class SubMenu_Attacks : SubMenu
                 //dBox.CRT_Num.text = combat_Character.character_Stats.GetCombatStats(skill.skill_Stats[0])[Character_Stats.Stat.Crit].ToString();
 
 
-                if (skill.skill_Stats[0].statChanger.GetStat(Character_Stats.Stat.AS))
+                if (skill.skill_Stats[0].statChanger != null)
                     dBox.REC_Num.text = (combat_Character.character_Stats.GetCombatStats(skill.skill_Stats[0])[Character_Stats.Stat.AS]).ToString();
 
-                
+
 
 
                 string typeText = "[" + skill.type.ToString().ToUpper();
@@ -92,7 +96,11 @@ public class SubMenu_Attacks : SubMenu
 
                 dBox.type.text = typeText;
 
-                dBox.descriptionText.text = skill.description;
+                if (displayedSkill != skill)
+                {
+                    displayedSkill = skill;
+                    dBox.DescriptionText(skill);
+                }
             }
 
             yield return null;

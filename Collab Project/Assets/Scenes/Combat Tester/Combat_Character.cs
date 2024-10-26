@@ -54,6 +54,7 @@ public abstract class Combat_Character : MonoBehaviour
         public int maxLevel = 0;
 
         public bool charging;
+        public int chargeTime;              //could be a manditory call before every attack. Make zero for no charge before execution
         public string chargeAnimation = "";
 
         public int CritSuccess { get; set; }
@@ -127,37 +128,71 @@ public abstract class Combat_Character : MonoBehaviour
 
     public Turn_Controller TurnController { get; set; }
 
-
-    [Header("Stats")]
-
     //public string characterName = "No Name";
+    public int Health
+    {
+        get
+        {
+            return character_Stats.health;
+        }
+        set
+        {
+            int former = character_Stats.health;
 
-    public int health;
+            character_Stats.health = value;
 
-    public int mana;
+            if (character_Stats.health <= 0)
+            {
+                character_Stats.health = 0;
+                Defeated = true;
+            }
+
+            if (character_Stats.health > character_Stats.max_Health)
+                character_Stats.health = character_Stats.max_Health;
+
+            Hud.healthBar.Adjust(former, character_Stats.health);
+        }
+    }
+
+    public int Mana
+    {
+        get
+        {
+            return character_Stats.mana;
+        }
+        set
+        {
+            int former = character_Stats.mana;
+
+            character_Stats.mana = value;
+
+            if (character_Stats.mana <= 0)
+                character_Stats.mana = 0;
+            
+            if (character_Stats.mana > character_Stats.max_Mana)
+                character_Stats.mana = character_Stats.max_Mana;
+
+            Hud.manaBar.Adjust(former, character_Stats.mana);
+        }
+    }
 
     public bool blocking = false;
 
     public Character_Stats character_Stats;
 
-    public void StartFocus()
-    { 
-        StartCoroutine(Focusing());
+    public IEnumerator StartFocus()
+    {
+        int totalTime = character_Stats.GetCurrentStats()[Character_Stats.Stat.AS];
+
+        yield return Hud.ScrollTimerTo(totalTime);
     }
 
-    IEnumerator Focusing()
+
+    public IEnumerator Charging()
     {
+        Hud.chargeIndicator.SetActive(true);
 
-        //float totalTime = (chosenAttack != null) ? stats.GetCurrentStats()[Stats.Stat.AS] + chosenAttack.GetCurrentStats()[Skill.Stat.REC] : stats.GetCurrentStats()[Stats.Stat.AS];
-
-        float totalTime = character_Stats.GetCurrentStats()[Character_Stats.Stat.AS];
-
-        Hud.SetTimer(totalTime, Color.grey);
-
-        yield return new WaitUntil(() => Hud.GetTimeLeft() <= character_Stats.GetCurrentStats()[Character_Stats.Stat.AS]);
-
-        Hud.SetTimerColor(Color.blue);
-
+        yield return Hud.ScrollTimerTo(chosenAction.chargeTime);
     }
 
     public void StartTurn()
@@ -166,16 +201,18 @@ public abstract class Combat_Character : MonoBehaviour
 
         blocking = false;
 
-        character_Stats.IncrementStatChangers();
+        character_Stats.IncrementStatChangers(TurnController.comboState);
 
         if (cpu)
             StartCoroutine(CpuDecisionMaking());
         else
         {
             if (chosenAction != null && chosenAction.charging)
+            {
                 StartCoroutine(chosenAction.SubMenus(this));
+            }
             else
-                StartCoroutine(SubMenuController.OpenSubMenu("Actions", new List<string> { "Attack", "Defend", "Items", "Rest"}));
+                StartCoroutine(SubMenuController.OpenSubMenu("Actions", new List<string> { "Attack", "Defend", "Items", "Rest" }));
         }
 
     }
@@ -187,23 +224,6 @@ public abstract class Combat_Character : MonoBehaviour
         spotLight = false;
 
         //StartCoroutine(Charging(chosenAttack.chargeTime));
-    }
-
-    public IEnumerator Charging(float chargeTime)
-    {
-        Hud.SetTimer(chargeTime, Color.red);
-        yield return null;
-        //yield return Hud.Timer(chargeTime, Color.red);
-    }
-
-    private void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            Hud.AffectProgress(0.5f);
-        }
-
-        //MenuPositioning();
     }
 
     public Transform uiPoint;
@@ -259,46 +279,11 @@ public abstract class Combat_Character : MonoBehaviour
 
     public IEnumerator StartAttack()
     {
+        //animationController.Clip("Sakura Idle");    //this to allow for repeat calls
+
+        Hud.chargeIndicator.SetActive(false);
+
         yield return chosenAction.Execute;
-
-        yield return new WaitForSeconds(0.3f);
-
-        if(TurnController.left_Players.Contains(this))
-            TurnController.left_descriptionBox.container.SetActive(false);
-        else
-            TurnController.right_descriptionBox.container.SetActive(false);
-
-        // Reset Camera
-
-        mcamera.GetComponent<MainCamera>().BlackOut(0f, 0.5f);
-
-       Coroutine cam =  StartCoroutine(mcamera.GetComponent<MainCamera>().Reset(0.2f));
-
-
-        //  Reset Involved Characters
-
-
-        Coroutine charReset = StartCoroutine(ResetPos());
-
-        List<Coroutine> targetResets = new List<Coroutine>();
-
-        foreach (Transform target in chosenAction.targets.Distinct())
-            targetResets.Add(StartCoroutine(target.GetComponent<Combat_Character>().ResetPos()));
-
-        yield return charReset;
-
-        foreach (Coroutine target in targetResets)
-            yield return target;
-
-        yield return cam;
-
-
-        /* Skill Reset */
-
-        chosenAction.targets.Clear();
-
-        //if(!chosenAttack.charging)
-        //    chosenAttack = null;
     }
 
     public IEnumerator MoveInRange(Vector3 range)
@@ -309,6 +294,8 @@ public abstract class Combat_Character : MonoBehaviour
 
         if (startPos == targetPos)
             yield break;
+
+        animationController.Clip("Sakura Idle");
 
         float timer = 0;
         float maxTime = 0.3f;
@@ -433,30 +420,37 @@ public abstract class Combat_Character : MonoBehaviour
 
     public IEnumerator ResetPos()
     {
-        Vector3 currentPos = transform.position;
-
-        float timer = 0;
-        float maxTime = 0.3f;
-
-        while (timer < maxTime)
+        if (transform.position != startingPos)
         {
-            float xLerp = Mathf.Lerp(currentPos.x, startingPos.x, timer / maxTime);
+            Vector3 currentPos = transform.position;
 
-            //float yLerp = Mathf.Lerp(currentPos.y, startingPos.y, timer / maxTime);
+            float timer = 0;
+            float maxTime = 0.3f;
 
-            float zLerp = Mathf.Lerp(currentPos.z, startingPos.z, timer / maxTime);
+            animationController.Clip(characterName + " Idle");
 
-            transform.position = new Vector3(xLerp, transform.position.y, zLerp);
+            while (timer < maxTime)
+            {
+                float xLerp = Mathf.Lerp(currentPos.x, startingPos.x, timer / maxTime);
 
-            timer += Time.deltaTime;
+                //float yLerp = Mathf.Lerp(currentPos.y, startingPos.y, timer / maxTime);
 
-            yield return null;
+                float zLerp = Mathf.Lerp(currentPos.z, startingPos.z, timer / maxTime);
+
+                transform.position = new Vector3(xLerp, transform.position.y, zLerp);
+
+                timer += Time.deltaTime;
+
+                yield return null;
+            }
+
+            transform.position = startingPos;
+
         }
-
-        transform.position = startingPos;
 
         if(chosenAction != null && chosenAction.charging && chosenAction.chargeAnimation != "")
             animationController.Clip(chosenAction.chargeAnimation);      // this should be a check on the chosenskill to see if charge was BROKEN and whether to continue or not
+
     }
 
 
@@ -480,7 +474,7 @@ public abstract class Combat_Character : MonoBehaviour
         enemy.animationController.Play();
     }
 
-    public IEnumerator ApplyOutcome(int success, int critical, float damage)
+    public IEnumerator ApplyOutcome(int success, int critical, int damage)
     {
 
         damage *= -1;
@@ -497,43 +491,44 @@ public abstract class Combat_Character : MonoBehaviour
 
             case 1:
 
+                enemy.Health += damage;
+
                 if (enemy.blocking)
                 {
                     StartCoroutine(enemy.Block());
                 }
                 else
                 {
+                    TurnController.combo_Counter.SetComboCount();
                     StartCoroutine(enemy.Damage());
                 }
 
                 if (critical != 1)
                 {
-                    Instantiate(outcome_Bubble_Prefab, enemy.outcome_Bubble_Pos.position, Quaternion.identity).Input(Mathf.RoundToInt(damage), "CRITICAL", Color.yellow);
+                    Instantiate(outcome_Bubble_Prefab, enemy.outcome_Bubble_Pos.position, Quaternion.identity).Input(damage, "CRITICAL", Color.yellow);
                     mcamera.GetComponent<MainCamera>().WhiteOut(this, enemy, 0.25f * critical);
                 }
                 else
-                    Instantiate(outcome_Bubble_Prefab, enemy.outcome_Bubble_Pos.position, Quaternion.identity).Input(Mathf.RoundToInt(damage));
+                    Instantiate(outcome_Bubble_Prefab, enemy.outcome_Bubble_Pos.position, Quaternion.identity).Input(damage);
 
-                enemy.AdjustHealth(Mathf.RoundToInt(damage));
+
                 yield return Impact(0.25f * critical);
+
+                if (enemy.Defeated)
+                {
+                    yield return null;
+                    yield return enemy.animationController.coroutine;
+                    yield return null;
+                    enemy.animationController.Clip(enemy.characterName + " Defeated");
+                    yield return enemy.animationController.coroutine;
+                }
+
                 break;
         }
     }
 
 
-    public void AdjustHealth(int amount)
-    {
-        health += amount;
-
-        Hud.AdjustHealth(health, amount);
-    }
-
-    public void AdjustMana(int amount)
-    {
-        mana += amount;
-
-        Hud.AdjustMana(mana, amount);
-    }
+    public bool Defeated{ get; private set; }
 
 
     public abstract IEnumerator Damage();
@@ -552,16 +547,23 @@ public abstract class Combat_Character : MonoBehaviour
             {
                 new Skill_Stats
                 {
+                    attack = 5,
+                    accuracy = -5,
+                    critical = 5,
+
                     statChanger = new StatChanger
-                    {
-                        statChanges = new Dictionary<Character_Stats.Stat, float>
+                    (
+                        new Dictionary<Character_Stats.Stat, int>
                         {
                             {Character_Stats.Stat.DEF, 0 },
-                            {Character_Stats.Stat.PhAvo, -1000f },
-                            {Character_Stats.Stat.AS, 0.5f },
+                            {Character_Stats.Stat.PhAvo, -1000 },
+                            {Character_Stats.Stat.AS, 10 },
                         }
+                    )
+                    {
+                        name = "Defense Exhaust",
                     }
-                }
+                },
 
             };
         }
@@ -585,7 +587,7 @@ public abstract class Combat_Character : MonoBehaviour
 
                         if (character.SubMenuController.CurrentSubMenu.ButtonChoice > -1)
                         {
-                            skill_Stats[0].statChanger.statChanges[Character_Stats.Stat.DEF] = character.character_Stats.GetCurrentStats()[Character_Stats.Stat.STR];
+                            skill_Stats[0].statChanger.statChanges[Character_Stats.Stat.DEF] = character.character_Stats.GetCurrentStats()[Character_Stats.Stat.STR] + character.character_Stats.weapon.defense;
                             character.character_Stats.AddStatChanger(skill_Stats[0].statChanger);
 
                             done = true;
@@ -628,13 +630,17 @@ public abstract class Combat_Character : MonoBehaviour
                 new Skill_Stats
                 {
                     statChanger = new StatChanger
-                    {
-                        statChanges = new Dictionary<Character_Stats.Stat, float>
+                    (
+                        new Dictionary<Character_Stats.Stat, int>
                         {
-                            {Character_Stats.Stat.AS, 0.5f },
+                            {Character_Stats.Stat.AS, 2 },
                         }
+                    )
+                    {
+                        name = "Rest Exhaust",
                     }
-                }
+                },
+
 
             };
         }
@@ -684,7 +690,7 @@ public abstract class Combat_Character : MonoBehaviour
 
             Instantiate(character.outcome_Bubble_Prefab, character.outcome_Bubble_Pos.position, Quaternion.identity).Input("REST");
 
-            character.AdjustMana(20);
+            character.Mana += 20;
 
             yield return character.animationController.coroutine;
             character.animationController.Clip(character.characterName + " Idle");

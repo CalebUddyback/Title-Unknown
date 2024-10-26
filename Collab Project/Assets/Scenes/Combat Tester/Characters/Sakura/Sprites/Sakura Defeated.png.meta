@@ -1,0 +1,452 @@
+fileFormatVersion: 2
+guid: 507f8b82109f65041bbbb6f583587233
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -3784064570735074080
+    second: Sakura Defeated_0
+  - first:
+      213: 920223542597065688
+    second: Sakura Defeated_1
+  - first:
+      213: -2817896356978692070
+    second: Sakura Defeated_2
+  - first:
+      213: -6198804763249523135
+    second: Sakura Defeated_3
+  - first:
+      213: 1824999703957031511
+    second: Sakura Defeated_4
+  - first:
+      213: -6031116958233465827
+    second: Sakura Defeated_5
+  - first:
+      213: -7480594804846550945
+    second: Sakura Defeated_6
+  - first:
+      213: -45751025215056873
+    second: Sakura Defeated_7
+  - first:
+      213: -79854688094256702
+    second: Sakura Defeated_8
+  - first:
+      213: -5632520361660625305
+    second: Sakura Defeated_9
+  - first:
+      213: -4309785668539484646
+    second: Sakura Defeated_10
+  - first:
+      213: 8425582544733834688
+    second: Sakura Defeated_11
+  - first:
+      213: 5049104222198957476
+    second: Sakura Defeated_12
+  - first:
+      213: -4400196656074857939
+    second: Sakura Defeated_13
+  - first:
+      213: 6140431818011656085
+    second: Sakura Defeated_14
+  - first:
+      213: 7823477754106927944
+    second: Sakura Defeated_15
+  - first:
+      213: 1691110918684420871
+    second: Sakura Defeated_0
+  - first:
+      213: 8986328105539904373
+    second: Sakura Defeated_1
+  - first:
+      213: 866376442916897899
+    second: Sakura Defeated_2
+  - first:
+      213: -5092406875633508400
+    second: Sakura Defeated_3
+  - first:
+      213: 2713768674611913071
+    second: Sakura Defeated_4
+  - first:
+      213: -3846143094102628745
+    second: Sakura Defeated_5
+  - first:
+      213: -8205948638910552650
+    second: Sakura Defeated_6
+  - first:
+      213: 7379355834649404758
+    second: Sakura Defeated_7
+  - first:
+      213: -4192801874812134550
+    second: Sakura Defeated_8
+  - first:
+      213: 2684007758549876145
+    second: Sakura Defeated_9
+  - first:
+      213: -3064574497621251953
+    second: Sakura Defeated_10
+  - first:
+      213: -2901640029416675246
+    second: Sakura Defeated_11
+  - first:
+      213: 7723532800303234358
+    second: Sakura Defeated_12
+  - first:
+      213: -8119129506954770367
+    second: Sakura Defeated_13
+  - first:
+      213: -2266424790691216698
+    second: Sakura Defeated_14
+  - first:
+      213: 6347117153015509962
+    second: Sakura Defeated_15
+  externalObjects: {}
+  serializedVersion: 11
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 0
+    aniso: -1
+    mipBias: -100
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  applyGammaDecoding: 0
+  platformSettings:
+  - serializedVersion: 3
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: Sakura Defeated_0
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 2
+        width: 33
+        height: 45
+      alignment: 9
+      pivot: {x: 0.18181819, y: 0.022222223}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 70b28ffab68087710800000000000000
+      internalID: 1691110918684420871
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sakura Defeated_1
+      rect:
+        serializedVersion: 2
+        x: 50
+        y: 1
+        width: 29
+        height: 43
+      alignment: 9
+      pivot: {x: 0.06896552, y: 0.023255814}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 573a0d5ecc9d5bc70800000000000000
+      internalID: 8986328105539904373
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sakura Defeated_2
+      rect:
+        serializedVersion: 2
+        x: 85
+        y: 2
+        width: 54
+        height: 30
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b6404d9d8ccf50c00800000000000000
+      internalID: 866376442916897899
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sakura Defeated_3
+      rect:
+        serializedVersion: 2
+        x: 144
+        y: 3
+        width: 55
+        height: 20
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 0df9b166de22459b0800000000000000
+      internalID: -5092406875633508400
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sakura Defeated_4
+      rect:
+        serializedVersion: 2
+        x: 206
+        y: 0
+        width: 54
+        height: 31
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: f6163dc3b3e39a520800000000000000
+      internalID: 2713768674611913071
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sakura Defeated_5
+      rect:
+        serializedVersion: 2
+        x: 268
+        y: 2
+        width: 62
+        height: 35
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 776e0b0db31cf9ac0800000000000000
+      internalID: -3846143094102628745
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sakura Defeated_6
+      rect:
+        serializedVersion: 2
+        x: 336
+        y: 2
+        width: 62
+        height: 29
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 6b5e2ac903d9e1e80800000000000000
+      internalID: -8205948638910552650
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sakura Defeated_8
+      rect:
+        serializedVersion: 2
+        x: 406
+        y: 3
+        width: 74
+        height: 18
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: a6b1b36c8ec20d5c0800000000000000
+      internalID: -4192801874812134550
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sakura Defeated_11
+      rect:
+        serializedVersion: 2
+        x: 484
+        y: 4
+        width: 65
+        height: 25
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 258a09c44cd4bb7d0800000000000000
+      internalID: -2901640029416675246
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sakura Defeated_13
+      rect:
+        serializedVersion: 2
+        x: 559
+        y: 3
+        width: 50
+        height: 25
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 148819cfabe035f80800000000000000
+      internalID: -8119129506954770367
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sakura Defeated_14
+      rect:
+        serializedVersion: 2
+        x: 623
+        y: 5
+        width: 51
+        height: 17
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 6c206b039aa0c80e0800000000000000
+      internalID: -2266424790691216698
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sakura Defeated_15
+      rect:
+        serializedVersion: 2
+        x: 684
+        y: 2
+        width: 36
+        height: 35
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: ac337451c6d751850800000000000000
+      internalID: 6347117153015509962
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+  spritePackingTag: 
+  pSDRemoveMatte: 0
+  pSDShowRemoveMatteOption: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

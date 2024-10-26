@@ -24,6 +24,8 @@ public class AnimationController : MonoBehaviour
             //print("Playing " + trigger);
             coroutine = StartCoroutine(Playing());
         }
+
+
     }
 
     public void Pause()

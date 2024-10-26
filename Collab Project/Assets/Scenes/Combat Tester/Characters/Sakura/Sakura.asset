@@ -12,18 +12,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 88dcc4cf74d52114a96a5e9635bae512, type: 3}
   m_Name: Sakura
   m_EditorClassIdentifier: 
-  health: 0
+  max_Health: 110
+  health: 100
+  max_Mana: 100
+  mana: 100
   strength: 2
-  defense: 0
+  defense: 5
   magic: 1
   resistance: 1
-  dexterity: 6
+  dexterity: 15
   luck: 4
-  speed: 20
+  speed: 19
   weapon: {fileID: 11400000, guid: 8036eb8e8a6f4904fb130ffa837c3c18, type: 2}
-  statChangers:
-  - name: Skill Exhaust
-    duration: 0
-    permanent: 0
-    incrementOnTargetsTurn: {fileID: 0}
-    incrementDirection: 0
+  statChangers: []

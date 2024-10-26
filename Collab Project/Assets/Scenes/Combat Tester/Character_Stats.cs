@@ -3,29 +3,30 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-[CreateAssetMenu(fileName ="New Character Stats", menuName ="Character Stats")]
+[CreateAssetMenu(fileName = "New Character Stats", menuName = "Character Stats")]
 public class Character_Stats : ScriptableObject
 {
+    public int
+        max_Health = 100,
+        health = 100,
+        max_Mana = 100,
+        mana = 100;
+
+
     [SerializeField]
     int
-        health,
         strength,
         defense,
         magic,
         resistance,
         dexterity,
-        luck;
-
-    [SerializeField]
-    float
+        luck,
         speed;
 
     public Weapon weapon;
 
     public enum Stat
     {
-        HP,
-
         STR,
         MAG,
         DEX,
@@ -44,7 +45,7 @@ public class Character_Stats : ScriptableObject
 
         Crit,
         CritAvo,
-        
+
         AS
     };
 
@@ -52,11 +53,10 @@ public class Character_Stats : ScriptableObject
     [SerializeField]
     private List<StatChanger> statChangers = new List<StatChanger>();
 
-    private Dictionary<Stat, float> GetCoreStats()
+    private Dictionary<Stat, int> GetCoreStats()
     {
-        var baseStats = new Dictionary<Stat, float>
+        var baseStats = new Dictionary<Stat, int>
         {
-            {Stat.HP, health },
             {Stat.STR, strength },
             {Stat.MAG, magic },
             {Stat.DEX, dexterity },
@@ -69,10 +69,10 @@ public class Character_Stats : ScriptableObject
         return baseStats;
     }
 
-    private Dictionary<Stat, float> GetOffenseStats(Dictionary<Stat, float> core)
+    private Dictionary<Stat, int> GetOffenseStats(Dictionary<Stat, int> core)
     {
 
-        var offenseStats = new Dictionary<Stat, float>()
+        var offenseStats = new Dictionary<Stat, int>()
         {
             {Stat.ATK, core[Stat.STR]},
 
@@ -85,13 +85,13 @@ public class Character_Stats : ScriptableObject
             {Stat.Crit, (core[Stat.DEX] + core[Stat.LCK]) / 2 },
             {Stat.CritAvo, core[Stat.LCK] },
 
-            {Stat.AS, 3 - (core[Stat.SPD]/10)},
+            {Stat.AS, 21 - core[Stat.SPD]},
         };
 
         return offenseStats;
     }
 
-    private Dictionary<Stat, float> GetBaseStats()
+    private Dictionary<Stat, int> GetBaseStats()
     {
         var baseStats = GetCoreStats();
 
@@ -105,32 +105,30 @@ public class Character_Stats : ScriptableObject
         return baseStats;
     }
 
-    public Dictionary<Stat, float> GetCurrentStats()
+    public Dictionary<Stat, int> GetCurrentStats()
     {
-        Dictionary<Stat, float> currentStats = GetCoreStats();
+        var currentStats = GetCoreStats();
 
-        foreach (StatChanger changer in statChangers)
+        foreach (var changer in statChangers)
         {
-            foreach (KeyValuePair<Stat, float> stat in changer.statChanges)
+            for (int i = 0; i < 7; i++)
             {
-                if (currentStats.ContainsKey(stat.Key))
-                    currentStats[stat.Key] += stat.Value;
+                Stat stat = currentStats.ElementAt(i).Key;
+                currentStats[stat] += changer.statChanges[stat];
             }
         }
 
-        Dictionary<Stat, float> offenseStats = GetOffenseStats(currentStats);
-
-        foreach (StatChanger changer in statChangers)
-        {
-            foreach (KeyValuePair<Stat, float> stat in changer.statChanges)
-            {
-                if (offenseStats.ContainsKey(stat.Key))
-                    offenseStats[stat.Key] += stat.Value;
-            }
-        }
-
-        foreach (var stat in offenseStats)
+        foreach (var stat in GetOffenseStats(currentStats))
             currentStats.Add(stat.Key, stat.Value);
+
+        foreach (var changer in statChangers)
+        {
+            for (int i = 7; i < 15; i++)
+            {
+                Stat stat = currentStats.ElementAt(i).Key;
+                currentStats[stat] += changer.statChanges[stat];
+            }
+        }
 
         currentStats[Stat.ATK] += weapon.attack;
         currentStats[Stat.PhHit] += weapon.accuracy;
@@ -140,30 +138,30 @@ public class Character_Stats : ScriptableObject
     }
 
 
-    public Dictionary<Stat, float> GetCombatStats(Combat_Character.Skill.Skill_Stats skillStats)
+    public Dictionary<Stat, int> GetCombatStats(Combat_Character.Skill.Skill_Stats skillStats)
     {
-        Dictionary<Stat, float> combatStats = GetCurrentStats();
+        Dictionary<Stat, int> combatStats = GetCurrentStats();
 
         combatStats[Stat.ATK] += skillStats.attack;
         combatStats[Stat.PhHit] += skillStats.accuracy;
         combatStats[Stat.Crit] += skillStats.critical;
 
-        if (skillStats.statChanger.GetStat(Stat.AS))
+        if (skillStats.statChanger != null)
             combatStats[Stat.AS] += skillStats.statChanger.statChanges[Stat.AS];
 
         return combatStats;
     }
 
-    public Dictionary<Stat, float> GetCombatStats(Combat_Character.Skill.Skill_Stats skillStats, Transform target)
+    public Dictionary<Stat, int> GetCombatStats(Combat_Character.Skill.Skill_Stats skillStats, Transform target)
     {
         return GetCombatStats(skillStats, target.GetComponent<Combat_Character>());
     }
 
-    public Dictionary<Stat, float> GetCombatStats(Combat_Character.Skill.Skill_Stats skillStats, Combat_Character target)
+    public Dictionary<Stat, int> GetCombatStats(Combat_Character.Skill.Skill_Stats skillStats, Combat_Character target)
     {
-        Dictionary<Stat, float> ownerStats = GetCombatStats(skillStats);
+        Dictionary<Stat, int> ownerStats = GetCombatStats(skillStats);
 
-        Dictionary<Stat, float> targetStats = target.character_Stats.GetCurrentStats();
+        Dictionary<Stat, int> targetStats = target.character_Stats.GetCurrentStats();
 
         ownerStats[Stat.ATK] = Mathf.Clamp(ownerStats[Stat.ATK] - targetStats[Stat.DEF], 0, 9999);
 
@@ -174,30 +172,26 @@ public class Character_Stats : ScriptableObject
         return ownerStats;
     }
 
-    public int CompareStat(Stat stat, float value)
+    public Color CompareStat(Stat stat, int value, bool reverse)
     {
+        int i = 0;
+
         if (GetBaseStats()[stat] < value)
-            return 1;
-        else if (GetBaseStats()[stat] > value)
-            return -1;
+            i = 1;
+
+        if (GetBaseStats()[stat] > value)
+            i = -1;
+
+        if (reverse)
+            i *= -1;
+
+        if (i == 1)
+            return Color.blue;
+        else if (i == -1)
+            return Color.red;
         else
-            return 0;
+            return Color.white;
     }
-
-    public Dictionary<Stat, float> CompareAllStats()
-    {
-        var newDirectory = GetBaseStats();
-
-        for (int i = 0; i < newDirectory.Count; i++)
-        {
-            Stat key = newDirectory.ElementAt(i).Key;
-
-            newDirectory[key] = GetCurrentStats()[key] - GetBaseStats()[key];
-        }
-
-        return newDirectory;
-    }
-
 
     public void AddStatChanger(StatChanger statChanger)
     {
@@ -209,20 +203,20 @@ public class Character_Stats : ScriptableObject
         statChangers.Remove(statChanger);
     }
 
-    public void IncrementStatChangers()
+    public void IncrementStatChangers(bool comboState)
     {
+        // Statchangers should have individual logic that is called thorugh abstract methods
+
         for (int i = 0; i < statChangers.Count;)
         {
+            statChangers[i].duration += statChangers[i].incrementDirection;
+
             if (statChangers[i].duration <= 0)
-            {
                 statChangers.RemoveAt(i);
-            }
             else
-            {
-                statChangers[i].duration += statChangers[i].incrementDirection;
                 i++;
-            }
         }
+
     }
 
     public void ClearStatChangers()

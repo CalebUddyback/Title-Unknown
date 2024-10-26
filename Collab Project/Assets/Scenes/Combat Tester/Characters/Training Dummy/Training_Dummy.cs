@@ -8,9 +8,9 @@ public class Training_Dummy : Combat_Character
 {
     private void Awake()
     {
-        health = 100;
+        Health = 100;
 
-        mana = 0;
+        Mana = 0;
     }
 
     public override IEnumerator Damage()

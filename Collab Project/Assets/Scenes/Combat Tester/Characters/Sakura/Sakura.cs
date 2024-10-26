@@ -234,6 +234,557 @@ public class Sakura : Combat_Character
     */
 
     [System.Serializable]
+    public class Punch : Skill
+    {
+        public Punch(Combat_Character character) : base(character)
+        {
+            name = "Punch";
+
+            skill_Stats = new Skill_Stats[1];
+
+            skill_Stats[0] = new Skill_Stats()
+            {
+                attack = 1,
+
+                statChanger = new StatChanger(new Dictionary<Character_Stats.Stat, int>
+                {
+                    {Character_Stats.Stat.AS, 1 },
+                })
+                {
+                    name = name + " exhaust",
+                },
+            };
+
+            type = Type.Physical;
+            range = Range.Close;
+
+            effect = true;
+            description = "Upon successful hit; decrease AS by 1 second(s).";
+
+        }
+
+        public override IEnumerator SubMenus(MonoBehaviour owner)
+        {
+            bool done = false;
+
+            int i = 0;
+
+            while (!done)
+            {
+
+                switch (i)
+                {
+
+                    case 0:
+
+                        // Returning to this submenu
+
+                        if (character.chosenAction.targets.Count > 0)
+                            character.chosenAction.targets.RemoveAt(character.chosenAction.targets.Count - 1);
+
+                        Combat_Character target = null;
+
+                        yield return character.SubMenuController.OpenSubMenu("Targets", character.TurnController.GetPlayerNames(character.Facing));
+
+                        yield return null;
+
+                        while (character.SubMenuController.CurrentSubMenu.ButtonChoice == -2)
+                        {
+                            if (character.SubMenuController.CurrentSubMenu.hoveringButton > -1)
+                            {
+                                int hovering = character.SubMenuController.CurrentSubMenu.hoveringButton;
+
+                                if (character.Facing == 1)
+                                    target = character.TurnController.right_Players[character.SubMenuController.CurrentSubMenu.hoveringButton].GetComponent<Combat_Character>();
+
+                                character.TurnController.left_descriptionBox.ATK_Num.text = character.character_Stats.GetCombatStats(skill_Stats[0], target)[Character_Stats.Stat.ATK].ToString();
+                                character.TurnController.left_descriptionBox.HIT_Num.text = character.character_Stats.GetCombatStats(skill_Stats[0], target)[Character_Stats.Stat.PhHit].ToString();
+                                character.TurnController.left_descriptionBox.CRT_Num.text = character.character_Stats.GetCombatStats(skill_Stats[0], target)[Character_Stats.Stat.Crit].ToString();
+                            }
+                            yield return null;
+                        }
+
+                        yield return character.SubMenuController.CurrentCD.coroutine;
+
+                        if (character.SubMenuController.CurrentSubMenu.ButtonChoice > -1)
+                        {
+
+                            if (character.Facing == 1)
+                                character.chosenAction.targets.Add(character.TurnController.right_Players[character.SubMenuController.CurrentSubMenu.ButtonChoice].transform);
+                            else
+                                character.chosenAction.targets.Add(character.TurnController.left_Players[character.SubMenuController.CurrentSubMenu.ButtonChoice].transform);
+
+                            i++;
+
+                        }
+                        else
+                        {
+                            character.chosenAction = null;
+                            yield break;
+                        }
+
+                        break;
+
+                    case 1:
+
+                        yield return character.SubMenuController.OpenSubMenu("Confirm", new List<string>() { "Confirm" });
+
+                        yield return character.SubMenuController.CurrentCD.coroutine;
+
+                        if (character.SubMenuController.CurrentSubMenu.ButtonChoice > -1)
+                        {
+                            character.character_Stats.AddStatChanger(skill_Stats[0].statChanger);
+                            done = true;
+                        }
+                        else
+                        {
+                            i--;
+                        }
+
+                        break;
+                }
+
+            }
+
+            Execute = Action();
+
+        }
+
+        public IEnumerator Action()
+        {
+            character.enemyTransform = targets[0];
+
+            //GetOutcome(skill_Stats[0], targets[0]);
+
+            /*CAMERA CONTROL*/
+
+            character.mcamera.GetComponent<MainCamera>().BlackOut(0.9f, 0.5f);
+
+            Vector3 camTargetPos = new Vector3(targets[0].position.x, 0.5f, targets[0].position.z - 1.5f);
+
+            yield return character.mcamera.GetComponent<MainCamera>().LerpMoveIE(camTargetPos, 0.5f);
+
+            yield return character.MoveInRange(new Vector3(-0.35f, 0, 0));
+
+            character.animationController.Clip("Sakura Punch");
+
+            yield return character.WaitForKeyFrame();
+
+            //yield return character.TurnController.Reactions(Turn_Controller.Stage.IMPACT, info[0]);
+
+            CoroutineWithData cd = new CoroutineWithData(character, character.TurnController.Reactions(Turn_Controller.Stage.IMPACT, this));
+            yield return cd.coroutine;
+
+            GetOutcome(skill_Stats[0], targets[0]);
+
+            Dictionary<Character_Stats.Stat, int> ownerDirectory = character.character_Stats.GetCombatStats(skill_Stats[0]);
+
+            Dictionary<Character_Stats.Stat, int> targetDirectory = targets[0].GetComponent<Combat_Character>().character_Stats.GetCurrentStats();
+
+            print(ownerDirectory[Character_Stats.Stat.ATK] + " " + targetDirectory[Character_Stats.Stat.DEF]);
+
+            Coroutine outcome;
+
+
+            switch ((int)cd.result)
+            {
+                case 0:
+
+                    print("Continue");
+
+                    outcome = character.StartCoroutine(character.ApplyOutcome(HitSuccess, CritSuccess, character.character_Stats.GetCombatStats(skill_Stats[0], targets[0])[Character_Stats.Stat.ATK]));
+
+                    if (HitSuccess == 1 && !targets[0].GetComponent<Combat_Character>().blocking)
+                        yield return character.Hud.AffectTimerProgress(-1);
+
+                    yield return character.animationController.coroutine;
+                    //character.animationController.Clip("Sakura Idle");
+
+                    yield return outcome;
+
+                    break;
+
+                case 1:
+                    print("Pause");
+                    break;
+
+                case 2:
+                    print("Break");
+                    yield break;
+
+            }
+        }
+
+    }
+    public Punch punch;
+
+    [System.Serializable]
+    public class Uppercut : Skill
+    {
+        public Uppercut(Combat_Character character) : base(character)
+        {
+            name = "Uppercut";
+
+            skill_Stats = new Skill_Stats[1];
+
+            skill_Stats[0] = new Skill_Stats()
+            {
+                attack = 1,
+
+                statChanger = new StatChanger(new Dictionary<Character_Stats.Stat, int>
+                {
+                    {Character_Stats.Stat.AS, 1 },
+                })
+                {
+                    name = name + " exhaust",
+                },
+            };
+
+            type = Type.Physical;
+            range = Range.Close;
+
+            description = "A simple uppercut";
+
+        }
+
+        public override IEnumerator SubMenus(MonoBehaviour owner)
+        {
+            bool done = false;
+
+            int i = 0;
+
+            while (!done)
+            {
+
+                switch (i)
+                {
+
+                    case 0:
+
+                        // Returning to this submenu
+
+                        if (character.chosenAction.targets.Count > 0)
+                            character.chosenAction.targets.RemoveAt(character.chosenAction.targets.Count - 1);
+
+                        Combat_Character target = null;
+
+                        yield return character.SubMenuController.OpenSubMenu("Targets", character.TurnController.GetPlayerNames(character.Facing));
+
+                        yield return null;
+
+                        while (character.SubMenuController.CurrentSubMenu.ButtonChoice == -2)
+                        {
+                            if (character.SubMenuController.CurrentSubMenu.hoveringButton > -1)
+                            {
+                                if (character.Facing == 1)
+                                    target = character.TurnController.right_Players[character.SubMenuController.CurrentSubMenu.hoveringButton].GetComponent<Combat_Character>();
+
+                                character.TurnController.left_descriptionBox.ATK_Num.text = character.character_Stats.GetCombatStats(skill_Stats[0], target)[Character_Stats.Stat.ATK].ToString();
+                                character.TurnController.left_descriptionBox.HIT_Num.text = character.character_Stats.GetCombatStats(skill_Stats[0], target)[Character_Stats.Stat.PhHit].ToString();
+                                character.TurnController.left_descriptionBox.CRT_Num.text = character.character_Stats.GetCombatStats(skill_Stats[0], target)[Character_Stats.Stat.Crit].ToString();
+                            }
+                            yield return null;
+                        }
+
+                        yield return character.SubMenuController.CurrentCD.coroutine;
+
+                        if (character.SubMenuController.CurrentSubMenu.ButtonChoice > -1)
+                        {
+
+                            if (character.Facing == 1)
+                                character.chosenAction.targets.Add(character.TurnController.right_Players[character.SubMenuController.CurrentSubMenu.ButtonChoice].transform);
+                            else
+                                character.chosenAction.targets.Add(character.TurnController.left_Players[character.SubMenuController.CurrentSubMenu.ButtonChoice].transform);
+
+                            i++;
+
+                        }
+                        else
+                        {
+                            character.chosenAction = null;
+                            yield break;
+                        }
+
+                        break;
+
+                    case 1:
+
+                        yield return character.SubMenuController.OpenSubMenu("Confirm", new List<string>() { "Confirm" });
+
+                        yield return character.SubMenuController.CurrentCD.coroutine;
+
+                        if (character.SubMenuController.CurrentSubMenu.ButtonChoice > -1)
+                        {
+                            character.character_Stats.AddStatChanger(skill_Stats[0].statChanger);
+                            done = true;
+                        }
+                        else
+                        {
+                            i--;
+                        }
+
+                        break;
+                }
+
+            }
+
+            Execute = Action();
+
+        }
+
+        public IEnumerator Action()
+        {
+            character.enemyTransform = targets[0];
+
+            //GetOutcome(skill_Stats[0], targets[0]);
+
+            /*CAMERA CONTROL*/
+
+            character.mcamera.GetComponent<MainCamera>().BlackOut(0.9f, 0.5f);
+
+            Vector3 camTargetPos = new Vector3(targets[0].position.x, 0.5f, targets[0].position.z - 1.5f);
+
+            yield return character.mcamera.GetComponent<MainCamera>().LerpMoveIE(camTargetPos, 0.5f);
+
+            yield return character.MoveInRange(new Vector3(-0.35f, 0, 0));
+
+            character.animationController.Clip("Sakura Uppercut");
+
+            yield return character.WaitForKeyFrame();
+
+            //yield return character.TurnController.Reactions(Turn_Controller.Stage.IMPACT, info[0]);
+
+            CoroutineWithData cd = new CoroutineWithData(character, character.TurnController.Reactions(Turn_Controller.Stage.IMPACT, this));
+            yield return cd.coroutine;
+
+            GetOutcome(skill_Stats[0], targets[0]);
+
+            Dictionary<Character_Stats.Stat, int> ownerDirectory = character.character_Stats.GetCombatStats(skill_Stats[0]);
+
+            Dictionary<Character_Stats.Stat, int> targetDirectory = targets[0].GetComponent<Combat_Character>().character_Stats.GetCurrentStats();
+
+            print(ownerDirectory[Character_Stats.Stat.ATK] + " " + targetDirectory[Character_Stats.Stat.DEF]);
+
+            Coroutine outcome;
+
+
+            switch ((int)cd.result)
+            {
+                case 0:
+
+                    print("Continue");
+
+                    outcome = character.StartCoroutine(character.ApplyOutcome(HitSuccess, CritSuccess, character.character_Stats.GetCombatStats(skill_Stats[0], targets[0])[Character_Stats.Stat.ATK]));
+
+                    //if (HitSuccess == 1 && !targets[0].GetComponent<Combat_Character>().blocking)
+                    //    yield return targets[0].GetComponent<Combat_Character>().Hud.AffectTimerProgress(1);
+
+                    yield return character.animationController.coroutine;
+                    //character.animationController.Clip("Sakura Idle");
+
+                    yield return outcome;
+
+                    break;
+
+                case 1:
+                    print("Pause");
+                    break;
+
+                case 2:
+                    print("Break");
+                    yield break;
+
+            }
+        }
+
+    }
+    public Uppercut uppercut;
+
+    [System.Serializable]
+    public class Kick : Skill
+    {
+        public Kick(Combat_Character character) : base(character)
+        {
+            name = "Kick";
+
+            skill_Stats = new Skill_Stats[1];
+
+            skill_Stats[0] = new Skill_Stats()
+            {
+                attack = 1,
+
+                statChanger = new StatChanger(new Dictionary<Character_Stats.Stat, int>
+                {
+                    {Character_Stats.Stat.AS, 1 },
+                })
+                {
+                    name = name + " exhaust",
+                },
+            };
+
+            type = Type.Physical;
+            range = Range.Close;
+
+            effect = true;
+            description = "Upon successful hit; increase target AS by 1 second(s).";
+
+        }
+
+        public override IEnumerator SubMenus(MonoBehaviour owner)
+        {
+            bool done = false;
+
+            int i = 0;
+
+            while (!done)
+            {
+
+                switch (i)
+                {
+
+                    case 0:
+
+                        // Returning to this submenu
+
+                        if (character.chosenAction.targets.Count > 0)
+                            character.chosenAction.targets.RemoveAt(character.chosenAction.targets.Count - 1);
+
+                        Combat_Character target = null;
+
+                        yield return character.SubMenuController.OpenSubMenu("Targets", character.TurnController.GetPlayerNames(character.Facing));
+
+                        yield return null;
+
+                        while (character.SubMenuController.CurrentSubMenu.ButtonChoice == -2)
+                        {
+                            if (character.SubMenuController.CurrentSubMenu.hoveringButton > -1)
+                            {
+                                if (character.Facing == 1)
+                                    target = character.TurnController.right_Players[character.SubMenuController.CurrentSubMenu.hoveringButton].GetComponent<Combat_Character>();
+
+                                character.TurnController.left_descriptionBox.ATK_Num.text = character.character_Stats.GetCombatStats(skill_Stats[0], target)[Character_Stats.Stat.ATK].ToString();
+                                character.TurnController.left_descriptionBox.HIT_Num.text = character.character_Stats.GetCombatStats(skill_Stats[0], target)[Character_Stats.Stat.PhHit].ToString();
+                                character.TurnController.left_descriptionBox.CRT_Num.text = character.character_Stats.GetCombatStats(skill_Stats[0], target)[Character_Stats.Stat.Crit].ToString();
+                            }
+                            yield return null;
+                        }
+
+                        yield return character.SubMenuController.CurrentCD.coroutine;
+
+                        if (character.SubMenuController.CurrentSubMenu.ButtonChoice > -1)
+                        {
+
+                            if (character.Facing == 1)
+                                character.chosenAction.targets.Add(character.TurnController.right_Players[character.SubMenuController.CurrentSubMenu.ButtonChoice].transform);
+                            else
+                                character.chosenAction.targets.Add(character.TurnController.left_Players[character.SubMenuController.CurrentSubMenu.ButtonChoice].transform);
+
+                            i++;
+
+                        }
+                        else
+                        {
+                            character.chosenAction = null;
+                            yield break;
+                        }
+
+                        break;
+
+                    case 1:
+
+                        yield return character.SubMenuController.OpenSubMenu("Confirm", new List<string>() { "Confirm" });
+
+                        yield return character.SubMenuController.CurrentCD.coroutine;
+
+                        if (character.SubMenuController.CurrentSubMenu.ButtonChoice > -1)
+                        {
+                            character.character_Stats.AddStatChanger(skill_Stats[0].statChanger);
+                            done = true;
+                        }
+                        else
+                        {
+                            i--;
+                        }
+
+                        break;
+                }
+
+            }
+
+            Execute = Action();
+
+        }
+
+        public IEnumerator Action()
+        {
+            character.enemyTransform = targets[0];
+
+            //GetOutcome(skill_Stats[0], targets[0]);
+
+            /*CAMERA CONTROL*/
+
+            character.mcamera.GetComponent<MainCamera>().BlackOut(0.9f, 0.5f);
+
+            Vector3 camTargetPos = new Vector3(targets[0].position.x, 0.5f, targets[0].position.z - 1.5f);
+
+            yield return character.mcamera.GetComponent<MainCamera>().LerpMoveIE(camTargetPos, 0.5f);
+
+            yield return character.MoveInRange(new Vector3(-0.35f, 0, 0));
+
+            character.animationController.Clip("Sakura Kick");
+
+            yield return character.WaitForKeyFrame();
+
+            //yield return character.TurnController.Reactions(Turn_Controller.Stage.IMPACT, info[0]);
+
+            CoroutineWithData cd = new CoroutineWithData(character, character.TurnController.Reactions(Turn_Controller.Stage.IMPACT, this));
+            yield return cd.coroutine;
+
+            GetOutcome(skill_Stats[0], targets[0]);
+
+            Dictionary<Character_Stats.Stat, int> ownerDirectory = character.character_Stats.GetCombatStats(skill_Stats[0]);
+
+            Dictionary<Character_Stats.Stat, int> targetDirectory = targets[0].GetComponent<Combat_Character>().character_Stats.GetCurrentStats();
+
+            print(ownerDirectory[Character_Stats.Stat.ATK] + " " + targetDirectory[Character_Stats.Stat.DEF]);
+
+            Coroutine outcome;
+
+
+            switch ((int)cd.result)
+            {
+                case 0:
+
+                    print("Continue");
+
+                    outcome = character.StartCoroutine(character.ApplyOutcome(HitSuccess, CritSuccess, character.character_Stats.GetCombatStats(skill_Stats[0], targets[0])[Character_Stats.Stat.ATK]));
+
+                    if (HitSuccess == 1 && !targets[0].GetComponent<Combat_Character>().blocking)
+                        yield return targets[0].GetComponent<Combat_Character>().Hud.AffectTimerProgress(1);
+
+                    yield return character.animationController.coroutine;
+                    //character.animationController.Clip("Sakura Idle");
+
+                    yield return outcome;
+
+                    break;
+
+                case 1:
+                    print("Pause");
+                    break;
+
+                case 2:
+                    print("Break");
+                    yield break;
+
+            }
+        }
+
+    }
+    public Kick kick;
+
+
+    [System.Serializable]
     public class Combo : Skill
     {
         public Combo(Combat_Character character) : base(character)
@@ -242,60 +793,54 @@ public class Sakura : Combat_Character
 
             maxLevel = 3;
 
-            skill_Stats = new Skill_Stats[]
+            skill_Stats = new Skill_Stats[3];
+
+            skill_Stats[0] = new Skill_Stats()
             {
-                new Skill_Stats
+                attack = 1,
+
+                statChanger = new StatChanger(new Dictionary<Character_Stats.Stat, int>
                 {
-                    attack = 1,
-
-                    statChanger = new StatChanger()
-                    {
-                        name = "Skill Exhaust",
-
-                        statChanges = new Dictionary<Character_Stats.Stat, float>
-                        {  
-                            {Character_Stats.Stat.AS, 0.5f },
-                        }
-                    }
-                },
-
-                new Skill_Stats
+                    { Character_Stats.Stat.AS, 1 },
+                })
                 {
-                    attack = 1,
-
-                    statChanger = new StatChanger()
-                    {
-                        name = "Skill Exhaust",
-
-                        statChanges = new Dictionary<Character_Stats.Stat, float>
-                        {
-                            {Character_Stats.Stat.AS, 0.6f },
-                        }
-                    }
+                    name = name + " exhaust",
                 },
-
-                new Skill_Stats
-                {
-                    attack = 1,
-
-                    statChanger = new StatChanger()
-                    {
-                        name = "Skill Exhaust",
-
-                        statChanges = new Dictionary<Character_Stats.Stat, float>
-                        {
-                            {Character_Stats.Stat.AS, 0.7f },
-                        }
-                    }
-                },
-
             };
+
+            skill_Stats[1] = new Skill_Stats()
+            {
+                attack = 1,
+
+                statChanger = new StatChanger(new Dictionary<Character_Stats.Stat, int>
+                {
+                    { Character_Stats.Stat.AS, 2 },
+                })
+                {
+                    name = name + " exhaust",
+                },
+            };
+
+            skill_Stats[2] = new Skill_Stats()
+            {
+                attack = 1,
+
+                statChanger = new StatChanger(new Dictionary<Character_Stats.Stat, int>
+                {
+                    { Character_Stats.Stat.AS, 3 },
+                })
+                {
+                    name = name + " exhaust",
+                },
+            };
+
+
 
             type = Type.Physical;
             range = Range.Close;
 
             effect = true;
-            description = "Upon each successful hit; STAGGER target by 0.1 seconds.";
+            description = "If last hit is successful; increase target AS by 1 second(s).";
 
         }
 
@@ -331,9 +876,8 @@ public class Sakura : Combat_Character
 
                                 character.TurnController.left_descriptionBox.ATK_Mult.SetActive((hovering > 1) ? true : false);
 
-                                float projectedValue = character.character_Stats.GetCombatStats(skill_Stats[hovering-1])[Character_Stats.Stat.AS];
-                                int comparison = character.character_Stats.CompareStat(Character_Stats.Stat.AS, projectedValue);
-                                character.TurnController.left_descriptionBox.REC_Num.color = (comparison == 1) ? Color.red : (comparison == -1) ? Color.blue : Color.white;
+                                int projectedValue = character.character_Stats.GetCombatStats(skill_Stats[hovering-1])[Character_Stats.Stat.AS];
+                                //character.TurnController.left_descriptionBox.REC_Num.color = character.character_Stats.CompareStat(Character_Stats.Stat.AS, projectedValue, true);
                                 character.TurnController.left_descriptionBox.REC_Num.text = projectedValue.ToString();
 
                                 character.TurnController.left_descriptionBox.HIT_Num.text = (skill_Stats[hovering-1].accuracy != 0) ? skill_Stats[hovering-1].accuracy.ToString() : "-";
@@ -444,7 +988,6 @@ public class Sakura : Combat_Character
 
             yield return character.mcamera.GetComponent<MainCamera>().LerpMoveIE(camTargetPos, 0.5f);
 
-
             yield return character.MoveInRange(new Vector3(-0.35f, 0, 0));
 
             character.animationController.Clip("Sakura Punch");
@@ -458,9 +1001,9 @@ public class Sakura : Combat_Character
 
             GetOutcome(skill_Stats[0], targets[0]);
 
-            Dictionary<Character_Stats.Stat, float> ownerDirectory = character.character_Stats.GetCombatStats(skill_Stats[0]);
+            Dictionary<Character_Stats.Stat, int> ownerDirectory = character.character_Stats.GetCombatStats(skill_Stats[0]);
 
-            Dictionary<Character_Stats.Stat, float> targetDirectory = targets[0].GetComponent<Combat_Character>().character_Stats.GetCurrentStats();
+            Dictionary<Character_Stats.Stat, int> targetDirectory = targets[0].GetComponent<Combat_Character>().character_Stats.GetCurrentStats();
 
             print(ownerDirectory[Character_Stats.Stat.ATK] + " " + targetDirectory[Character_Stats.Stat.DEF]);
 
@@ -475,11 +1018,11 @@ public class Sakura : Combat_Character
 
                     outcome = character.StartCoroutine(character.ApplyOutcome(HitSuccess, CritSuccess, character.character_Stats.GetCombatStats(skill_Stats[0], targets[0])[Character_Stats.Stat.ATK]));
 
-                    if (HitSuccess == 1)
-                        targets[0].GetComponent<Combat_Character>().Hud.AffectProgress(0.1f);
+                    //if (HitSuccess == 1 && !targets[0].GetComponent<Combat_Character>().blocking)
+                    //    yield return targets[0].GetComponent<Combat_Character>().Hud.AffectTimerProgress(1);
 
                     yield return character.animationController.coroutine;
-                    character.animationController.Clip("Sakura Idle");
+                    //character.animationController.Clip("Sakura Idle");
 
                     yield return outcome;
 
@@ -509,11 +1052,11 @@ public class Sakura : Combat_Character
             yield return character.WaitForKeyFrame();
             outcome = character.StartCoroutine(character.ApplyOutcome(HitSuccess, CritSuccess, character.character_Stats.GetCombatStats(skill_Stats[1], targets[0])[Character_Stats.Stat.ATK]));
 
-            if (HitSuccess == 1)
-                targets[0].GetComponent<Combat_Character>().Hud.AffectProgress(0.1f);
+            //if (HitSuccess == 1 && !targets[0].GetComponent<Combat_Character>().blocking)
+            //    yield return targets[0].GetComponent<Combat_Character>().Hud.AffectTimerProgress(1);
 
             yield return character.animationController.coroutine;
-            character.animationController.Clip("Sakura Idle");
+            //character.animationController.Clip("Sakura Idle");
 
             yield return outcome;
 
@@ -531,11 +1074,11 @@ public class Sakura : Combat_Character
             yield return character.WaitForKeyFrame();
             outcome = character.StartCoroutine(character.ApplyOutcome(HitSuccess, CritSuccess, character.character_Stats.GetCombatStats(skill_Stats[2], targets[0])[Character_Stats.Stat.ATK]));
 
-            if (HitSuccess == 1)
-                targets[0].GetComponent<Combat_Character>().Hud.AffectProgress(0.1f);
+            if (HitSuccess == 1 && !targets[0].GetComponent<Combat_Character>().blocking)
+                yield return targets[0].GetComponent<Combat_Character>().Hud.AffectTimerProgress(1);
 
             yield return character.animationController.coroutine;
-            character.animationController.Clip("Sakura Idle");
+            //character.animationController.Clip("Sakura Idle");
 
             yield return outcome;
         }
@@ -553,28 +1096,25 @@ public class Sakura : Combat_Character
 
             name = "Jump Kick";
 
-            skill_Stats = new Skill_Stats[]
+            skill_Stats = new Skill_Stats[1];
+
+            skill_Stats[0] = new Skill_Stats()
             {
-                new Skill_Stats
+                attack = 20,
+                accuracy = -3,
+                critical = 10,
+
+                statChanger = new StatChanger(new Dictionary<Character_Stats.Stat, int>
                 {
-                    attack = 20,
-                    accuracy = -3,
-                    critical = 10,
-
-                    statChanger = new StatChanger()
-                    {
-                        name = "Skill Exhaust",
-
-                        statChanges = new Dictionary<Character_Stats.Stat, float>
-                        {
-                            {Character_Stats.Stat.AS, 1.0f },
-                        }
-                    }
-                }
+                    { Character_Stats.Stat.AS, 3 },
+                })
+                {
+                    name = name + " exhaust",
+                },
             };
 
             effect = true;
-            description = "Upon each successful hit; STAGGER target by 0.2 seconds.";
+            description = "Upon successful hit; increase target AS by 2 second(s).";
         }
 
         public override IEnumerator SubMenus(MonoBehaviour owner)
@@ -607,7 +1147,7 @@ public class Sakura : Combat_Character
                                 if (character.Facing == 1)
                                     target = character.TurnController.right_Players[character.SubMenuController.CurrentSubMenu.hoveringButton].GetComponent<Combat_Character>();
 
-
+                                character.TurnController.left_descriptionBox.ATK_Num.text = character.character_Stats.GetCombatStats(skill_Stats[0], target)[Character_Stats.Stat.ATK].ToString();
                                 character.TurnController.left_descriptionBox.HIT_Num.text = character.character_Stats.GetCombatStats(skill_Stats[0], target)[Character_Stats.Stat.PhHit].ToString();
                                 character.TurnController.left_descriptionBox.CRT_Num.text = character.character_Stats.GetCombatStats(skill_Stats[0], target)[Character_Stats.Stat.Crit].ToString();
                             }
@@ -692,7 +1232,7 @@ public class Sakura : Combat_Character
 
             if (HitSuccess == 1)
             {
-                targets[0].GetComponent<Combat_Character>().Hud.AffectProgress(0.2f);
+                yield return targets[0].GetComponent<Combat_Character>().Hud.AffectTimerProgress(2);
                 yield return outcome;
             }
 
@@ -724,30 +1264,31 @@ public class Sakura : Combat_Character
 
             name = "Throw Kunai";
 
+            chargeTime = 1;
+
             maxLevel = 2;
 
-            skill_Stats = new Skill_Stats[]
-            {
-                new Skill_Stats
-                {
-                    attack = 5,
-                    accuracy = -5,
-                    critical = 5,
+            skill_Stats = new Skill_Stats[1];
 
-                    statChanger = new StatChanger
-                    {
-                        statChanges = new Dictionary<Character_Stats.Stat, float>
-                        {
-                            {Character_Stats.Stat.AS, 0.5f },
-                        }
-                    }
+            skill_Stats[0] = new Skill_Stats()
+            {
+                attack = 5,
+                accuracy = -5,
+                critical = 5,
+
+                statChanger = new StatChanger(new Dictionary<Character_Stats.Stat, int>
+                {
+                    { Character_Stats.Stat.AS, 3 },
+                })
+                {
+                    name = name + " exhaust",
                 },
             };
 
             range = Range.Far;
 
             effect = true;
-            description = "CHARGE to a max of 2; each charge requires " + (skill_Stats[0].statChanger.statChanges[Character_Stats.Stat.AS]).ToString("F1") + " seconds. Each charge will throw an extra kunai.";
+            description = "Charge to a max of 2; each charge requires " + chargeTime + " second(s). Each charge will throw an extra kunai.";
         }
 
         public override IEnumerator SubMenus(MonoBehaviour owner)
@@ -866,7 +1407,7 @@ public class Sakura : Combat_Character
                                 if (character.Facing == 1)
                                     target = character.TurnController.right_Players[character.SubMenuController.CurrentSubMenu.hoveringButton].GetComponent<Combat_Character>();
 
-
+                                character.TurnController.left_descriptionBox.ATK_Num.text = character.character_Stats.GetCombatStats(skill_Stats[0], target)[Character_Stats.Stat.ATK].ToString();
                                 character.TurnController.left_descriptionBox.HIT_Num.text = character.character_Stats.GetCombatStats(skill_Stats[0], target)[Character_Stats.Stat.PhHit].ToString();
                                 character.TurnController.left_descriptionBox.CRT_Num.text = character.character_Stats.GetCombatStats(skill_Stats[0], target)[Character_Stats.Stat.Crit].ToString();
                             }
@@ -995,7 +1536,7 @@ public class Sakura : Combat_Character
 
             Destroy(kunai[0], 2);
 
-            character.animationController.Clip("Sakura Idle");
+            //character.animationController.Clip("Sakura Idle");
 
             yield return outcome;
 
@@ -1045,22 +1586,11 @@ public class Sakura : Combat_Character
 
             name = "Multi Hit";
 
-            skill_Stats = new Skill_Stats[]
-            {
-                new Skill_Stats
-                {
-                    statChanger = new StatChanger
-                    {
-                        statChanges = new Dictionary<Character_Stats.Stat, float>
-                        {
-
-                        }
-                    }
-                }
-
-            };
-
             level = 4;
+
+            skill_Stats = new Skill_Stats[1];
+
+            skill_Stats[0] = new Skill_Stats();
 
             description = "Release a flury of 4 punches.";
         }
@@ -1093,7 +1623,7 @@ public class Sakura : Combat_Character
                                 if (character.Facing == 1)
                                     target = character.TurnController.right_Players[character.SubMenuController.CurrentSubMenu.hoveringButton].GetComponent<Combat_Character>();
 
-
+                                character.TurnController.left_descriptionBox.ATK_Num.text = character.character_Stats.GetCombatStats(skill_Stats[0], target)[Character_Stats.Stat.ATK].ToString();
                                 character.TurnController.left_descriptionBox.HIT_Num.text = character.character_Stats.GetCombatStats(skill_Stats[0], target)[Character_Stats.Stat.PhHit].ToString();
                                 character.TurnController.left_descriptionBox.CRT_Num.text = character.character_Stats.GetCombatStats(skill_Stats[0], target)[Character_Stats.Stat.Crit].ToString();
                             }
@@ -1204,7 +1734,7 @@ public class Sakura : Combat_Character
 
 
             yield return character.animationController.coroutine;
-            character.animationController.Clip("Sakura Idle");
+            //character.animationController.Clip("Sakura Idle");
 
             yield return outcome;
         }
@@ -1221,36 +1751,34 @@ public class Sakura : Combat_Character
 
             name = "Guard";
 
-            skill_Stats = new Skill_Stats[]
+            skill_Stats = new Skill_Stats[2];
+
+            skill_Stats[0] = new Skill_Stats()
             {
-                new Skill_Stats{
-                    statChanger = new StatChanger
-                    {
-                        name = "Guard Exaust",
-
-                        statChanges = new Dictionary<Character_Stats.Stat, float>
-                        {
-                            {Character_Stats.Stat.AS, 1.1f },
-                        }
-                    },
+                statChanger = new StatChanger(new Dictionary<Character_Stats.Stat, int>
+                {
+                    { Character_Stats.Stat.AS, 3 },
+                })
+                {
+                    name = name + " exhaust",
                 },
-                new Skill_Stats{
-                    statChanger = new StatChanger()
-                    {
-                        name = "Guard Effects",
-
-                        statChanges = new Dictionary<Character_Stats.Stat, float>
-                        {
-                                {Character_Stats.Stat.DEF, 100f },
-                                {Character_Stats.Stat.PhAvo, -1000f }
-                        }
-                    },
-                }
-
             };
 
+            skill_Stats[1] = new Skill_Stats()
+            {
+                statChanger = new StatChanger(new Dictionary<Character_Stats.Stat, int>
+                {
+                    {Character_Stats.Stat.DEF, 100 },
+                    {Character_Stats.Stat.PhAvo, -1000 }
+                })
+                {
+                    name = name + " effect",
+                },
+            };
+
+
             effect = true;
-            description = "At the point of impact on this character; increase defense by " + skill_Stats[1].statChanger.statChanges[Character_Stats.Stat.DEF] + ".";
+            description = "At the point of impact on this character; increase DEF by " + skill_Stats[1].statChanger.statChanges[Character_Stats.Stat.DEF] + ".";
 
             stage = Turn_Controller.Stage.IMPACT;
 
@@ -1305,7 +1833,7 @@ public class Sakura : Combat_Character
             character.SetSkill(this, image);
 
             yield return character.animationController.coroutine;
-            character.animationController.Clip("Sakura Idle");
+            //character.animationController.Clip("Sakura Idle");
         }
 
         public override bool Condition(Turn_Controller.Stage stage, Skill info)
@@ -1342,21 +1870,19 @@ public class Sakura : Combat_Character
 
             name = "Heal";
 
-            skill_Stats = new Skill_Stats[]
+            chargeTime = 2;
+
+
+            skill_Stats = new Skill_Stats[1];
+
+            skill_Stats[0] = new Skill_Stats()
             {
-                new Skill_Stats
+                statChanger = new StatChanger(new Dictionary<Character_Stats.Stat, int>
                 {
-                    mana = -15,
-
-                    statChanger = new StatChanger
-                    {
-                        name = "Heal Exhaust",
-
-                        statChanges = new Dictionary<Character_Stats.Stat, float>
-                        {
-                            {Character_Stats.Stat.AS, 0.3f },
-                        }
-                    },
+                    { Character_Stats.Stat.AS, 2 },
+                })
+                {
+                    name = name + " exhaust",
                 },
             };
 
@@ -1368,7 +1894,7 @@ public class Sakura : Combat_Character
             chargeAnimation = "Sakura Charge";
 
             effect = true;
-            description = "HEAL this character for " + heal + " immediatly. At the start of this character's next turn; this character may HEAL again for " + heal + ".";
+            description = "Heal this character for " + heal + " hp immediatly. At the start of this character's next turn; this character may heal again for " + heal + " hp.";
 
             stage = Turn_Controller.Stage.TURN_START;
 
@@ -1427,23 +1953,19 @@ public class Sakura : Combat_Character
 
                         //Execute
 
-                        yield return character.SubMenuController.OpenSubMenu("Confirm", new List<string>() { "Confirm"});
-
-                        yield return character.SubMenuController.CurrentCD.coroutine;
-
-                        if (character.SubMenuController.CurrentSubMenu.ButtonChoice > -1)
-                        {
+                        //yield return character.SubMenuController.OpenSubMenu("Confirm", new List<string>() { "Confirm"});
+                        //
+                        //yield return character.SubMenuController.CurrentCD.coroutine;
+                        //
+                        //if (character.SubMenuController.CurrentSubMenu.ButtonChoice > -1)
+                        //{
                             character.character_Stats.AddStatChanger(skill_Stats[0].statChanger);
 
                             done = true;
                             charging = false;
                             Execute = Action();
                             level = 0;
-                        }
-                        else
-                        {
-                            i = 1;
-                        }
+                        //}
 
                         break;
 
@@ -1490,9 +2012,9 @@ public class Sakura : Combat_Character
 
             int totalHeal = heal * CritSuccess;
 
-            character.AdjustHealth(totalHeal);
+            character.Health += totalHeal;
 
-            character.AdjustMana(Mathf.RoundToInt(skill_Stats[0].mana));
+            character.Mana += skill_Stats[0].mana;
 
 
             if (CritSuccess != 1)
@@ -1505,7 +2027,7 @@ public class Sakura : Combat_Character
             character.SetSkill(this, image);
 
             yield return character.animationController.coroutine;
-            character.animationController.Clip("Sakura Idle");
+            //character.animationController.Clip("Sakura Idle");
         }
 
         public override bool Condition(Turn_Controller.Stage stage, Skill info)
@@ -1522,9 +2044,9 @@ public class Sakura : Combat_Character
 
             yield return character.WaitForKeyFrame();
 
-            character.AdjustHealth(heal);
+            character.Health += heal;
 
-            character.AdjustMana(Mathf.RoundToInt(skill_Stats[0].mana));
+            character.Mana += skill_Stats[0].mana;
 
             Instantiate(character.outcome_Bubble_Prefab, character.outcome_Bubble_Pos.position, Quaternion.identity).Input(heal);
 
@@ -1550,6 +2072,9 @@ public class Sakura : Combat_Character
     {
         base.InitializeSkills();
 
+        punch = new Punch(this);
+        uppercut = new Uppercut(this);
+        kick = new Kick(this);
         combo = new Combo(this);
         jump_Kick = new Jump_Kick(this);
         throw_Kunai = new Throw_Kunai(this);
@@ -1559,6 +2084,9 @@ public class Sakura : Combat_Character
 
         attackList = new List<Skill>()
         {
+            punch,
+            uppercut,
+            kick,
             combo,
             jump_Kick,
             throw_Kunai,
@@ -1566,10 +2094,6 @@ public class Sakura : Combat_Character
             guard,
             heal,
         };
-
-        health = 100;
-
-        mana = 100;
     }
 
     public override IEnumerator Damage()
@@ -1578,7 +2102,7 @@ public class Sakura : Combat_Character
         yield return null;
         animationController.Clip("Sakura Damaged");
 
-        yield return animationController.coroutine;
+        //yield return animationController.coroutine;
     }
 
     public override IEnumerator Block()
@@ -1598,7 +2122,6 @@ public class Sakura : Combat_Character
         yield return MoveAmount(new Vector3(0.3f * -Facing, 0, 0));
 
         yield return animationController.coroutine;
-        animationController.Clip("Sakura Idle");
     }
 
     public override IEnumerator CpuDecisionMaking()
@@ -1688,7 +2211,7 @@ public class Sakura : Combat_Character
 
                 dBox.type.text = typeText;
 
-                dBox.descriptionText.text = skill.description;
+                dBox.DescriptionText(skill);
 
                 dBox.container.SetActive(true);
 
@@ -1704,6 +2227,8 @@ public class Sakura : Combat_Character
 
                 break;
         }
+
+        yield return new WaitForSeconds(1);     // Pretend to Think
 
         EndTurn();
 
