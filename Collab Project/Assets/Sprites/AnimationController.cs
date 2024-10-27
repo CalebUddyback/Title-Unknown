@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Animations;
 
 public class AnimationController : MonoBehaviour
 {
@@ -10,22 +11,12 @@ public class AnimationController : MonoBehaviour
 
     public Transform instatiatePoint;
 
-    private void FixedUpdate()
-    {
-        //gameObject.GetComponent<Animator>().SetFloat("Velocity.y", gameObject.GetComponent<Rigidbody>().velocity.y);
-    }
-
     public void Clip(string trigger)
     {
-        GetComponent<Animator>().Play(trigger);
-
         if (!trigger.Contains("Idle"))
-        {
-            //print("Playing " + trigger);
-            coroutine = StartCoroutine(Playing());
-        }
-
-
+            coroutine = StartCoroutine(Playing(trigger));
+        else
+            StartCoroutine(Playing(trigger));
     }
 
     public void Pause()
@@ -38,9 +29,13 @@ public class AnimationController : MonoBehaviour
         GetComponent<Animator>().speed = 1;
     }
 
-    IEnumerator Playing()
+    IEnumerator Playing(string trigger)
     {
+        GetComponent<Animator>().SetTrigger("Reset");
+
         yield return null;      // THIS HAS TO BE HERE TO CLEAR LAST ANIMATION
+
+        GetComponent<Animator>().Play(trigger);
 
         yield return new WaitWhile(() => GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).normalizedTime <= 1);
     }

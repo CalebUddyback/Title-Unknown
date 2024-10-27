@@ -73,7 +73,7 @@ public abstract class Combat_Character : MonoBehaviour
         {
             Combat_Character target = t.GetComponent<Combat_Character>();
 
-            var chances = character.character_Stats.GetCombatStats(stats, target);
+            var chances = character.GetCombatStats(stats, target);
 
             int critRoll = Random.Range(0, 100);
 
@@ -178,11 +178,9 @@ public abstract class Combat_Character : MonoBehaviour
 
     public bool blocking = false;
 
-    public Character_Stats character_Stats;
-
     public IEnumerator StartFocus()
     {
-        int totalTime = character_Stats.GetCurrentStats()[Character_Stats.Stat.AS];
+        int totalTime = GetCurrentStats()[Character_Stats.Stat.AS];
 
         yield return Hud.ScrollTimerTo(totalTime);
     }
@@ -190,7 +188,7 @@ public abstract class Combat_Character : MonoBehaviour
 
     public IEnumerator Charging()
     {
-        Hud.chargeIndicator.SetActive(true);
+        Hud.timer_ChargeIndicator.SetActive(true);
 
         yield return Hud.ScrollTimerTo(chosenAction.chargeTime);
     }
@@ -201,7 +199,7 @@ public abstract class Combat_Character : MonoBehaviour
 
         blocking = false;
 
-        character_Stats.IncrementStatChangers(TurnController.comboState);
+        IncrementStatChangers(TurnController.comboState);
 
         if (cpu)
             StartCoroutine(CpuDecisionMaking());
@@ -227,15 +225,16 @@ public abstract class Combat_Character : MonoBehaviour
     }
 
     public Transform uiPoint;
-    public Camera mcamera;
+
+    //Not Used for now but will be usful for world to ui canvas point tracking
 
     public void MenuPositioning()
     {
         Vector3 targPos = uiPoint.position;
 
-        Vector3 camForward = mcamera.transform.forward;
+        Vector3 camForward = TurnController.mainCamera.transform.forward;
 
-        Vector3 camPos = mcamera.transform.position + camForward;
+        Vector3 camPos = TurnController.mainCamera.transform.position + camForward;
 
         float distanceInFrontOfCamera = Vector3.Dot(targPos - camPos, camForward);
 
@@ -244,7 +243,7 @@ public abstract class Combat_Character : MonoBehaviour
             targPos -= camForward * distanceInFrontOfCamera;
         }
 
-        SubMenuController.gameObject.transform.position = RectTransformUtility.WorldToScreenPoint(mcamera, targPos);
+        SubMenuController.gameObject.transform.position = RectTransformUtility.WorldToScreenPoint(TurnController.mainCamera.cam, targPos);
     }
 
     public abstract IEnumerator CpuDecisionMaking();
@@ -281,9 +280,13 @@ public abstract class Combat_Character : MonoBehaviour
     {
         //animationController.Clip("Sakura Idle");    //this to allow for repeat calls
 
-        Hud.chargeIndicator.SetActive(false);
+        TurnController.mainCamera.SetIdleSway(0.1f);
+
+        Hud.timer_ChargeIndicator.SetActive(false);
 
         yield return chosenAction.Execute;
+
+        TurnController.mainCamera.ResetIdleSway();
     }
 
     public IEnumerator MoveInRange(Vector3 range)
@@ -506,7 +509,7 @@ public abstract class Combat_Character : MonoBehaviour
                 if (critical != 1)
                 {
                     Instantiate(outcome_Bubble_Prefab, enemy.outcome_Bubble_Pos.position, Quaternion.identity).Input(damage, "CRITICAL", Color.yellow);
-                    mcamera.GetComponent<MainCamera>().WhiteOut(this, enemy, 0.25f * critical);
+                    TurnController.mainCamera.WhiteOut(this, enemy, 0.25f * critical);
                 }
                 else
                     Instantiate(outcome_Bubble_Prefab, enemy.outcome_Bubble_Pos.position, Quaternion.identity).Input(damage);
@@ -587,8 +590,8 @@ public abstract class Combat_Character : MonoBehaviour
 
                         if (character.SubMenuController.CurrentSubMenu.ButtonChoice > -1)
                         {
-                            skill_Stats[0].statChanger.statChanges[Character_Stats.Stat.DEF] = character.character_Stats.GetCurrentStats()[Character_Stats.Stat.STR] + character.character_Stats.weapon.defense;
-                            character.character_Stats.AddStatChanger(skill_Stats[0].statChanger);
+                            skill_Stats[0].statChanger.statChanges[Character_Stats.Stat.DEF] = character.GetCurrentStats()[Character_Stats.Stat.STR] + character.weapon.defense;
+                            character.AddStatChanger(skill_Stats[0].statChanger);
 
                             done = true;
                         }
@@ -664,7 +667,7 @@ public abstract class Combat_Character : MonoBehaviour
 
                         if (character.SubMenuController.CurrentSubMenu.ButtonChoice > -1)
                         {
-                            character.character_Stats.AddStatChanger(skill_Stats[0].statChanger);
+                            character.AddStatChanger(skill_Stats[0].statChanger);
 
                             done = true;
                         }
@@ -702,6 +705,192 @@ public abstract class Combat_Character : MonoBehaviour
     {
         defense = new Defense(this);
         rest = new Rest(this);
+    }
+
+
+
+    /****STATS ****/
+
+    [Header("Stats/Equipment")]
+    
+    public Character_Stats character_Stats;
+
+    public Weapon weapon;
+
+    [Header("Buffs/Debuffs")]
+
+    [SerializeField]
+    private List<StatChanger> statChangers = new List<StatChanger>();
+
+    private Dictionary<Character_Stats.Stat, int> GetCoreStats()
+    {
+        var baseStats = new Dictionary<Character_Stats.Stat, int>
+        {
+            {Character_Stats.Stat.STR, character_Stats.strength },
+            {Character_Stats.Stat.MAG, character_Stats.magic },
+            {Character_Stats.Stat.DEX, character_Stats.dexterity },
+            {Character_Stats.Stat.SPD, character_Stats.speed},
+            {Character_Stats.Stat.DEF, character_Stats.defense},
+            {Character_Stats.Stat.RES, character_Stats.resistance},
+            {Character_Stats.Stat.LCK, character_Stats.luck},
+        };
+
+        return baseStats;
+    }
+
+    private Dictionary<Character_Stats.Stat, int> GetOffenseStats(Dictionary<Character_Stats.Stat, int> core)
+    {
+
+        var offenseStats = new Dictionary<Character_Stats.Stat, int>()
+        {
+            {Character_Stats.Stat.ATK, core[Character_Stats.Stat.STR]},
+
+            {Character_Stats.Stat.PhHit, core[Character_Stats.Stat.DEX]},
+            {Character_Stats.Stat.PhAvo, core[Character_Stats.Stat.SPD]},
+
+            {Character_Stats.Stat.MgHit, (core[Character_Stats.Stat.DEX] + core[Character_Stats.Stat.LCK]) / 2 },
+            {Character_Stats.Stat.MgAvo, (core[Character_Stats.Stat.SPD] + core[Character_Stats.Stat.LCK]) / 2 },
+
+            {Character_Stats.Stat.Crit, (core[Character_Stats.Stat.DEX] + core[Character_Stats.Stat.LCK]) / 2 },
+            {Character_Stats.Stat.CritAvo, core[Character_Stats.Stat.LCK] },
+
+            {Character_Stats.Stat.AS, 21 - core[Character_Stats.Stat.SPD]},
+        };
+
+        return offenseStats;
+    }
+
+    private Dictionary<Character_Stats.Stat, int> GetBaseStats()
+    {
+        var baseStats = GetCoreStats();
+
+        foreach (var stat in GetOffenseStats(baseStats))
+            baseStats.Add(stat.Key, stat.Value);
+
+        baseStats[Character_Stats.Stat.ATK] += weapon.attack;
+        baseStats[Character_Stats.Stat.PhHit] += weapon.accuracy;
+        baseStats[Character_Stats.Stat.Crit] += weapon.critical;
+
+        return baseStats;
+    }
+
+    public Dictionary<Character_Stats.Stat, int> GetCurrentStats()
+    {
+        var currentStats = GetCoreStats();
+
+        foreach (var changer in statChangers)
+        {
+            for (int i = 0; i < 7; i++)
+            {
+                Character_Stats.Stat stat = currentStats.ElementAt(i).Key;
+                currentStats[stat] += changer.statChanges[stat];
+            }
+        }
+
+        foreach (var stat in GetOffenseStats(currentStats))
+            currentStats.Add(stat.Key, stat.Value);
+
+        foreach (var changer in statChangers)
+        {
+            for (int i = 7; i < 15; i++)
+            {
+                Character_Stats.Stat stat = currentStats.ElementAt(i).Key;
+                currentStats[stat] += changer.statChanges[stat];
+            }
+        }
+
+        currentStats[Character_Stats.Stat.ATK] += weapon.attack;
+        currentStats[Character_Stats.Stat.PhHit] += weapon.accuracy;
+        currentStats[Character_Stats.Stat.Crit] += weapon.critical;
+
+        return currentStats;
+    }
+
+
+    public Dictionary<Character_Stats.Stat, int> GetCombatStats(Combat_Character.Skill.Skill_Stats skillStats)
+    {
+        Dictionary<Character_Stats.Stat, int> combatStats = GetCurrentStats();
+
+        combatStats[Character_Stats.Stat.ATK] += skillStats.attack;
+        combatStats[Character_Stats.Stat.PhHit] += skillStats.accuracy;
+        combatStats[Character_Stats.Stat.Crit] += skillStats.critical;
+
+        if (skillStats.statChanger != null)
+            combatStats[Character_Stats.Stat.AS] += skillStats.statChanger.statChanges[Character_Stats.Stat.AS];
+
+        return combatStats;
+    }
+
+    public Dictionary<Character_Stats.Stat, int> GetCombatStats(Combat_Character.Skill.Skill_Stats skillStats, Transform target)
+    {
+        return GetCombatStats(skillStats, target.GetComponent<Combat_Character>());
+    }
+
+    public Dictionary<Character_Stats.Stat, int> GetCombatStats(Combat_Character.Skill.Skill_Stats skillStats, Combat_Character target)
+    {
+        Dictionary<Character_Stats.Stat, int> ownerStats = GetCombatStats(skillStats);
+
+        Dictionary<Character_Stats.Stat, int> targetStats = target.GetCurrentStats();
+
+        ownerStats[Character_Stats.Stat.ATK] = Mathf.Clamp(ownerStats[Character_Stats.Stat.ATK] - targetStats[Character_Stats.Stat.DEF], 0, 9999);
+
+        ownerStats[Character_Stats.Stat.PhHit] = Mathf.Clamp(ownerStats[Character_Stats.Stat.PhHit] - targetStats[Character_Stats.Stat.PhAvo], 0, 100);
+
+        ownerStats[Character_Stats.Stat.Crit] = Mathf.Clamp(ownerStats[Character_Stats.Stat.Crit] - targetStats[Character_Stats.Stat.CritAvo], 0, 100);
+
+        return ownerStats;
+    }
+
+    public Color CompareStat(Character_Stats.Stat stat, int value, bool reverse)
+    {
+        int i = 0;
+
+        if (GetBaseStats()[stat] < value)
+            i = 1;
+
+        if (GetBaseStats()[stat] > value)
+            i = -1;
+
+        if (reverse)
+            i *= -1;
+
+        if (i == 1)
+            return Color.blue;
+        else if (i == -1)
+            return Color.red;
+        else
+            return Color.white;
+    }
+
+    public void AddStatChanger(StatChanger statChanger)
+    {
+        statChangers.Add(statChanger);
+    }
+
+    public void RemoveStatChanger(StatChanger statChanger)
+    {
+        statChangers.Remove(statChanger);
+    }
+
+    public void IncrementStatChangers(bool comboState)
+    {
+        // Statchangers should have individual logic that is called thorugh abstract methods
+
+        for (int i = 0; i < statChangers.Count;)
+        {
+            statChangers[i].duration += statChangers[i].incrementDirection;
+
+            if (statChangers[i].duration <= 0)
+                statChangers.RemoveAt(i);
+            else
+                i++;
+        }
+
+    }
+
+    public void ClearStatChangers()
+    {
+        statChangers.Clear();
     }
 
 }

@@ -24,7 +24,7 @@ public class Turn_Controller : MonoBehaviour
 
     public DescriptionBox left_descriptionBox, right_descriptionBox;
 
-    public MainCamera mainCamera;
+    public Combat_Camera mainCamera;
 
     public TieBreaker Tie_Breaker;
 
@@ -62,7 +62,9 @@ public class Turn_Controller : MonoBehaviour
         {
             character.TurnController = this;
 
-            character.character_Stats.ClearStatChangers();        //This is only for DEBUGING
+            character.TurnController.mainCamera = mainCamera;
+
+            character.ClearStatChangers();        //This is only for DEBUGING
 
             if (left_Players.Contains(character))
             {
@@ -146,6 +148,12 @@ public class Turn_Controller : MonoBehaviour
                 StartCoroutine(character.Hud.AffectTimerProgress(-1));
             }
         }
+
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            print("Screen shook By Host");
+            mainCamera.Shake();
+        }
     }
 
     public List<string> GetPlayerNames(int i)
@@ -195,18 +203,19 @@ public class Turn_Controller : MonoBehaviour
             if (readyForActionList.Count <= 0)
             {
 
-                lowestTime = all_Players.OrderBy(o => o.Hud.GetTimeLeft()).ToList()[0].Hud.GetTimeLeft();
+                var ordered = all_Players.OrderBy(o => o.Hud.GetTimeLeft()).ToList();
 
-                foreach (Combat_Character character in all_Players)
+                lowestTime = ordered[0].Hud.GetTimeLeft();
+
+                ordered.RemoveAll(i => i.Hud.GetTimeLeft() > lowestTime);
+
+                foreach (Combat_Character character in ordered)
                 {
-                    if (character.Hud.GetTimeLeft() == lowestTime && !character.Defeated)
-                    {
-                        character.Hud.timer_Pulser.Play("Pulser_Burst");
-                        character.Hud.SetTimerColor(Color.white);
-                        readyForActionList.Add(character);
+                    character.Hud.timer_Animations.Play("Pulser_Burst");
+                    character.Hud.SetTimerColor(Color.white);
+                    readyForActionList.Add(character);
 
-                        yield return new WaitForSeconds(0.3f);
-                    }
+                    yield return new WaitForSeconds(0.3f);
                 }
 
                 yield return new WaitForSeconds(1f);        // time to Allow for player to view lowest time indication 
@@ -241,38 +250,33 @@ public class Turn_Controller : MonoBehaviour
                         characterTurn = unfavouredList[0];
 
 
-                    CoroutineWithData cd = new CoroutineWithData(this, Reactions(Stage.TURN_START, null));
-                    yield return cd.coroutine;
-
                     // Move Camera 
 
                     if (!comboState)
                     {
                         Vector3 camTargetPos = new Vector3(0, 0.55f, characterTurn.transform.position.z - 2.5f);
 
-                        yield return characterTurn.mcamera.GetComponent<MainCamera>().LerpMoveIE(camTargetPos, 0.5f);
+                        yield return characterTurn.TurnController.mainCamera.MovingTo(camTargetPos, 0.5f);
 
                         characterTurn.Hud.GetComponent<Animator>().Play("Turn_Indicate");
 
                         yield return new WaitForSeconds(0.5f);
                     }
 
-                    characterTurn.Hud.timer_Pulser.Play("Pulser_Pulse");
+                    CoroutineWithData cd = new CoroutineWithData(this, Reactions(Stage.TURN_START, null));
+                    yield return cd.coroutine;
+
+                    characterTurn.Hud.timer_Animations.Play("Pulser_Pulse");
 
                     characterTurn.StartTurn();
 
                     while (characterTurn.spotLight)
                     {
-                        characterTurn.MenuPositioning();
+                        //characterTurn.MenuPositioning();
                         yield return null;
                     }
 
-                    // Reset Camera
-
-                    //yield return characterTurn.mcamera.GetComponent<MainCamera>().Reset(0f);
-
-
-                    characterTurn.Hud.timer_Pulser.Play("Pulser_Burst");
+                    characterTurn.Hud.timer_Animations.Play("Pulser_Burst");
 
                     if (!characterTurn.chosenAction.charging)
                     {
@@ -288,7 +292,6 @@ public class Turn_Controller : MonoBehaviour
                     }
                     else
                     {
-
                         yield return characterTurn.Charging();
 
                         ComboCheck();
@@ -325,7 +328,7 @@ public class Turn_Controller : MonoBehaviour
         }
     }
 
-    public void ComboCheck()
+    public bool ComboCheck()
     {
         comboState = true;
 
@@ -337,6 +340,8 @@ public class Turn_Controller : MonoBehaviour
                 break;
             }
         }
+
+        return comboState;
     }
 
     [SerializeField]
@@ -367,9 +372,9 @@ public class Turn_Controller : MonoBehaviour
 
             // Reset Camera
 
-            mainCamera.GetComponent<MainCamera>().BlackOut(0f, 0.5f);
+            mainCamera.BlackOut(0f, 0.5f);
 
-            Coroutine cam = StartCoroutine(mainCamera.GetComponent<MainCamera>().Reset(0.2f));
+            Coroutine cam = StartCoroutine(mainCamera.Reset(0.2f));
 
 
             //  Reset Involved Characters
@@ -389,6 +394,10 @@ public class Turn_Controller : MonoBehaviour
             yield return cam;
 
             comboTargetList.Clear();
+        }
+        else
+        {
+            mainCamera.BlackOut(0.9f, 0.5f);
         }
 
         characterTurn.chosenAction.targets.Clear();
@@ -433,7 +442,7 @@ public class Turn_Controller : MonoBehaviour
             foreach (Combat_Character c in all_Players)
                 c.animationController.Pause();
 
-            character.MenuPositioning();
+            //character.MenuPositioning();
 
             yield return character.SubMenuController.OpenSubMenu("Prompts", labels);
 

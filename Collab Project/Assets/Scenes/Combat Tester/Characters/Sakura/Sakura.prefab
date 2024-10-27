@@ -177,12 +177,12 @@ MonoBehaviour:
   outcome_Bubble_Pos: {fileID: 7045960497961376902}
   spotLight: 0
   Hud: {fileID: 0}
-  health: 100
-  mana: 0
   blocking: 0
-  character_Stats: {fileID: 11400000, guid: 8486ad48d5234f94e9f9ac0344985a4e, type: 2}
   uiPoint: {fileID: 7045960497243233834}
-  mcamera: {fileID: 0}
+  mCamera: {fileID: 0}
+  character_Stats: {fileID: 11400000, guid: 8486ad48d5234f94e9f9ac0344985a4e, type: 2}
+  weapon: {fileID: 11400000, guid: 8036eb8e8a6f4904fb130ffa837c3c18, type: 2}
+  statChangers: []
   punch:
     character: {fileID: 0}
     name: 
@@ -676,7 +676,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: -1359.3589, y: 430}
+  m_AnchoredPosition: {x: -1359.3589, y: 417}
   m_SizeDelta: {x: 481.28247, y: 137.10782}
   m_Pivot: {x: 1, y: 0}
 --- !u!114 &7045960498140579233

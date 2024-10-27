@@ -26,7 +26,7 @@ public class SubMenu_Attacks : SubMenu
 
             if (hoveringButton == -1)
             {
-                //dBox.container.SetActive(false);
+                dBox.container.SetActive(false);
             }
             else
             {
@@ -63,14 +63,14 @@ public class SubMenu_Attacks : SubMenu
                 //dBox.ATK_Num.color = combat_Character.character_Stats.CompareStat(Character_Stats.Stat.ATK, projectedValue, false);
                 dBox.ATK_Num.color = Color.white;
 
-                dBox.REC_Num.text = combat_Character.character_Stats.GetCurrentStats()[Character_Stats.Stat.AS].ToString();
+                dBox.REC_Num.text = combat_Character.GetCurrentStats()[Character_Stats.Stat.AS].ToString();
                 dBox.REC_Num.color = Color.white;
 
 
                 dBox.MP_Num.text = skill.skill_Stats[0].mana.ToString();
 
 
-                dBox.ATK_Num.text = Mathf.Abs(combat_Character.character_Stats.GetCombatStats(skill.skill_Stats[0])[Character_Stats.Stat.ATK]).ToString();
+                dBox.ATK_Num.text = Mathf.Abs(combat_Character.GetCombatStats(skill.skill_Stats[0])[Character_Stats.Stat.ATK]).ToString();
 
                 dBox.HIT_Num.text = skill.skill_Stats[0].accuracy != 0 ? skill.skill_Stats[0].accuracy.ToString() : "-";
 
@@ -80,7 +80,7 @@ public class SubMenu_Attacks : SubMenu
 
 
                 if (skill.skill_Stats[0].statChanger != null)
-                    dBox.REC_Num.text = (combat_Character.character_Stats.GetCombatStats(skill.skill_Stats[0])[Character_Stats.Stat.AS]).ToString();
+                    dBox.REC_Num.text = (combat_Character.GetCombatStats(skill.skill_Stats[0])[Character_Stats.Stat.AS]).ToString();
 
 
 

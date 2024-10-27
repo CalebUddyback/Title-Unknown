@@ -14,8 +14,8 @@ public class Character_Hud : MonoBehaviour
     public TextMeshProUGUI timer_Numbers;
     public int timer_Progress = 0;
     private Color timer_BaseColor = new Color(1,1,1,0.5f);
-    public Animation timer_Pulser;
-    public GameObject chargeIndicator;
+    public Animation timer_Animations;
+    public GameObject timer_ChargeIndicator;
 
     public StatBar healthBar, manaBar;
 
