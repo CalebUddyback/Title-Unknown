@@ -859,7 +859,7 @@ public class Sakura : Combat_Character
 
                     case 0:
 
-                        level = 0;
+                        numOfHits = 0;
 
                         List<string> labels = Enumerable.Range(1, maxLevel).Select(n => n.ToString()).ToList();
 
@@ -895,7 +895,7 @@ public class Sakura : Combat_Character
                         {
                             i++;
 
-                            level = character.SubMenuController.CurrentSubMenu.ButtonChoice + 1;
+                            numOfHits = character.SubMenuController.CurrentSubMenu.ButtonChoice + 1;
                         }
                         else
                         {
@@ -924,9 +924,9 @@ public class Sakura : Combat_Character
                                 if (character.Facing == 1)
                                     target = character.TurnController.right_Players[character.SubMenuController.CurrentSubMenu.hoveringButton].GetComponent<Combat_Character>();
 
-                                character.TurnController.left_descriptionBox.ATK_Num.text = character.GetCombatStats(skill_Stats[level-1], target)[Character_Stats.Stat.ATK].ToString();
-                                character.TurnController.left_descriptionBox.HIT_Num.text = character.GetCombatStats(skill_Stats[level-1], target)[Character_Stats.Stat.PhHit].ToString();
-                                character.TurnController.left_descriptionBox.CRT_Num.text = character.GetCombatStats(skill_Stats[level-1], target)[Character_Stats.Stat.Crit].ToString();
+                                character.TurnController.left_descriptionBox.ATK_Num.text = character.GetCombatStats(skill_Stats[numOfHits-1], target)[Character_Stats.Stat.ATK].ToString();
+                                character.TurnController.left_descriptionBox.HIT_Num.text = character.GetCombatStats(skill_Stats[numOfHits-1], target)[Character_Stats.Stat.PhHit].ToString();
+                                character.TurnController.left_descriptionBox.CRT_Num.text = character.GetCombatStats(skill_Stats[numOfHits-1], target)[Character_Stats.Stat.Crit].ToString();
                             }
                             yield return null;
                         }
@@ -959,9 +959,9 @@ public class Sakura : Combat_Character
 
                         if (character.SubMenuController.CurrentSubMenu.ButtonChoice > -1)
                         {
-                            character.AddStatChanger(skill_Stats[level-1].statChanger);
-                            Execute = Action(level);
-                            level = 0;
+                            character.AddStatChanger(skill_Stats[numOfHits-1].statChanger);
+                            Execute = Action(numOfHits);
+                            numOfHits = 0;
                             done = true;
                         }
                         else
@@ -1257,7 +1257,7 @@ public class Sakura : Combat_Character
     [System.Serializable]
     public class Throw_Kunai : Skill
     {
-        public GameObject kunaiPrefab => Resources.Load<GameObject>("Projectiles/Kunai");
+        public GameObject KunaiPrefab => Resources.Load<GameObject>("Projectiles/Kunai");
 
         public Throw_Kunai(Combat_Character character) : base(character)
         {
@@ -1306,18 +1306,18 @@ public class Sakura : Combat_Character
                     case 0:
 
                         if (charging)
-                            level++;
+                            numOfHits++;
 
                         i++;
 
-                        if (level > 0)
-                            character.TurnController.left_descriptionBox.title.text = name + " x " + (level + 1);
+                        if (numOfHits > 0)
+                            character.TurnController.left_descriptionBox.title.text = name + " x " + (numOfHits + 1);
 
                         break;
 
                     case 1:
 
-                        if (level >= maxLevel)
+                        if (numOfHits >= maxLevel)
                         {
                             i = 2;
                             break;
@@ -1334,7 +1334,7 @@ public class Sakura : Combat_Character
 
                                 character.TurnController.left_descriptionBox.ATK_Num.text = Mathf.Abs(character.GetCombatStats(skill_Stats[0])[Character_Stats.Stat.ATK]).ToString();
 
-                                float projectedValue = character.SubMenuController.CurrentSubMenu.hoveringButton + level + 1;
+                                float projectedValue = character.SubMenuController.CurrentSubMenu.hoveringButton + numOfHits + 1;
 
                                 character.TurnController.left_descriptionBox.ATK_Mult.transform.GetChild(0).GetComponent<TMPro.TextMeshProUGUI>().text = "x" + projectedValue;
 
@@ -1363,7 +1363,7 @@ public class Sakura : Combat_Character
                         else
                         {
                             character.chosenAction = null;
-                            level = 0;
+                            numOfHits = 0;
                             yield break;
                         }
 
@@ -1428,7 +1428,7 @@ public class Sakura : Combat_Character
                         }
                         else
                         {
-                            if (level >= maxLevel)
+                            if (numOfHits >= maxLevel)
                                 i = 2;
                             else
                                 i = 1;
@@ -1449,8 +1449,8 @@ public class Sakura : Combat_Character
                             character.AddStatChanger(skill_Stats[0].statChanger);
                             done = true;
                             charging = false;
-                            Execute = Action(level + 1);
-                            level = 0;
+                            Execute = Action(numOfHits + 1);
+                            numOfHits = 0;
                         }
                         else
                         {
@@ -1506,7 +1506,7 @@ public class Sakura : Combat_Character
 
             for (int i = 0; i < charges; i++)
             {
-                kunai[i] = Instantiate(kunaiPrefab, character.animationController.instatiatePoint.position, Quaternion.identity);
+                kunai[i] = Instantiate(KunaiPrefab, character.animationController.instatiatePoint.position, Quaternion.identity);
             }
 
 
@@ -1587,7 +1587,7 @@ public class Sakura : Combat_Character
 
             name = "Multi Hit";
 
-            level = 4;
+            numOfHits = 4;
 
             skill_Stats = new Skill_Stats[1];
 
@@ -1863,7 +1863,7 @@ public class Sakura : Combat_Character
     public class Heal : Spell
     {
 
-        int heal = 10;
+        readonly int heal = 10;
 
         public Heal(Combat_Character character) : base(character)
         {
@@ -1919,7 +1919,7 @@ public class Sakura : Combat_Character
                         character.TurnController.left_descriptionBox.container.gameObject.SetActive(true);
 
                         if (charging)
-                            level++;
+                            numOfHits++;
 
                         i++;
 
@@ -1927,7 +1927,7 @@ public class Sakura : Combat_Character
 
                     case 1:
 
-                        if (level >= maxLevel)
+                        if (numOfHits >= maxLevel)
                         {
                             i = 2;
                             break;
@@ -1944,7 +1944,7 @@ public class Sakura : Combat_Character
                         else
                         {
                             character.chosenAction = null;
-                            level = 0;
+                            numOfHits = 0;
                             yield break;
                         }
 
@@ -1965,7 +1965,7 @@ public class Sakura : Combat_Character
                             done = true;
                             charging = false;
                             Execute = Action();
-                            level = 0;
+                            numOfHits = 0;
                         //}
 
                         break;
@@ -2147,13 +2147,13 @@ public class Sakura : Combat_Character
 
                 chosenAction.Execute = ((Combo)skill).Action(level);
 
-                skill.level = 3;
+                skill.numOfHits = 3;
 
 
-                DescriptionBox dBox = SubMenuController.owner.TurnController.left_descriptionBox;
+                DescriptionBox dBox = SubMenuController.Owner.TurnController.left_descriptionBox;
 
-                if(SubMenuController.owner.TurnController.right_Players.Contains(this))
-                    dBox = SubMenuController.owner.TurnController.right_descriptionBox;
+                if(SubMenuController.Owner.TurnController.right_Players.Contains(this))
+                    dBox = SubMenuController.Owner.TurnController.right_descriptionBox;
 
 
                 Spell spell = skill as Spell;
@@ -2169,10 +2169,10 @@ public class Sakura : Combat_Character
 
                 dBox.title.text = skill.name;
 
-                if (skill.level > 0)
+                if (skill.numOfHits > 0)
                 {
                     dBox.ATK_Mult.SetActive(true);
-                    dBox.ATK_Mult.transform.GetChild(0).GetComponent<TMPro.TextMeshProUGUI>().text = "x" + skill.level.ToString();
+                    dBox.ATK_Mult.transform.GetChild(0).GetComponent<TMPro.TextMeshProUGUI>().text = "x" + skill.numOfHits.ToString();
                 }
                 else
                 {
@@ -2205,7 +2205,7 @@ public class Sakura : Combat_Character
 
                 dBox.type.text = typeText;
 
-                dBox.DescriptionText(skill);
+                dBox.Description(skill);
 
                 dBox.container.SetActive(true);
 

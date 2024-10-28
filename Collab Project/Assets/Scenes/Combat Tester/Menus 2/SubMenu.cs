@@ -59,7 +59,7 @@ public class SubMenu : MonoBehaviour
             SubMenu_Button buttonInst = buttonContainer.GetChild(i).GetComponent<SubMenu_Button>();
             buttonInst.buttonText.text = stringList[i];
             buttonContainer.GetChild(i).gameObject.SetActive(true);
-            buttonInst.subMenu = this;
+            buttonInst.SubMenu = this;
         }
 
         AddButtonListeners();
@@ -67,18 +67,6 @@ public class SubMenu : MonoBehaviour
 
     public void AddButtons(List<Combat_Character.Skill> skillList)
     {
-        //for (int i = 0; i < buttonContainer.childCount; i++)
-        //{
-        //    Destroy(buttonContainer.GetChild(i).gameObject);
-        //}
-        //
-        //foreach (Combat_Character.Skill skill in skillList)
-        //{
-        //    SubMenu_Button buttonInst = Instantiate(buttonPrefab, buttonContainer).GetComponent<SubMenu_Button>();
-        //    buttonInst.StoreSkillInfo(skill);
-        //    buttonInst.subMenu = this;
-        //}
-
 
         if (skillList.Count < buttonContainer.childCount)
         {
@@ -104,7 +92,7 @@ public class SubMenu : MonoBehaviour
             SubMenu_Button buttonInst = buttonContainer.GetChild(i).GetComponent<SubMenu_Button>();
             buttonInst.buttonText.text = skillList[i].name;
             buttonInst.StoreSkillInfo(i);
-            buttonInst.subMenu = this;
+            buttonInst.SubMenu = this;
         }
 
         AddButtonListeners();

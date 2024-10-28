@@ -7,8 +7,7 @@ using UnityEngine.EventSystems;
 
 public class SubMenu_Button : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
-    public SubMenu subMenu { get; set; }
-    private Combat_Character.Skill skillInfo = null;
+    public SubMenu SubMenu { get; set; }
     public TextMeshProUGUI buttonText;
     public string HoverTxt = "";
 
@@ -26,7 +25,7 @@ public class SubMenu_Button : MonoBehaviour, IPointerEnterHandler, IPointerExitH
 
     public void OnPointerEnter(PointerEventData eventData)
     {
-        if (subMenu != null)
+        if (SubMenu != null)
         {
             //subMenu.SubMenuController.owner.TurnController.descriptionBox.gameObject.SetActive(true);
             //subMenu.SubMenuController.owner.TurnController.descriptionBox.title.text = skillInfo.name;
@@ -51,17 +50,17 @@ public class SubMenu_Button : MonoBehaviour, IPointerEnterHandler, IPointerExitH
             //
             //
             //
-            subMenu.hoveringButton = transform.GetSiblingIndex();
+            SubMenu.hoveringButton = transform.GetSiblingIndex();
         }
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
-        if (subMenu != null)
+        if (SubMenu != null)
         {
             //subMenu.SubMenuController.owner.TurnController.descriptionBox.gameObject.SetActive(false);
 
-            subMenu.hoveringButton = -1;
+            SubMenu.hoveringButton = -1;
         }
     }
 }

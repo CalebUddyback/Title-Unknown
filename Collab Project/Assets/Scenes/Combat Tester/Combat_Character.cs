@@ -14,7 +14,7 @@ public abstract class Combat_Character : MonoBehaviour
 
     public Transform enemyTransform;
 
-    public Combat_Character enemy => enemyTransform.GetComponent<Combat_Character>();
+    public Combat_Character Enemy => enemyTransform.GetComponent<Combat_Character>();
 
     public SubMenu_Controller SubMenuController;
 
@@ -50,7 +50,7 @@ public abstract class Combat_Character : MonoBehaviour
         public enum Range { Close, Far };
         public Range range = Range.Close;
 
-        public int level = 0;
+        public int numOfHits = 0;
         public int maxLevel = 0;
 
         public bool charging;
@@ -468,13 +468,13 @@ public abstract class Combat_Character : MonoBehaviour
     {
         animationController.Pause();
 
-        enemy.animationController.Pause();
+        Enemy.animationController.Pause();
 
         yield return new WaitForSeconds(timer); // contact pause
 
         animationController.Play();
 
-        enemy.animationController.Play();
+        Enemy.animationController.Play();
     }
 
     public IEnumerator ApplyOutcome(int success, int critical, int damage)
@@ -488,42 +488,42 @@ public abstract class Combat_Character : MonoBehaviour
         switch (success)
         {
             case 0:
-                Instantiate(outcome_Bubble_Prefab, enemy.outcome_Bubble_Pos.position, Quaternion.identity).Input("MISS");
+                Instantiate(outcome_Bubble_Prefab, Enemy.outcome_Bubble_Pos.position, Quaternion.identity).Input("MISS");
                 yield return StartCoroutine(enemyTransform.GetComponent<Combat_Character>().Dodge());
                 break;
 
             case 1:
 
-                enemy.Health += damage;
+                Enemy.Health += damage;
 
-                if (enemy.blocking)
+                if (Enemy.blocking)
                 {
-                    StartCoroutine(enemy.Block());
+                    StartCoroutine(Enemy.Block());
                 }
                 else
                 {
                     TurnController.combo_Counter.SetComboCount();
-                    StartCoroutine(enemy.Damage());
+                    StartCoroutine(Enemy.Damage());
                 }
 
                 if (critical != 1)
                 {
-                    Instantiate(outcome_Bubble_Prefab, enemy.outcome_Bubble_Pos.position, Quaternion.identity).Input(damage, "CRITICAL", Color.yellow);
-                    TurnController.mainCamera.WhiteOut(this, enemy, 0.25f * critical);
+                    Instantiate(outcome_Bubble_Prefab, Enemy.outcome_Bubble_Pos.position, Quaternion.identity).Input(damage, "CRITICAL", Color.yellow);
+                    TurnController.mainCamera.WhiteOut(this, Enemy, 0.25f * critical);
                 }
                 else
-                    Instantiate(outcome_Bubble_Prefab, enemy.outcome_Bubble_Pos.position, Quaternion.identity).Input(damage);
+                    Instantiate(outcome_Bubble_Prefab, Enemy.outcome_Bubble_Pos.position, Quaternion.identity).Input(damage);
 
 
                 yield return Impact(0.25f * critical);
 
-                if (enemy.Defeated)
+                if (Enemy.Defeated)
                 {
                     yield return null;
-                    yield return enemy.animationController.coroutine;
+                    yield return Enemy.animationController.coroutine;
                     yield return null;
-                    enemy.animationController.Clip(enemy.characterName + " Defeated");
-                    yield return enemy.animationController.coroutine;
+                    Enemy.animationController.Clip(Enemy.characterName + " Defeated");
+                    yield return Enemy.animationController.coroutine;
                 }
 
                 break;
