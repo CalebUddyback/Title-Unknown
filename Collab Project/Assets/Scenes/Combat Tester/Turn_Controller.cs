@@ -239,9 +239,9 @@ public class Turn_Controller : MonoBehaviour
                     {
                         tie = true;
                         if (Tie_Breaker.FavouredSide == -1)
-                            Tie_Breaker.animation.Play("Right Blink");
+                            Tie_Breaker.Animation.Play("Right Blink");
                         else
-                            Tie_Breaker.animation.Play("Left Blink");
+                            Tie_Breaker.Animation.Play("Left Blink");
                     }
 
                     if (favouredList.Count > 0)

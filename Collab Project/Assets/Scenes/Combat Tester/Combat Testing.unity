@@ -6461,7 +6461,7 @@ MonoBehaviour:
     description: 
     type: 0
     range: 0
-    level: 0
+    numOfHits: 0
     maxLevel: 0
     charging: 0
     chargeTime: 0
@@ -6474,7 +6474,7 @@ MonoBehaviour:
     description: 
     type: 0
     range: 0
-    level: 0
+    numOfHits: 0
     maxLevel: 0
     charging: 0
     chargeTime: 0
@@ -6487,7 +6487,7 @@ MonoBehaviour:
     description: 
     type: 0
     range: 0
-    level: 0
+    numOfHits: 0
     maxLevel: 0
     charging: 0
     chargeTime: 0
@@ -6500,7 +6500,7 @@ MonoBehaviour:
     description: 
     type: 0
     range: 0
-    level: 0
+    numOfHits: 0
     maxLevel: 0
     charging: 0
     chargeTime: 0
@@ -6513,7 +6513,7 @@ MonoBehaviour:
     description: 
     type: 0
     range: 0
-    level: 0
+    numOfHits: 0
     maxLevel: 0
     charging: 0
     chargeTime: 0
@@ -6526,7 +6526,7 @@ MonoBehaviour:
     description: 
     type: 0
     range: 0
-    level: 0
+    numOfHits: 0
     maxLevel: 0
     charging: 0
     chargeTime: 0
@@ -6539,7 +6539,7 @@ MonoBehaviour:
     description: 
     type: 0
     range: 0
-    level: 0
+    numOfHits: 0
     maxLevel: 0
     charging: 0
     chargeTime: 0
@@ -6552,7 +6552,7 @@ MonoBehaviour:
     description: 
     type: 0
     range: 0
-    level: 0
+    numOfHits: 0
     maxLevel: 0
     charging: 0
     chargeTime: 0
@@ -6567,7 +6567,7 @@ MonoBehaviour:
     description: 
     type: 0
     range: 0
-    level: 0
+    numOfHits: 0
     maxLevel: 0
     charging: 0
     chargeTime: 0
@@ -10687,9 +10687,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8421b71ee6b507c40bbb55b48d76981b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  menuStack: []
-  subMenuPrefab: {fileID: 2182899634840564097, guid: 736439d39978d1440b3d4a05ca9bfa8e,
-    type: 3}
+  subMenuList: []
   subMenuStage: 0
 --- !u!1 &856910744
 GameObject:
@@ -18175,9 +18173,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8421b71ee6b507c40bbb55b48d76981b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  menuStack: []
-  subMenuPrefab: {fileID: 2182899634840564097, guid: 736439d39978d1440b3d4a05ca9bfa8e,
-    type: 3}
+  subMenuList: []
   subMenuStage: 0
 --- !u!1 &1628370924
 GameObject:
@@ -21622,7 +21618,7 @@ MonoBehaviour:
     description: 
     type: 0
     range: 0
-    level: 0
+    numOfHits: 0
     maxLevel: 0
     charging: 0
     chargeTime: 0
@@ -21635,7 +21631,7 @@ MonoBehaviour:
     description: 
     type: 0
     range: 0
-    level: 0
+    numOfHits: 0
     maxLevel: 0
     charging: 0
     chargeTime: 0
@@ -21648,7 +21644,7 @@ MonoBehaviour:
     description: 
     type: 0
     range: 0
-    level: 0
+    numOfHits: 0
     maxLevel: 0
     charging: 0
     chargeTime: 0
@@ -21661,7 +21657,7 @@ MonoBehaviour:
     description: 
     type: 0
     range: 0
-    level: 0
+    numOfHits: 0
     maxLevel: 0
     charging: 0
     chargeTime: 0
@@ -21674,7 +21670,7 @@ MonoBehaviour:
     description: 
     type: 0
     range: 0
-    level: 0
+    numOfHits: 0
     maxLevel: 0
     charging: 0
     chargeTime: 0
@@ -21687,7 +21683,7 @@ MonoBehaviour:
     description: 
     type: 0
     range: 0
-    level: 0
+    numOfHits: 0
     maxLevel: 0
     charging: 0
     chargeTime: 0
@@ -21700,7 +21696,7 @@ MonoBehaviour:
     description: 
     type: 0
     range: 0
-    level: 0
+    numOfHits: 0
     maxLevel: 0
     charging: 0
     chargeTime: 0
@@ -21713,7 +21709,7 @@ MonoBehaviour:
     description: 
     type: 0
     range: 0
-    level: 0
+    numOfHits: 0
     maxLevel: 0
     charging: 0
     chargeTime: 0
@@ -21728,7 +21724,7 @@ MonoBehaviour:
     description: 
     type: 0
     range: 0
-    level: 0
+    numOfHits: 0
     maxLevel: 0
     charging: 0
     chargeTime: 0
@@ -22876,5 +22872,6 @@ PrefabInstance:
       propertyPath: m_Camera
       value: 
       objectReference: {fileID: 940968381}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 7045960497106236443, guid: 014a581bbb9a54c44965d3d5ae648377, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: 014a581bbb9a54c44965d3d5ae648377, type: 3}

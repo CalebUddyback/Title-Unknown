@@ -178,6 +178,12 @@ public abstract class Combat_Character : MonoBehaviour
 
     public bool blocking = false;
 
+
+    public Skill GetSkill(int i)
+    {
+        return attackList[i];
+    }
+
     public IEnumerator StartFocus()
     {
         int totalTime = GetCurrentStats()[Character_Stats.Stat.AS];
@@ -248,9 +254,9 @@ public abstract class Combat_Character : MonoBehaviour
 
     public abstract IEnumerator CpuDecisionMaking();
 
-    public void ActionChoice(Skill attack)
+    public Skill ActionChoice(Skill attack)
     {
-        chosenAction = attack;
+        return chosenAction = attack;
     }
 
     public int SetSkill(Spell action, Sprite img)

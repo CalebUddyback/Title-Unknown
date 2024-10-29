@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using System.Linq;
 
 public class SubMenu : MonoBehaviour
 {
@@ -14,12 +15,12 @@ public class SubMenu : MonoBehaviour
     public int hoveringButton = -1;
     public int ButtonChoice = -2;       // -2 (Waiting), -1 (Return)
 
-    public SubMenu_Controller SubMenuController { get; private set; }
+    public SubMenu_Controller SubMenuController => transform.parent.GetComponent<SubMenu_Controller>();
+
+    public Combat_Character Owner => SubMenuController.Owner;
 
     private void Awake()
     {
-        SubMenuController = transform.parent.GetComponent<SubMenu_Controller>();
-
         title.text = gameObject.name;
     }
 
@@ -39,10 +40,7 @@ public class SubMenu : MonoBehaviour
         {
             for (int i = stringList.Count; i < buttonContainer.childCount; i++)
             {
-                if (i < 4)
-                    buttonContainer.GetChild(i).gameObject.SetActive(false);
-                else
-                    Destroy(buttonContainer.GetChild(i).gameObject);
+                buttonContainer.GetChild(i).gameObject.SetActive(false);
             }
         }
 
@@ -50,7 +48,9 @@ public class SubMenu : MonoBehaviour
         {
             for (int i = buttonContainer.childCount; i < stringList.Count; i++)
             {
-                Instantiate(buttonPrefab, buttonContainer);
+                Button newButton = Instantiate(buttonPrefab, buttonContainer).GetComponent<Button>();
+
+                newButton.onClick.AddListener(() => ButtonChoice = newButton.transform.GetSiblingIndex());
             }
         }
 
@@ -58,66 +58,35 @@ public class SubMenu : MonoBehaviour
         {
             SubMenu_Button buttonInst = buttonContainer.GetChild(i).GetComponent<SubMenu_Button>();
             buttonInst.buttonText.text = stringList[i];
-            buttonContainer.GetChild(i).gameObject.SetActive(true);
             buttonInst.SubMenu = this;
         }
-
-        AddButtonListeners();
     }
 
-    public void AddButtons(List<Combat_Character.Skill> skillList)
+    public void StoreInButton(List<Combat_Character.Skill> skillList)
     {
-
-        if (skillList.Count < buttonContainer.childCount)
-        {
-            for (int i = skillList.Count; i < buttonContainer.childCount; i++)
-            {
-                if (i < 4)
-                    buttonContainer.GetChild(i).gameObject.SetActive(false);
-                else
-                    Destroy(buttonContainer.GetChild(i).gameObject);
-            }
-        }
-
-        if (skillList.Count > buttonContainer.childCount)
-        {
-            for (int i = buttonContainer.childCount; i < skillList.Count; i++)
-            {
-                Instantiate(buttonPrefab, buttonContainer);
-            }
-        }
-
         for (int i = 0; i < skillList.Count; i++)
         {
-            SubMenu_Button buttonInst = buttonContainer.GetChild(i).GetComponent<SubMenu_Button>();
-            buttonInst.buttonText.text = skillList[i].name;
-            buttonInst.StoreSkillInfo(i);
-            buttonInst.SubMenu = this;
-        }
-
-        AddButtonListeners();
-    }
-
-    public void AddButtonListeners()
-    {
-        foreach (Transform button in buttonContainer)
-        {
-            button.GetComponent<Button>().onClick.RemoveAllListeners();
-            button.GetComponent<Button>().onClick.AddListener(() => ButtonChoice = button.GetSiblingIndex());
+            buttonContainer.GetChild(i).GetComponent<SubMenu_Button>().StoreSkill(skillList[i]);
         }
     }
 
     public virtual IEnumerator WaitForChoice()
     {
+        hoveringButton = -1;
+
         ButtonChoice = -2;
+
+        GetComponent<ScrollRect>().verticalScrollbar.value = 1; // may not be needed for  returning to submenu
 
         yield return new WaitUntil(() => ButtonChoice != -2);
 
         //print("Button: " + ButtonChoice);
 
-        //GetComponent<CanvasGroup>().interactable = false;
+        GetComponent<CanvasGroup>().interactable = false;
 
         yield return new WaitForSeconds(0.1f);  // This delay is to prevent quick double clicks (My Mouse is broken :/)
+
+        GetComponent<CanvasGroup>().interactable = true;
 
         if (ButtonChoice > -1)
             SubMenuController.subMenuStage = 0;
@@ -129,7 +98,7 @@ public class SubMenu : MonoBehaviour
     {
         ButtonChoice = -1;
 
-        if(SubMenuController.menuStack.Count > 1)
+        if(SubMenuController.subMenuList.Count > 1)
             SubMenuController.subMenuStage = 1;
 
         SubMenuController.CloseSubMenu();

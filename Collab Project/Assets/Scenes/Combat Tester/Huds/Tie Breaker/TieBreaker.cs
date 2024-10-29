@@ -5,7 +5,7 @@ using UnityEngine;
 public class TieBreaker : MonoBehaviour
 {
     [HideInInspector]
-    public Animation animation => GetComponent<Animation>();
+    public Animation Animation => GetComponent<Animation>();
 
     public int FavouredSide { get; private set; }
 
@@ -14,9 +14,9 @@ public class TieBreaker : MonoBehaviour
         FavouredSide = Random.Range(0, 2) == 0 ? -1 : 1;
 
         if (FavouredSide == -1)
-            animation.Play("Left Glow");
+            Animation.Play("Left Glow");
         else
-            animation.Play("Right Glow");
+            Animation.Play("Right Glow");
     }
 
     public void PickSide(int side)
@@ -24,9 +24,9 @@ public class TieBreaker : MonoBehaviour
         FavouredSide = side;
 
         if (FavouredSide == -1)
-            animation.Play("Left Glow");
+            Animation.Play("Left Glow");
         else
-            animation.Play("Right Glow");
+            Animation.Play("Right Glow");
     }
 
     public void FlipSide()
@@ -34,8 +34,8 @@ public class TieBreaker : MonoBehaviour
         FavouredSide *= -1;
 
         if (FavouredSide == -1)
-            animation.Play("Left Glow");
+            Animation.Play("Left Glow");
         else
-            animation.Play("Right Glow");
+            Animation.Play("Right Glow");
     }
 }

@@ -5,44 +5,45 @@ using UnityEngine.UI;
 
 public class SubMenu_Actions : SubMenu
 {
-
     public override IEnumerator WaitForChoice()
     {
-        yield return base.WaitForChoice();
-
-        Combat_Character combat_Character = SubMenuController.Owner;
-
-        switch (ButtonChoice)
+        do
         {
-            case 0:
-                yield return SubMenuController.OpenSubMenu("Attacks", SubMenuController.Owner.attackList);
-                break;
+            yield return base.WaitForChoice();
 
-            case 1:
+            switch (ButtonChoice)
+            {
+                case 0:
 
-                combat_Character.ActionChoice(combat_Character.defense);
+                    yield return SubMenuController.OpenSubMenu("Attacks", SubMenuController.Owner.attackList);
 
-                yield return combat_Character.chosenAction.SubMenus(combat_Character);
+                    break;
 
-                if (combat_Character.chosenAction != null)
-                    combat_Character.EndTurn();
+                case 1:
 
-                break;
+                    yield return Owner.ActionChoice(Owner.defense).SubMenus(Owner);
 
-            case 3:
+                    if (Owner.chosenAction != null)
+                        Owner.EndTurn();
 
-                combat_Character.ActionChoice(combat_Character.rest);
+                    break;
 
-                yield return combat_Character.chosenAction.SubMenus(combat_Character);
+                case 3:
 
-                if (combat_Character.chosenAction != null)
-                    combat_Character.EndTurn();
+                    yield return Owner.ActionChoice(Owner.rest).SubMenus(Owner);
 
-                break;
+                    if (Owner.chosenAction != null)
+                        Owner.EndTurn();
 
-            default:
-                yield return StartCoroutine(WaitForChoice());
-                break;
+                    break;
+
+                default:
+
+                    ButtonChoice = -1;
+
+                    break;
+            }
         }
+        while (ButtonChoice == -1);
     }
 }
