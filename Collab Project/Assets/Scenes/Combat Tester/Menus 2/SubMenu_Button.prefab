@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 254236080956014486}
   - component: {fileID: -8984191729457758750}
   - component: {fileID: 3336460206812064103}
+  - component: {fileID: 4581533827489553087}
   m_Layer: 0
   m_Name: SubMenu_Button
   m_TagString: Untagged
@@ -134,7 +135,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   buttonText: {fileID: 1891155718067308705}
-  HoverTxt: 
 --- !u!95 &3336460206812064103
 Animator:
   serializedVersion: 3
@@ -154,6 +154,18 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorControllerStateOnDisable: 0
+--- !u!225 &4581533827489553087
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 810457087226879783}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &1156934078707763074
 GameObject:
   m_ObjectHideFlags: 0

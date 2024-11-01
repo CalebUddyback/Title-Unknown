@@ -263,92 +263,158 @@ public class Sakura : Combat_Character
 
         }
 
+
+
         public override IEnumerator SubMenus(MonoBehaviour owner)
         {
+            string subMenuID = "Targets";
+
             bool done = false;
 
-            int i = 0;
-
-            while (!done)
+            do
             {
-
-                switch (i)
+                switch (subMenuID)
                 {
+                    case "Targets":
+                        character.SubMenuController2.OpenSubMenu(subMenuID, "Targets", character.TurnController.GetPlayerNames(character.Facing).ToArray());
 
-                    case 0:
-
-                        // Returning to this submenu
-
-                        if (character.chosenAction.targets.Count > 0)
-                            character.chosenAction.targets.RemoveAt(character.chosenAction.targets.Count - 1);
-
-                        Combat_Character target = null;
-
-                        yield return character.SubMenuController.OpenSubMenu("Targets", character.TurnController.GetPlayerNames(character.Facing));
-
-                        yield return null;
-
-                        while (character.SubMenuController.CurrentSubMenu.ButtonChoice == -2)
-                        {
-                            if (character.SubMenuController.CurrentSubMenu.hoveringButton > -1)
-                            {
-                                int hovering = character.SubMenuController.CurrentSubMenu.hoveringButton;
-
-                                if (character.Facing == 1)
-                                    target = character.TurnController.right_Players[character.SubMenuController.CurrentSubMenu.hoveringButton].GetComponent<Combat_Character>();
-
-                                character.TurnController.left_descriptionBox.ATK_Num.text = character.GetCombatStats(skill_Stats[0], target)[Character_Stats.Stat.ATK].ToString();
-                                character.TurnController.left_descriptionBox.HIT_Num.text = character.GetCombatStats(skill_Stats[0], target)[Character_Stats.Stat.PhHit].ToString();
-                                character.TurnController.left_descriptionBox.CRT_Num.text = character.GetCombatStats(skill_Stats[0], target)[Character_Stats.Stat.Crit].ToString();
-                            }
-                            yield return null;
-                        }
-
-                        yield return character.SubMenuController.CurrentCD.coroutine;
-
-                        if (character.SubMenuController.CurrentSubMenu.ButtonChoice > -1)
-                        {
-
-                            if (character.Facing == 1)
-                                character.chosenAction.targets.Add(character.TurnController.right_Players[character.SubMenuController.CurrentSubMenu.ButtonChoice].transform);
-                            else
-                                character.chosenAction.targets.Add(character.TurnController.left_Players[character.SubMenuController.CurrentSubMenu.ButtonChoice].transform);
-
-                            i++;
-
-                        }
-                        else
-                        {
-                            character.chosenAction = null;
-                            yield break;
-                        }
-
+                        // we need to store description Box info on buttons to display
+                        yield return WaitForChoice();
                         break;
 
-                    case 1:
+                    case "Return":
+                        if (character.SubMenuController2.currentSubMenu.previousSubMenu.ID == "Attacks") yield break;
+                        character.SubMenuController2.CloseSubMenu();
+                        break;
 
-                        yield return character.SubMenuController.OpenSubMenu("Confirm", new List<string>() { "Confirm" });
+                    case "Done":
+                        done = true;
+                        break;
 
-                        yield return character.SubMenuController.CurrentCD.coroutine;
-
-                        if (character.SubMenuController.CurrentSubMenu.ButtonChoice > -1)
-                        {
-                            character.AddStatChanger(skill_Stats[0].statChanger);
-                            done = true;
-                        }
-                        else
-                        {
-                            i--;
-                        }
-
+                    default:
+                        Debug.Log("Menu Dead End");
+                        character.SubMenuController2.currentSubMenu.ButtonChoice = -2;
+                        subMenuID = subMenuID.Substring(0, subMenuID.Length - 2);
                         break;
                 }
 
+                IEnumerator WaitForChoice()
+                {
+                    yield return new WaitWhile(() => character.SubMenuController2.currentSubMenu.ButtonChoice == -2);
+
+                    UnityEngine.EventSystems.EventSystem.current.SetSelectedGameObject(null);
+
+                    character.SubMenuController2.transform.GetChild(0).gameObject.SetActive(false);
+
+                    yield return null;
+
+                    character.SubMenuController2.transform.GetChild(0).gameObject.SetActive(true);
+
+                    if (character.SubMenuController2.currentSubMenu.ButtonChoice > -1)
+                    {
+                        subMenuID = character.SubMenuController2.currentButtons[character.SubMenuController2.currentSubMenu.ButtonChoice].nextID;
+                    }
+                    else
+                    {
+                        subMenuID = "Return";
+                    }
+                }
+
             }
+            while (!done);
 
-            Execute = Action();
+            Debug.Log("Done");
 
+            character.SubMenuController2.transform.GetChild(0).gameObject.SetActive(false);
         }
+
+
+        //      public override IEnumerator SubMenus(MonoBehaviour owner)
+        //      {
+        //          bool done = false;
+        //
+        //          int i = 0;
+        //
+        //          while (!done)
+        //          {
+        //
+        //              switch (i)
+        //              {
+        //
+        //                  case 0:
+        //
+        //                      // Returning to this submenu
+        //
+        //                      if (character.chosenAction.targets.Count > 0)
+        //                          character.chosenAction.targets.RemoveAt(character.chosenAction.targets.Count - 1);
+        //
+        //                      Combat_Character target = null;
+        //
+        //                      yield return character.SubMenuController.OpenSubMenu("Targets", character.TurnController.GetPlayerNames(character.Facing));
+        //
+        //                      yield return null;
+        //
+        //                      while (character.SubMenuController.CurrentSubMenu.ButtonChoice == -2)
+        //                      {
+        //                          if (character.SubMenuController.CurrentSubMenu.hoveringButton > -1)
+        //                          {
+        //                              int hovering = character.SubMenuController.CurrentSubMenu.hoveringButton;
+        //
+        //                              if (character.Facing == 1)
+        //                                  target = character.TurnController.right_Players[character.SubMenuController.CurrentSubMenu.hoveringButton].GetComponent<Combat_Character>();
+        //
+        //                              character.TurnController.left_descriptionBox.ATK_Num.text = character.GetCombatStats(skill_Stats[0], target)[Character_Stats.Stat.ATK].ToString();
+        //                              character.TurnController.left_descriptionBox.HIT_Num.text = character.GetCombatStats(skill_Stats[0], target)[Character_Stats.Stat.PhHit].ToString();
+        //                              character.TurnController.left_descriptionBox.CRT_Num.text = character.GetCombatStats(skill_Stats[0], target)[Character_Stats.Stat.Crit].ToString();
+        //                          }
+        //                          yield return null;
+        //                      }
+        //
+        //                      yield return character.SubMenuController.CurrentCD.coroutine;
+        //
+        //                      if (character.SubMenuController.CurrentSubMenu.ButtonChoice > -1)
+        //                      {
+        //
+        //                          if (character.Facing == 1)
+        //                              character.chosenAction.targets.Add(character.TurnController.right_Players[character.SubMenuController.CurrentSubMenu.ButtonChoice].transform);
+        //                          else
+        //                              character.chosenAction.targets.Add(character.TurnController.left_Players[character.SubMenuController.CurrentSubMenu.ButtonChoice].transform);
+        //
+        //                          i++;
+        //
+        //                      }
+        //                      else
+        //                      {
+        //                          character.chosenAction = null;
+        //                          yield break;
+        //                      }
+        //
+        //                      break;
+        //
+        //                  case 1:
+        //
+        //                      yield return character.SubMenuController.OpenSubMenu("Confirm", new List<string>() { "Confirm" });
+        //
+        //                      yield return character.SubMenuController.CurrentCD.coroutine;
+        //
+        //                      if (character.SubMenuController.CurrentSubMenu.ButtonChoice > -1)
+        //                      {
+        //                          character.AddStatChanger(skill_Stats[0].statChanger);
+        //                          done = true;
+        //                      }
+        //                      else
+        //                      {
+        //                          i--;
+        //                      }
+        //
+        //                      break;
+        //              }
+        //
+        //          }
+        //
+        //          Execute = Action();
+        //
+        //      }
 
         public IEnumerator Action()
         {

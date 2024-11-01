@@ -126,7 +126,9 @@ public class Turn_Controller : MonoBehaviour
 
         yield return new WaitForSeconds(1f);
 
-        StartCoroutine(RotateTurns());
+        Debug.Log("Turns Disabled");
+
+        //StartCoroutine(RotateTurns());
     }
 
     private void Update()

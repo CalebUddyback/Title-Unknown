@@ -13,7 +13,6 @@ public class SubMenu_Controller : MonoBehaviour
 
     public int subMenuStage = 0;
 
-    [HideInInspector]
     public Combat_Character Owner => transform.parent.parent.GetComponent<Combat_Character>();
 
 

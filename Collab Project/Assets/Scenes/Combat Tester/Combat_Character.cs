@@ -18,6 +18,8 @@ public abstract class Combat_Character : MonoBehaviour
 
     public SubMenu_Controller SubMenuController;
 
+    public SubMenu_Controller_2 SubMenuController2;
+
     public AnimationController animationController;
 
     public Outcome_Bubble outcome_Bubble_Prefab;
