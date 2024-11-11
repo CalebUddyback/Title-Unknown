@@ -1,9 +1,7 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.UI;
+﻿using UnityEngine;
 using TMPro;
 using UnityEngine.EventSystems;
+using System.Collections.Generic;
 
 public class SubMenu_Button : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
@@ -18,15 +16,20 @@ public class SubMenu_Button : MonoBehaviour, IPointerEnterHandler, IPointerExitH
         storedSkill = skill;
     }
 
+    public bool returnButton = false;
+
 
     public void OnPointerEnter(PointerEventData eventData)
     {
-        
-        if (SubMenu_Controller_2.currentButtons[transform.GetSiblingIndex()].storedSkill != null)
-        {
-            SubMenu_Controller_2.Owner.TurnController.left_descriptionBox.container.SetActive(true);
-            SubMenu_Controller_2.Owner.TurnController.left_descriptionBox.Description(SubMenu_Controller_2.currentButtons[transform.GetSiblingIndex()].storedSkill);
-        }
+        if(!returnButton)
+            SubMenu_Controller_2.hovering = transform.GetSiblingIndex();
+
+
+        //if (SubMenu_Controller_2.currentButtons[transform.GetSiblingIndex()].StoredInfo is Combat_Character.Skill)
+        //{
+        //    SubMenu_Controller_2.Owner.TurnController.left_descriptionBox.container.SetActive(true);
+        //    SubMenu_Controller_2.Owner.TurnController.left_descriptionBox.Description(SubMenu_Controller_2.currentButtons[transform.GetSiblingIndex()].StoredInfo as Combat_Character.Skill);
+        //}
 
         //SubMenu.hoveringButton = transform.GetSiblingIndex();
         //
@@ -40,10 +43,10 @@ public class SubMenu_Button : MonoBehaviour, IPointerEnterHandler, IPointerExitH
 
     public void OnPointerExit(PointerEventData eventData)
     {
-        if (SubMenu_Controller_2.currentButtons[transform.GetSiblingIndex()].storedSkill != null)
-        {
-            SubMenu_Controller_2.Owner.TurnController.left_descriptionBox.container.SetActive(false);
-        }
+        //if (SubMenu_Controller_2.currentButtons[transform.GetSiblingIndex()].StoredInfo != null)
+        //{
+        //    SubMenu_Controller_2.Owner.TurnController.left_descriptionBox.container.SetActive(false);
+        //}
 
         //SubMenu.hoveringButton = -1;
         //

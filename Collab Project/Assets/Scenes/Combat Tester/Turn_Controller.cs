@@ -1,7 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using TMPro;
 using System.Linq;
 
 public class Turn_Controller : MonoBehaviour
@@ -126,9 +125,9 @@ public class Turn_Controller : MonoBehaviour
 
         yield return new WaitForSeconds(1f);
 
-        Debug.Log("Turns Disabled");
+        //Debug.Log("Turns Disabled");
 
-        //StartCoroutine(RotateTurns());
+        StartCoroutine(RotateTurns());
     }
 
     private void Update()
@@ -279,6 +278,8 @@ public class Turn_Controller : MonoBehaviour
                     }
 
                     characterTurn.Hud.timer_Animations.Play("Pulser_Burst");
+
+                    print(characterTurn.chosenAction.name);
 
                     if (!characterTurn.chosenAction.charging)
                     {

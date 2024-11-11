@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.UI;
 
 public abstract class Combat_Character : MonoBehaviour
 {
@@ -52,7 +51,7 @@ public abstract class Combat_Character : MonoBehaviour
         public enum Range { Close, Far };
         public Range range = Range.Close;
 
-        public int numOfHits = 0;
+        public int numOfHits = 1;
         public int maxLevel = 0;
 
         public bool charging;
@@ -212,14 +211,7 @@ public abstract class Combat_Character : MonoBehaviour
         if (cpu)
             StartCoroutine(CpuDecisionMaking());
         else
-        {
-            if (chosenAction != null && chosenAction.charging)
-            {
-                StartCoroutine(chosenAction.SubMenus(this));
-            }
-            else
-                StartCoroutine(SubMenuController.OpenSubMenu("Actions", new List<string> { "Attack", "Defend", "Items", "Rest" }));
-        }
+            StartCoroutine(SubMenuController2.Menus());
 
     }
 

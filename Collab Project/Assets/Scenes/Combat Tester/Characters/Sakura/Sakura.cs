@@ -1,8 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
-using UnityEngine.Events;
 
 public class Sakura : Combat_Character
 {
@@ -263,161 +261,91 @@ public class Sakura : Combat_Character
 
         }
 
-
-
-        public override IEnumerator SubMenus(MonoBehaviour owner)
+        public override IEnumerator SubMenus(MonoBehaviour owner)   // parameter can be changed to submenu_controller_2
         {
-            string subMenuID = "Targets";
+
+            SubMenu_Controller_2 smc = character.SubMenuController2;
 
             bool done = false;
 
             do
             {
-                switch (subMenuID)
+                switch (smc.subMenuID)
                 {
+                    case "Start":
+                        smc.subMenuID = "Targets";
+                        break;
+
                     case "Targets":
-                        character.SubMenuController2.OpenSubMenu(subMenuID, "Targets", character.TurnController.GetPlayerNames(character.Facing).ToArray());
 
-                        // we need to store description Box info on buttons to display
-                        yield return WaitForChoice();
+                        //Consider putting all targets in a dictionary if they need different "NextIDs"
+
+                        SubMenu_Controller_2.Tab[] tabs = new SubMenu_Controller_2.Tab[character.TurnController.right_Players.Count];
+
+                        for (int i = 0; i < tabs.Length; i++)
+                        {
+                            tabs[i] = new SubMenu_Controller_2.Tab(character.TurnController.right_Players[i].name, smc.ConfirmSubMenu("Execute"));
+                        }
+
+                        smc.OpenSubMenu(smc.subMenuID, "Targets", tabs);
+
+                        while (smc.waiting)
+                        {
+                            var stats = character.GetCombatStats(skill_Stats[0], character.TurnController.right_Players[smc.hovering]);
+
+                            character.TurnController.left_descriptionBox.ATK_Num.text = stats[Character_Stats.Stat.ATK].ToString();
+                            character.TurnController.left_descriptionBox.HIT_Num.text = stats[Character_Stats.Stat.PhHit].ToString();
+                            character.TurnController.left_descriptionBox.CRT_Num.text = stats[Character_Stats.Stat.Crit].ToString();
+
+                            yield return null;
+                        }
+
+                        UnityEngine.EventSystems.EventSystem.current.SetSelectedGameObject(null);
+                        smc.transform.GetChild(0).gameObject.SetActive(false);
+
+                        yield return null;
+
+                        int b = smc.currentSubMenu.buttonChoice;
+
+                        if (b == -1)
+                        {
+                            yield return smc.Return();
+                            yield break;
+                        }
+                        else
+                        {
+                            smc.subMenuID = smc.currentButtons[b].nextID;
+                            yield return smc.currentButtons[b].nextMethod;
+                        }
+
                         break;
 
-                    case "Return":
-                        if (character.SubMenuController2.currentSubMenu.previousSubMenu.ID == "Attacks") yield break;
-                        character.SubMenuController2.CloseSubMenu();
-                        break;
 
-                    case "Done":
+                    case "Execute":
+                        smc.subMenuID = "Done";
                         done = true;
+                        character.AddStatChanger(skill_Stats[0].statChanger);
+
+                        Combat_Character target = character.TurnController.right_Players[smc.dictionary["Targets"].buttonChoice];
+                        character.chosenAction.targets.Add(target.transform);
+
+                        Execute = Action();
                         break;
 
                     default:
-                        Debug.Log("Menu Dead End");
-                        character.SubMenuController2.currentSubMenu.ButtonChoice = -2;
-                        subMenuID = subMenuID.Substring(0, subMenuID.Length - 2);
+                        Debug.Log(smc.subMenuID + " Menu Dead End");
+                        smc.subMenuID = smc.currentSubMenu.ID;
+                        yield return smc.Return();
                         break;
-                }
-
-                IEnumerator WaitForChoice()
-                {
-                    yield return new WaitWhile(() => character.SubMenuController2.currentSubMenu.ButtonChoice == -2);
-
-                    UnityEngine.EventSystems.EventSystem.current.SetSelectedGameObject(null);
-
-                    character.SubMenuController2.transform.GetChild(0).gameObject.SetActive(false);
-
-                    yield return null;
-
-                    character.SubMenuController2.transform.GetChild(0).gameObject.SetActive(true);
-
-                    if (character.SubMenuController2.currentSubMenu.ButtonChoice > -1)
-                    {
-                        subMenuID = character.SubMenuController2.currentButtons[character.SubMenuController2.currentSubMenu.ButtonChoice].nextID;
-                    }
-                    else
-                    {
-                        subMenuID = "Return";
-                    }
                 }
 
             }
             while (!done);
-
-            Debug.Log("Done");
-
-            character.SubMenuController2.transform.GetChild(0).gameObject.SetActive(false);
         }
-
-
-        //      public override IEnumerator SubMenus(MonoBehaviour owner)
-        //      {
-        //          bool done = false;
-        //
-        //          int i = 0;
-        //
-        //          while (!done)
-        //          {
-        //
-        //              switch (i)
-        //              {
-        //
-        //                  case 0:
-        //
-        //                      // Returning to this submenu
-        //
-        //                      if (character.chosenAction.targets.Count > 0)
-        //                          character.chosenAction.targets.RemoveAt(character.chosenAction.targets.Count - 1);
-        //
-        //                      Combat_Character target = null;
-        //
-        //                      yield return character.SubMenuController.OpenSubMenu("Targets", character.TurnController.GetPlayerNames(character.Facing));
-        //
-        //                      yield return null;
-        //
-        //                      while (character.SubMenuController.CurrentSubMenu.ButtonChoice == -2)
-        //                      {
-        //                          if (character.SubMenuController.CurrentSubMenu.hoveringButton > -1)
-        //                          {
-        //                              int hovering = character.SubMenuController.CurrentSubMenu.hoveringButton;
-        //
-        //                              if (character.Facing == 1)
-        //                                  target = character.TurnController.right_Players[character.SubMenuController.CurrentSubMenu.hoveringButton].GetComponent<Combat_Character>();
-        //
-        //                              character.TurnController.left_descriptionBox.ATK_Num.text = character.GetCombatStats(skill_Stats[0], target)[Character_Stats.Stat.ATK].ToString();
-        //                              character.TurnController.left_descriptionBox.HIT_Num.text = character.GetCombatStats(skill_Stats[0], target)[Character_Stats.Stat.PhHit].ToString();
-        //                              character.TurnController.left_descriptionBox.CRT_Num.text = character.GetCombatStats(skill_Stats[0], target)[Character_Stats.Stat.Crit].ToString();
-        //                          }
-        //                          yield return null;
-        //                      }
-        //
-        //                      yield return character.SubMenuController.CurrentCD.coroutine;
-        //
-        //                      if (character.SubMenuController.CurrentSubMenu.ButtonChoice > -1)
-        //                      {
-        //
-        //                          if (character.Facing == 1)
-        //                              character.chosenAction.targets.Add(character.TurnController.right_Players[character.SubMenuController.CurrentSubMenu.ButtonChoice].transform);
-        //                          else
-        //                              character.chosenAction.targets.Add(character.TurnController.left_Players[character.SubMenuController.CurrentSubMenu.ButtonChoice].transform);
-        //
-        //                          i++;
-        //
-        //                      }
-        //                      else
-        //                      {
-        //                          character.chosenAction = null;
-        //                          yield break;
-        //                      }
-        //
-        //                      break;
-        //
-        //                  case 1:
-        //
-        //                      yield return character.SubMenuController.OpenSubMenu("Confirm", new List<string>() { "Confirm" });
-        //
-        //                      yield return character.SubMenuController.CurrentCD.coroutine;
-        //
-        //                      if (character.SubMenuController.CurrentSubMenu.ButtonChoice > -1)
-        //                      {
-        //                          character.AddStatChanger(skill_Stats[0].statChanger);
-        //                          done = true;
-        //                      }
-        //                      else
-        //                      {
-        //                          i--;
-        //                      }
-        //
-        //                      break;
-        //              }
-        //
-        //          }
-        //
-        //          Execute = Action();
-        //
-        //      }
 
         public IEnumerator Action()
         {
+     
             character.enemyTransform = targets[0];
 
             //GetOutcome(skill_Stats[0], targets[0]);
@@ -485,6 +413,7 @@ public class Sakura : Combat_Character
     [Header("Skills")]
     public Punch punch;
 
+
     [System.Serializable]
     public class Uppercut : Skill
     {
@@ -516,91 +445,88 @@ public class Sakura : Combat_Character
 
         public override IEnumerator SubMenus(MonoBehaviour owner)
         {
+            SubMenu_Controller_2 smc = character.SubMenuController2;
+
             bool done = false;
 
-            int i = 0;
-
-            while (!done)
+            do
             {
-
-                switch (i)
+                switch (smc.subMenuID)
                 {
+                    case "Start":
+                        smc.subMenuID = "Targets";
+                        break;
 
-                    case 0:
+                    case "Targets":
 
-                        // Returning to this submenu
+                        //Consider putting all targets in a dictionary if they need different "NextIDs"
 
-                        if (character.chosenAction.targets.Count > 0)
-                            character.chosenAction.targets.RemoveAt(character.chosenAction.targets.Count - 1);
+                        SubMenu_Controller_2.Tab[] tabs = new SubMenu_Controller_2.Tab[character.TurnController.right_Players.Count];
 
-                        Combat_Character target = null;
-
-                        yield return character.SubMenuController.OpenSubMenu("Targets", character.TurnController.GetPlayerNames(character.Facing));
-
-                        yield return null;
-
-                        while (character.SubMenuController.CurrentSubMenu.ButtonChoice == -2)
+                        for (int i = 0; i < tabs.Length; i++)
                         {
-                            if (character.SubMenuController.CurrentSubMenu.hoveringButton > -1)
-                            {
-                                if (character.Facing == 1)
-                                    target = character.TurnController.right_Players[character.SubMenuController.CurrentSubMenu.hoveringButton].GetComponent<Combat_Character>();
+                            tabs[i] = new SubMenu_Controller_2.Tab(character.TurnController.right_Players[i].name, smc.ConfirmSubMenu("Execute"));
+                        }
 
-                                character.TurnController.left_descriptionBox.ATK_Num.text = character.GetCombatStats(skill_Stats[0], target)[Character_Stats.Stat.ATK].ToString();
-                                character.TurnController.left_descriptionBox.HIT_Num.text = character.GetCombatStats(skill_Stats[0], target)[Character_Stats.Stat.PhHit].ToString();
-                                character.TurnController.left_descriptionBox.CRT_Num.text = character.GetCombatStats(skill_Stats[0], target)[Character_Stats.Stat.Crit].ToString();
-                            }
+                        smc.OpenSubMenu(smc.subMenuID, "Targets", tabs);
+
+                        while (smc.waiting)
+                        {
+                            var stats = character.GetCombatStats(skill_Stats[0], character.TurnController.right_Players[smc.hovering]);
+
+                            character.TurnController.left_descriptionBox.ATK_Num.text = stats[Character_Stats.Stat.ATK].ToString();
+                            character.TurnController.left_descriptionBox.HIT_Num.text = stats[Character_Stats.Stat.PhHit].ToString();
+                            character.TurnController.left_descriptionBox.CRT_Num.text = stats[Character_Stats.Stat.Crit].ToString();
+
                             yield return null;
                         }
 
-                        yield return character.SubMenuController.CurrentCD.coroutine;
+                        UnityEngine.EventSystems.EventSystem.current.SetSelectedGameObject(null);
+                        smc.transform.GetChild(0).gameObject.SetActive(false);
 
-                        if (character.SubMenuController.CurrentSubMenu.ButtonChoice > -1)
+                        yield return null;
+
+                        int b = smc.currentSubMenu.buttonChoice;
+
+                        if (b == -1)
                         {
-
-                            if (character.Facing == 1)
-                                character.chosenAction.targets.Add(character.TurnController.right_Players[character.SubMenuController.CurrentSubMenu.ButtonChoice].transform);
-                            else
-                                character.chosenAction.targets.Add(character.TurnController.left_Players[character.SubMenuController.CurrentSubMenu.ButtonChoice].transform);
-
-                            i++;
-
+                            yield return smc.Return();
+                            yield break;
                         }
                         else
                         {
-                            character.chosenAction = null;
-                            yield break;
+                            smc.subMenuID = smc.currentButtons[b].nextID;
+                            yield return smc.currentButtons[b].nextMethod;
                         }
 
                         break;
 
-                    case 1:
 
-                        yield return character.SubMenuController.OpenSubMenu("Confirm", new List<string>() { "Confirm" });
+                    case "Execute":
+                        smc.subMenuID = "Done";
+                        done = true;
+                        character.AddStatChanger(skill_Stats[0].statChanger);
 
-                        yield return character.SubMenuController.CurrentCD.coroutine;
+                        Combat_Character target = character.TurnController.right_Players[smc.dictionary["Targets"].buttonChoice];
+                        character.chosenAction.targets.Add(target.transform);
 
-                        if (character.SubMenuController.CurrentSubMenu.ButtonChoice > -1)
-                        {
-                            character.AddStatChanger(skill_Stats[0].statChanger);
-                            done = true;
-                        }
-                        else
-                        {
-                            i--;
-                        }
+                        Execute = Action();
+                        break;
 
+                    default:
+                        Debug.Log(smc.subMenuID + " Menu Dead End");
+                        smc.subMenuID = smc.currentSubMenu.ID;
+                        yield return smc.Return();
                         break;
                 }
 
             }
-
-            Execute = Action();
-
+            while (!done);
         }
 
         public IEnumerator Action()
         {
+
             character.enemyTransform = targets[0];
 
             //GetOutcome(skill_Stats[0], targets[0]);
@@ -667,6 +593,7 @@ public class Sakura : Combat_Character
     }
     public Uppercut uppercut;
 
+
     [System.Serializable]
     public class Kick : Skill
     {
@@ -699,91 +626,88 @@ public class Sakura : Combat_Character
 
         public override IEnumerator SubMenus(MonoBehaviour owner)
         {
+            SubMenu_Controller_2 smc = character.SubMenuController2;
+
             bool done = false;
 
-            int i = 0;
-
-            while (!done)
+            do
             {
-
-                switch (i)
+                switch (smc.subMenuID)
                 {
+                    case "Start":
+                        smc.subMenuID = "Targets";
+                        break;
 
-                    case 0:
+                    case "Targets":
 
-                        // Returning to this submenu
+                        //Consider putting all targets in a dictionary if they need different "NextIDs"
 
-                        if (character.chosenAction.targets.Count > 0)
-                            character.chosenAction.targets.RemoveAt(character.chosenAction.targets.Count - 1);
+                        SubMenu_Controller_2.Tab[] tabs = new SubMenu_Controller_2.Tab[character.TurnController.right_Players.Count];
 
-                        Combat_Character target = null;
-
-                        yield return character.SubMenuController.OpenSubMenu("Targets", character.TurnController.GetPlayerNames(character.Facing));
-
-                        yield return null;
-
-                        while (character.SubMenuController.CurrentSubMenu.ButtonChoice == -2)
+                        for (int i = 0; i < tabs.Length; i++)
                         {
-                            if (character.SubMenuController.CurrentSubMenu.hoveringButton > -1)
-                            {
-                                if (character.Facing == 1)
-                                    target = character.TurnController.right_Players[character.SubMenuController.CurrentSubMenu.hoveringButton].GetComponent<Combat_Character>();
+                            tabs[i] = new SubMenu_Controller_2.Tab(character.TurnController.right_Players[i].name, smc.ConfirmSubMenu("Execute"));
+                        }
 
-                                character.TurnController.left_descriptionBox.ATK_Num.text = character.GetCombatStats(skill_Stats[0], target)[Character_Stats.Stat.ATK].ToString();
-                                character.TurnController.left_descriptionBox.HIT_Num.text = character.GetCombatStats(skill_Stats[0], target)[Character_Stats.Stat.PhHit].ToString();
-                                character.TurnController.left_descriptionBox.CRT_Num.text = character.GetCombatStats(skill_Stats[0], target)[Character_Stats.Stat.Crit].ToString();
-                            }
+                        smc.OpenSubMenu(smc.subMenuID, "Targets", tabs);
+
+                        while (smc.waiting)
+                        {
+                            var stats = character.GetCombatStats(skill_Stats[0], character.TurnController.right_Players[smc.hovering]);
+
+                            character.TurnController.left_descriptionBox.ATK_Num.text = stats[Character_Stats.Stat.ATK].ToString();
+                            character.TurnController.left_descriptionBox.HIT_Num.text = stats[Character_Stats.Stat.PhHit].ToString();
+                            character.TurnController.left_descriptionBox.CRT_Num.text = stats[Character_Stats.Stat.Crit].ToString();
+
                             yield return null;
                         }
 
-                        yield return character.SubMenuController.CurrentCD.coroutine;
+                        UnityEngine.EventSystems.EventSystem.current.SetSelectedGameObject(null);
+                        smc.transform.GetChild(0).gameObject.SetActive(false);
 
-                        if (character.SubMenuController.CurrentSubMenu.ButtonChoice > -1)
+                        yield return null;
+
+                        int b = smc.currentSubMenu.buttonChoice;
+
+                        if (b == -1)
                         {
-
-                            if (character.Facing == 1)
-                                character.chosenAction.targets.Add(character.TurnController.right_Players[character.SubMenuController.CurrentSubMenu.ButtonChoice].transform);
-                            else
-                                character.chosenAction.targets.Add(character.TurnController.left_Players[character.SubMenuController.CurrentSubMenu.ButtonChoice].transform);
-
-                            i++;
-
+                            yield return smc.Return();
+                            yield break;
                         }
                         else
                         {
-                            character.chosenAction = null;
-                            yield break;
+                            smc.subMenuID = smc.currentButtons[b].nextID;
+                            yield return smc.currentButtons[b].nextMethod;
                         }
 
                         break;
 
-                    case 1:
 
-                        yield return character.SubMenuController.OpenSubMenu("Confirm", new List<string>() { "Confirm" });
+                    case "Execute":
+                        smc.subMenuID = "Done";
+                        done = true;
+                        character.AddStatChanger(skill_Stats[0].statChanger);
 
-                        yield return character.SubMenuController.CurrentCD.coroutine;
+                        Combat_Character target = character.TurnController.right_Players[smc.dictionary["Targets"].buttonChoice];
+                        character.chosenAction.targets.Add(target.transform);
 
-                        if (character.SubMenuController.CurrentSubMenu.ButtonChoice > -1)
-                        {
-                            character.AddStatChanger(skill_Stats[0].statChanger);
-                            done = true;
-                        }
-                        else
-                        {
-                            i--;
-                        }
+                        Execute = Action();
+                        break;
 
+                    default:
+                        Debug.Log(smc.subMenuID + " Menu Dead End");
+                        smc.subMenuID = smc.currentSubMenu.ID;
+                        yield return smc.Return();
                         break;
                 }
 
             }
-
-            Execute = Action();
-
+            while (!done);
         }
 
         public IEnumerator Action()
         {
+
             character.enemyTransform = targets[0];
 
             //GetOutcome(skill_Stats[0], targets[0]);
@@ -913,136 +837,137 @@ public class Sakura : Combat_Character
 
         public override IEnumerator SubMenus(MonoBehaviour owner)
         {
+
+            SubMenu_Controller_2 smc = character.SubMenuController2;
+
             bool done = false;
 
-            int i = 0;
-
-            while (!done)
+            do
             {
-
-                switch (i)
+                switch (smc.subMenuID)
                 {
+                    case "Start":
+                        smc.subMenuID = "Level";
+                        break;
 
-                    case 0:
+                    case "Level":
 
-                        numOfHits = 0;
+                        SubMenu_Controller_2.Tab[] tabs = new SubMenu_Controller_2.Tab[maxLevel];
 
-                        List<string> labels = Enumerable.Range(1, maxLevel).Select(n => n.ToString()).ToList();
-
-                        yield return character.SubMenuController.OpenSubMenu("Levels", labels);
-
-                        while (character.SubMenuController.CurrentSubMenu.ButtonChoice == -2)
+                        for (int i = 0; i < tabs.Length; i++)
                         {
-                            if (character.SubMenuController.CurrentSubMenu.hoveringButton > -1)
-                            {
-                                int hovering = character.SubMenuController.CurrentSubMenu.hoveringButton + 1;
+                            tabs[i] = new SubMenu_Controller_2.Tab((i+1).ToString(), "Targets");
+                        }
 
-                                character.TurnController.left_descriptionBox.title.text = name + " Level " + hovering;
+                        smc.OpenSubMenu(smc.subMenuID, "Level", tabs);
 
-                                character.TurnController.left_descriptionBox.ATK_Mult.transform.GetChild(0).GetComponent<TMPro.TextMeshProUGUI>().text = "x" + hovering;
+                        while (smc.waiting)
+                        {                            
+                            character.TurnController.left_descriptionBox.title.text = name + " Level " + (smc.hovering + 1);
 
-                                character.TurnController.left_descriptionBox.ATK_Mult.SetActive((hovering > 1) ? true : false);
+                            character.TurnController.left_descriptionBox.ATK_Mult.text = "x" + (smc.hovering + 1).ToString();
 
-                                int projectedValue = character.GetCombatStats(skill_Stats[hovering-1])[Character_Stats.Stat.AS];
-                                //character.TurnController.left_descriptionBox.REC_Num.color = character.character_Stats.CompareStat(Character_Stats.Stat.AS, projectedValue, true);
-                                character.TurnController.left_descriptionBox.REC_Num.text = projectedValue.ToString();
+                            character.TurnController.left_descriptionBox.ATK_Mult.transform.parent.gameObject.SetActive(smc.hovering + 1 > 1 ? true : false);
 
-                                character.TurnController.left_descriptionBox.HIT_Num.text = (skill_Stats[hovering-1].accuracy != 0) ? skill_Stats[hovering-1].accuracy.ToString() : "-";
+                            var stats = character.GetCombatStats(skill_Stats[smc.hovering]);
 
-                                character.TurnController.left_descriptionBox.CRT_Num.text = (skill_Stats[hovering-1].critical != 0) ? skill_Stats[hovering-1].critical.ToString() : "-";
-                            }
+                            character.TurnController.left_descriptionBox.REC_Num.text = stats[Character_Stats.Stat.AS].ToString();
+                            character.TurnController.left_descriptionBox.HIT_Num.text = stats[Character_Stats.Stat.PhHit].ToString();
+                            character.TurnController.left_descriptionBox.CRT_Num.text = stats[Character_Stats.Stat.Crit].ToString();
 
                             yield return null;
                         }
 
-                        yield return character.SubMenuController.CurrentCD.coroutine;
+                        UnityEngine.EventSystems.EventSystem.current.SetSelectedGameObject(null);
+                        smc.transform.GetChild(0).gameObject.SetActive(false);
 
-                        if (character.SubMenuController.CurrentSubMenu.ButtonChoice > -1)
-                        {
-                            i++;
+                        yield return null;
 
-                            numOfHits = character.SubMenuController.CurrentSubMenu.ButtonChoice + 1;
-                        }
-                        else
+                        int l = smc.currentSubMenu.buttonChoice;
+
+                        if (l == -1)
                         {
-                            character.chosenAction = null;
+                            yield return smc.Return();
                             yield break;
                         }
-
-
+                        else
+                        {
+                            smc.subMenuID = smc.currentButtons[l].nextID;
+                            yield return smc.currentButtons[l].nextMethod;
+                        }
                         break;
 
-                    case 1:
+                    case "Targets":
 
-                        // Returning to this submenu
+                        //Consider putting all targets in a dictionary if they need different "NextIDs"
 
-                        if (character.chosenAction.targets.Count > 0)
-                            character.chosenAction.targets.RemoveAt(character.chosenAction.targets.Count - 1);
+                        tabs = new SubMenu_Controller_2.Tab[character.TurnController.right_Players.Count];
 
-                        Combat_Character target = null;
-
-                        yield return character.SubMenuController.OpenSubMenu("Targets", character.TurnController.GetPlayerNames(character.Facing));
-
-                        while (character.SubMenuController.CurrentSubMenu.ButtonChoice == -2)
+                        for (int i = 0; i < tabs.Length; i++)
                         {
-                            if (character.SubMenuController.CurrentSubMenu.hoveringButton > -1)
-                            {
-                                if (character.Facing == 1)
-                                    target = character.TurnController.right_Players[character.SubMenuController.CurrentSubMenu.hoveringButton].GetComponent<Combat_Character>();
+                            tabs[i] = new SubMenu_Controller_2.Tab(character.TurnController.right_Players[i].name, smc.ConfirmSubMenu("Execute"));
+                        }
 
-                                character.TurnController.left_descriptionBox.ATK_Num.text = character.GetCombatStats(skill_Stats[numOfHits-1], target)[Character_Stats.Stat.ATK].ToString();
-                                character.TurnController.left_descriptionBox.HIT_Num.text = character.GetCombatStats(skill_Stats[numOfHits-1], target)[Character_Stats.Stat.PhHit].ToString();
-                                character.TurnController.left_descriptionBox.CRT_Num.text = character.GetCombatStats(skill_Stats[numOfHits-1], target)[Character_Stats.Stat.Crit].ToString();
-                            }
+                        smc.OpenSubMenu(smc.subMenuID, "Targets", tabs);
+
+                        while (smc.waiting)
+                        {
+                            var stats = character.GetCombatStats(skill_Stats[0], character.TurnController.right_Players[smc.hovering]);
+
+                            character.TurnController.left_descriptionBox.ATK_Num.text = stats[Character_Stats.Stat.ATK].ToString();
+                            character.TurnController.left_descriptionBox.HIT_Num.text = stats[Character_Stats.Stat.PhHit].ToString();
+                            character.TurnController.left_descriptionBox.CRT_Num.text = stats[Character_Stats.Stat.Crit].ToString();
+
                             yield return null;
                         }
 
-                        yield return character.SubMenuController.CurrentCD.coroutine;
+                        UnityEngine.EventSystems.EventSystem.current.SetSelectedGameObject(null);
+                        smc.transform.GetChild(0).gameObject.SetActive(false);
 
-                        if (character.SubMenuController.CurrentSubMenu.ButtonChoice > -1)
+                        yield return null;
+
+                        int b = smc.currentSubMenu.buttonChoice;
+
+                        if (b == -1)
                         {
-
-                            if (character.Facing == 1)
-                                character.chosenAction.targets.Add(character.TurnController.right_Players[character.SubMenuController.CurrentSubMenu.ButtonChoice].transform);
-                            else
-                                character.chosenAction.targets.Add(character.TurnController.left_Players[character.SubMenuController.CurrentSubMenu.ButtonChoice].transform);
-
-                            i++;
-
+                            yield return smc.Return();
                         }
                         else
                         {
-                            i--;
+                            smc.subMenuID = smc.currentButtons[b].nextID;
+                            yield return smc.currentButtons[b].nextMethod;
                         }
 
                         break;
 
-                    case 2:
 
-                        yield return character.SubMenuController.OpenSubMenu("Confirm", new List<string>() { "Confirm" });
+                    case "Execute":
+                        smc.subMenuID = "Done";
+                        done = true;
+                        character.AddStatChanger(skill_Stats[0].statChanger);
 
-                        yield return character.SubMenuController.CurrentCD.coroutine;
+                        int level = smc.dictionary["Level"].buttonChoice;
 
-                        if (character.SubMenuController.CurrentSubMenu.ButtonChoice > -1)
-                        {
-                            character.AddStatChanger(skill_Stats[numOfHits-1].statChanger);
-                            Execute = Action(numOfHits);
-                            numOfHits = 0;
-                            done = true;
-                        }
-                        else
-                        {
-                            i--;
-                        }
+                        Combat_Character target = character.TurnController.right_Players[smc.dictionary["Targets"].buttonChoice];
+                        character.chosenAction.targets.Add(target.transform);
 
+                        Execute = Action(level);
+                        break;
+
+                    default:
+                        Debug.Log(smc.subMenuID + " Menu Dead End");
+                        smc.subMenuID = smc.currentSubMenu.ID;
+                        yield return smc.Return();
                         break;
                 }
 
             }
+            while (!done);
         }
 
         public IEnumerator Action(int level)
         {
+
             character.enemyTransform = targets[0];
 
             //GetOutcome(skill_Stats[0], targets[0]);
@@ -1105,7 +1030,7 @@ public class Sakura : Combat_Character
 
             }
 
-            if (level == 1)
+            if (level == 0)
                 yield break;
 
             // two
@@ -1127,7 +1052,7 @@ public class Sakura : Combat_Character
 
             yield return outcome;
 
-            if (level == 2)
+            if (level == 1)
                 yield break;
 
             // three
@@ -1186,91 +1111,89 @@ public class Sakura : Combat_Character
 
         public override IEnumerator SubMenus(MonoBehaviour owner)
         {
+
+            SubMenu_Controller_2 smc = character.SubMenuController2;
+
             bool done = false;
 
-            int i = 0;
-
-
-            while (!done)
+            do
             {
-
-                switch (i)
+                switch (smc.subMenuID)
                 {
-                    case 0:
+                    case "Start":
+                        smc.subMenuID = "Targets";
+                        break;
 
-                        if (character.chosenAction.targets.Count > 0)
-                            character.chosenAction.targets.RemoveAt(character.chosenAction.targets.Count - 1);
+                    case "Targets":
 
-                        Combat_Character target = null;
+                        //Consider putting all targets in a dictionary if they need different "NextIDs"
 
-                        yield return character.SubMenuController.OpenSubMenu("Targets", character.TurnController.GetPlayerNames(character.Facing));
+                        SubMenu_Controller_2.Tab[] tabs = new SubMenu_Controller_2.Tab[character.TurnController.right_Players.Count];
 
-                        yield return null;
-
-                        while (character.SubMenuController.CurrentSubMenu.ButtonChoice == -2)
+                        for (int i = 0; i < tabs.Length; i++)
                         {
-                            if (character.SubMenuController.CurrentSubMenu.hoveringButton > -1)
-                            {
-                                if (character.Facing == 1)
-                                    target = character.TurnController.right_Players[character.SubMenuController.CurrentSubMenu.hoveringButton].GetComponent<Combat_Character>();
+                            tabs[i] = new SubMenu_Controller_2.Tab(character.TurnController.right_Players[i].name, smc.ConfirmSubMenu("Execute"));
+                        }
 
-                                character.TurnController.left_descriptionBox.ATK_Num.text = character.GetCombatStats(skill_Stats[0], target)[Character_Stats.Stat.ATK].ToString();
-                                character.TurnController.left_descriptionBox.HIT_Num.text = character.GetCombatStats(skill_Stats[0], target)[Character_Stats.Stat.PhHit].ToString();
-                                character.TurnController.left_descriptionBox.CRT_Num.text = character.GetCombatStats(skill_Stats[0], target)[Character_Stats.Stat.Crit].ToString();
-                            }
+                        smc.OpenSubMenu(smc.subMenuID, "Targets", tabs);
+
+                        while (smc.waiting)
+                        {
+                            var stats = character.GetCombatStats(skill_Stats[0], character.TurnController.right_Players[smc.hovering]);
+
+                            character.TurnController.left_descriptionBox.ATK_Num.text = stats[Character_Stats.Stat.ATK].ToString();
+                            character.TurnController.left_descriptionBox.HIT_Num.text = stats[Character_Stats.Stat.PhHit].ToString();
+                            character.TurnController.left_descriptionBox.CRT_Num.text = stats[Character_Stats.Stat.Crit].ToString();
+
                             yield return null;
                         }
 
-                        yield return character.SubMenuController.CurrentCD.coroutine;
+                        UnityEngine.EventSystems.EventSystem.current.SetSelectedGameObject(null);
+                        smc.transform.GetChild(0).gameObject.SetActive(false);
 
-                        if (character.SubMenuController.CurrentSubMenu.ButtonChoice > -1)
+                        yield return null;
+
+                        int b = smc.currentSubMenu.buttonChoice;
+
+                        if (b == -1)
                         {
-
-                            if (character.Facing == 1)
-                                character.chosenAction.targets.Add(character.TurnController.right_Players[character.SubMenuController.CurrentSubMenu.ButtonChoice].transform);
-                            else
-                                character.chosenAction.targets.Add(character.TurnController.left_Players[character.SubMenuController.CurrentSubMenu.ButtonChoice].transform);
-
-                            i++;
-
+                            yield return smc.Return();
+                            yield break;
                         }
                         else
                         {
-                            character.chosenAction = null;
-                            yield break;
+                            smc.subMenuID = smc.currentButtons[b].nextID;
+                            yield return smc.currentButtons[b].nextMethod;
                         }
 
                         break;
 
-                    case 1:
 
-                        yield return character.SubMenuController.OpenSubMenu("Confirm", new List<string>() { "Confirm" });
+                    case "Execute":
+                        smc.subMenuID = "Done";
+                        done = true;
+                        character.AddStatChanger(skill_Stats[0].statChanger);
 
-                        yield return character.SubMenuController.CurrentCD.coroutine;
+                        Combat_Character target = character.TurnController.right_Players[smc.dictionary["Targets"].buttonChoice];
+                        character.chosenAction.targets.Add(target.transform);
 
-                        if (character.SubMenuController.CurrentSubMenu.ButtonChoice > -1)
-                        {
+                        Execute = Action();
+                        break;
 
-                            character.AddStatChanger(skill_Stats[0].statChanger);
-
-                            done = true;
-                        }
-                        else
-                        {
-                            i--;
-                        }
-
+                    default:
+                        Debug.Log(smc.subMenuID + " Menu Dead End");
+                        smc.subMenuID = smc.currentSubMenu.ID;
+                        yield return smc.Return();
                         break;
                 }
 
             }
-
-
-            Execute = Action();
+            while (!done);
         }
 
         public IEnumerator Action()
         {
+
             character.enemyTransform = character.chosenAction.targets[0];
 
             GetOutcome(skill_Stats[0], targets[0]);
@@ -1320,6 +1243,7 @@ public class Sakura : Combat_Character
     }
     public Jump_Kick jump_Kick;
 
+
     [System.Serializable]
     public class Throw_Kunai : Skill
     {
@@ -1333,7 +1257,7 @@ public class Sakura : Combat_Character
 
             chargeTime = 1;
 
-            maxLevel = 2;
+            maxLevel = 3;
 
             skill_Stats = new Skill_Stats[1];
 
@@ -1362,200 +1286,136 @@ public class Sakura : Combat_Character
         {
             bool done = false;
 
-            int i = 0;
+            SubMenu_Controller_2 smc = character.SubMenuController2;
 
-            while (!done)
-            {
-
-                switch (i)
+            do {
+                switch (smc.subMenuID)
                 {
-                    case 0:
+                    case "Start":
+                        smc.subMenuID = "Decision";
 
                         if (charging)
                             numOfHits++;
 
-                        i++;
-
                         if (numOfHits > 0)
-                            character.TurnController.left_descriptionBox.title.text = name + " x " + (numOfHits + 1);
+                            character.TurnController.left_descriptionBox.title.text = name + " x " + numOfHits;
 
                         break;
 
-                    case 1:
+                    case "Decision":
 
                         if (numOfHits >= maxLevel)
+                            smc.OpenSubMenu(smc.subMenuID, name, new SubMenu_Controller_2.Tab[] { new SubMenu_Controller_2.Tab("Execute", "Targets") });
+                        else
+                            smc.OpenSubMenu(smc.subMenuID, name, new SubMenu_Controller_2.Tab[] { new SubMenu_Controller_2.Tab("Execute", "Targets"), new SubMenu_Controller_2.Tab("Charge", smc.ConfirmSubMenu("Charge")) });
+
+                        while (smc.waiting)
                         {
-                            i = 2;
-                            break;
-                        }
+                            var stats = character.GetCombatStats(skill_Stats[0], character.TurnController.right_Players[smc.hovering]);
 
-                        character.TurnController.left_descriptionBox.container.gameObject.SetActive(true);
+                            character.TurnController.left_descriptionBox.ATK_Mult.text = "x" + (numOfHits + smc.hovering).ToString();
 
-                        yield return character.SubMenuController.OpenSubMenu("Charges", new List<string>() { "Execute", "Charge" });
+                            character.TurnController.left_descriptionBox.ATK_Mult.transform.parent.gameObject.SetActive(numOfHits + smc.hovering > 1 ? true : false);
 
-                        while (character.SubMenuController.CurrentSubMenu.ButtonChoice < -1)
-                        {
-                            if (character.SubMenuController.CurrentSubMenu.hoveringButton > -1)
-                            {
-
-                                character.TurnController.left_descriptionBox.ATK_Num.text = Mathf.Abs(character.GetCombatStats(skill_Stats[0])[Character_Stats.Stat.ATK]).ToString();
-
-                                float projectedValue = character.SubMenuController.CurrentSubMenu.hoveringButton + numOfHits + 1;
-
-                                character.TurnController.left_descriptionBox.ATK_Mult.transform.GetChild(0).GetComponent<TMPro.TextMeshProUGUI>().text = "x" + projectedValue;
-
-                                character.TurnController.left_descriptionBox.HIT_Num.text = "-";
-                                character.TurnController.left_descriptionBox.CRT_Num.text = "-";
-
-                                character.TurnController.left_descriptionBox.ATK_Mult.SetActive((projectedValue > 1) ? true : false);
-
-                            }
                             yield return null;
                         }
 
-                        yield return character.SubMenuController.CurrentCD.coroutine;
+                        UnityEngine.EventSystems.EventSystem.current.SetSelectedGameObject(null);
+                        smc.transform.GetChild(0).gameObject.SetActive(false);
 
-                        if (character.SubMenuController.CurrentSubMenu.ButtonChoice > -1)
+                        yield return null;
+
+                        int b = smc.currentSubMenu.buttonChoice;
+
+                        if (b == -1)
                         {
-                            if (character.SubMenuController.CurrentSubMenu.ButtonChoice == 0)
-                            {
-                                i = 3;
-                            }
-                            else
-                            {
-                                i = 5;
-                            }
-                        }
-                        else
-                        {
-                            character.chosenAction = null;
-                            numOfHits = 0;
+                            yield return smc.Return();
                             yield break;
                         }
-
-                        break;
-
-                    case 2:
-
-                        // Fully Charged
-
-                        character.TurnController.left_descriptionBox.container.gameObject.SetActive(true);
-
-                        yield return character.SubMenuController.OpenSubMenu("Charges", new List<string>() { "Execute" });
-
-                        yield return character.SubMenuController.CurrentCD.coroutine;
-
-                        if (character.SubMenuController.CurrentSubMenu.ButtonChoice > -1)
-                        {
-                                i = 3;
-                        }
                         else
                         {
-                            print("Cannot Return");
+                            smc.subMenuID = smc.currentButtons[b].nextID;
+                            yield return smc.currentButtons[b].nextMethod;
                         }
 
                         break;
 
-                    case 3:
+                    case "Targets":
 
-                        // Targets
+                        //Consider putting all targets in a dictionary if they need different "NextIDs"
 
-                        if (targets.Count > 0)
-                            targets.RemoveAt(character.chosenAction.targets.Count - 1);
+                        SubMenu_Controller_2.Tab[] tabs = new SubMenu_Controller_2.Tab[character.TurnController.right_Players.Count];
 
-                        yield return character.SubMenuController.OpenSubMenu("Targets", character.TurnController.GetPlayerNames(character.Facing));
-
-                        Combat_Character target = null;
-
-                        while (character.SubMenuController.CurrentSubMenu.ButtonChoice == -2)
+                        for (int i = 0; i < tabs.Length; i++)
                         {
-                            if (character.SubMenuController.CurrentSubMenu.hoveringButton > -1)
-                            {
-                                if (character.Facing == 1)
-                                    target = character.TurnController.right_Players[character.SubMenuController.CurrentSubMenu.hoveringButton].GetComponent<Combat_Character>();
+                            tabs[i] = new SubMenu_Controller_2.Tab(character.TurnController.right_Players[i].name, smc.ConfirmSubMenu("Execute"));
+                        }
 
-                                character.TurnController.left_descriptionBox.ATK_Num.text = character.GetCombatStats(skill_Stats[0], target)[Character_Stats.Stat.ATK].ToString();
-                                character.TurnController.left_descriptionBox.HIT_Num.text = character.GetCombatStats(skill_Stats[0], target)[Character_Stats.Stat.PhHit].ToString();
-                                character.TurnController.left_descriptionBox.CRT_Num.text = character.GetCombatStats(skill_Stats[0], target)[Character_Stats.Stat.Crit].ToString();
-                            }
+                        smc.OpenSubMenu(smc.subMenuID, "Targets", tabs);
+
+                        while (smc.waiting)
+                        {
+                            var stats = character.GetCombatStats(skill_Stats[0], character.TurnController.right_Players[smc.hovering]);
+
+                            character.TurnController.left_descriptionBox.ATK_Num.text = stats[Character_Stats.Stat.ATK].ToString();
+                            character.TurnController.left_descriptionBox.HIT_Num.text = stats[Character_Stats.Stat.PhHit].ToString();
+                            character.TurnController.left_descriptionBox.CRT_Num.text = stats[Character_Stats.Stat.Crit].ToString();
+
                             yield return null;
                         }
 
-                        yield return character.SubMenuController.CurrentCD.coroutine;
+                        UnityEngine.EventSystems.EventSystem.current.SetSelectedGameObject(null);
+                        smc.transform.GetChild(0).gameObject.SetActive(false);
 
-                        if (character.SubMenuController.CurrentSubMenu.ButtonChoice > -1)
+                        yield return null;
+
+                        b = smc.currentSubMenu.buttonChoice;
+
+                        if (b == -1)
                         {
-                            if (character.Facing == 1)
-                                character.chosenAction.targets.Add(character.TurnController.right_Players[character.SubMenuController.CurrentSubMenu.ButtonChoice].transform);
-                            else
-                                character.chosenAction.targets.Add(character.TurnController.left_Players[character.SubMenuController.CurrentSubMenu.ButtonChoice].transform);
-
-                            i = 4;
+                            yield return smc.Return();
                         }
                         else
                         {
-                            if (numOfHits >= maxLevel)
-                                i = 2;
-                            else
-                                i = 1;
+                            smc.subMenuID = smc.currentButtons[b].nextID;
+                            yield return smc.currentButtons[b].nextMethod;
                         }
 
                         break;
 
-                    case 4:
+                    case "Execute":
+                        smc.subMenuID = "Done";
+                        done = true;
+                        charging = false;
+                        character.AddStatChanger(skill_Stats[0].statChanger);
 
-                        //Execute
+                        Combat_Character target = character.TurnController.right_Players[smc.dictionary["Targets"].buttonChoice];
+                        character.chosenAction.targets.Add(target.transform);
 
-                        yield return character.SubMenuController.OpenSubMenu("Confirm", new List<string>() { "Confirm" });
-
-                        yield return character.SubMenuController.CurrentCD.coroutine;
-
-                        if (character.SubMenuController.CurrentSubMenu.ButtonChoice > -1)
-                        {
-                            character.AddStatChanger(skill_Stats[0].statChanger);
-                            done = true;
-                            charging = false;
-                            Execute = Action(numOfHits + 1);
-                            numOfHits = 0;
-                        }
-                        else
-                        {
-                            i = 3;
-                        }
-
+                        Execute = Action(numOfHits);
+                        numOfHits = 1;
                         break;
 
-                    case 5:
+                    case "Charge":
+                        smc.subMenuID = "Done";
+                        done = true;
+                        charging = true;
+                        break;
 
-                        // Charge
-
-                        yield return character.SubMenuController.OpenSubMenu("Confirm", new List<string>() { "Confirm" });
-
-                        yield return character.SubMenuController.CurrentCD.coroutine;
-
-                        if (character.SubMenuController.CurrentSubMenu.ButtonChoice > -1)
-                        {
-                            done = true;
-
-                            charging = true;
-
-                            character.TurnController.left_descriptionBox.container.gameObject.SetActive(false);
-                        }
-                        else
-                        {
-                            i = 1;
-                        }
-
+                    default:
+                        Debug.Log("Menu Dead End");
+                        smc.subMenuID = smc.currentSubMenu.ID;
+                        yield return smc.Return();
                         break;
                 }
 
             }
-
-            character.EndTurn();
+            while (!done);
         }
 
         public IEnumerator Action(int charges)
         {
+
             character.enemyTransform = targets[0];
 
             GetOutcome(skill_Stats[0], targets[0]);
@@ -1644,6 +1504,7 @@ public class Sakura : Combat_Character
     }
     public Throw_Kunai throw_Kunai;
 
+
     [System.Serializable]
     public class Multi_Hit : Skill
     {
@@ -1664,85 +1525,88 @@ public class Sakura : Combat_Character
 
         public override IEnumerator SubMenus(MonoBehaviour owner)
         {
+
+            SubMenu_Controller_2 smc = character.SubMenuController2;
+
             bool done = false;
 
-            int i = 0;
-
-
-            while (!done)
+            do
             {
-
-                switch (i)
+                switch (smc.subMenuID)
                 {
-                    case 0:
+                    case "Start":
+                        smc.subMenuID = "Targets";
+                        break;
 
-                        if (character.chosenAction.targets.Count > 0)
-                            character.chosenAction.targets.RemoveAt(character.chosenAction.targets.Count - 1);
+                    case "Targets":
 
-                        Combat_Character target = null;
+                        //Consider putting all targets in a dictionary if they need different "NextIDs"
 
-                        yield return character.SubMenuController.OpenSubMenu("Targets", character.TurnController.GetPlayerNames(character.Facing));
+                        SubMenu_Controller_2.Tab[] tabs = new SubMenu_Controller_2.Tab[character.TurnController.right_Players.Count];
 
-                        while (character.SubMenuController.CurrentSubMenu.ButtonChoice == -2)
+                        for (int i = 0; i < tabs.Length; i++)
                         {
-                            if (character.SubMenuController.CurrentSubMenu.hoveringButton > -1)
-                            {
-                                if (character.Facing == 1)
-                                    target = character.TurnController.right_Players[character.SubMenuController.CurrentSubMenu.hoveringButton].GetComponent<Combat_Character>();
+                            tabs[i] = new SubMenu_Controller_2.Tab(character.TurnController.right_Players[i].name, smc.ConfirmSubMenu("Execute"));
+                        }
 
-                                character.TurnController.left_descriptionBox.ATK_Num.text = character.GetCombatStats(skill_Stats[0], target)[Character_Stats.Stat.ATK].ToString();
-                                character.TurnController.left_descriptionBox.HIT_Num.text = character.GetCombatStats(skill_Stats[0], target)[Character_Stats.Stat.PhHit].ToString();
-                                character.TurnController.left_descriptionBox.CRT_Num.text = character.GetCombatStats(skill_Stats[0], target)[Character_Stats.Stat.Crit].ToString();
-                            }
+                        smc.OpenSubMenu(smc.subMenuID, "Targets", tabs);
+
+                        while (smc.waiting)
+                        {
+                            var stats = character.GetCombatStats(skill_Stats[0], character.TurnController.right_Players[smc.hovering]);
+
+                            character.TurnController.left_descriptionBox.ATK_Num.text = stats[Character_Stats.Stat.ATK].ToString();
+                            character.TurnController.left_descriptionBox.HIT_Num.text = stats[Character_Stats.Stat.PhHit].ToString();
+                            character.TurnController.left_descriptionBox.CRT_Num.text = stats[Character_Stats.Stat.Crit].ToString();
+
                             yield return null;
                         }
 
-                        yield return character.SubMenuController.CurrentCD.coroutine;
+                        UnityEngine.EventSystems.EventSystem.current.SetSelectedGameObject(null);
+                        smc.transform.GetChild(0).gameObject.SetActive(false);
 
-                        if (character.SubMenuController.CurrentSubMenu.ButtonChoice > -1)
+                        yield return null;
+
+                        int b = smc.currentSubMenu.buttonChoice;
+
+                        if (b == -1)
                         {
-                            if (character.Facing == 1)
-                                character.chosenAction.targets.Add(character.TurnController.right_Players[character.SubMenuController.CurrentSubMenu.ButtonChoice].transform);
-                            else
-                                character.chosenAction.targets.Add(character.TurnController.left_Players[character.SubMenuController.CurrentSubMenu.ButtonChoice].transform);
-
-                            i++;
+                            yield return smc.Return();
+                            yield break;
                         }
                         else
                         {
-                            character.chosenAction = null;
-                            yield break;
+                            smc.subMenuID = smc.currentButtons[b].nextID;
+                            yield return smc.currentButtons[b].nextMethod;
                         }
 
                         break;
 
 
-                    case 1:
+                    case "Execute":
+                        smc.subMenuID = "Done";
+                        done = true;
 
-                        yield return character.SubMenuController.OpenSubMenu("Confirm", new List<string>() { "Confirm" });
+                        Combat_Character target = character.TurnController.right_Players[smc.dictionary["Targets"].buttonChoice];
+                        character.chosenAction.targets.Add(target.transform);
 
-                        yield return character.SubMenuController.CurrentCD.coroutine;
+                        Execute = Action();
+                        break;
 
-                        if (character.SubMenuController.CurrentSubMenu.ButtonChoice > -1)
-                        {
-                            done = true;
-                        }
-                        else
-                        {
-                            i--;
-                        }
-
+                    default:
+                        Debug.Log(smc.subMenuID + " Menu Dead End");
+                        smc.subMenuID = smc.currentSubMenu.ID;
+                        yield return smc.Return();
                         break;
                 }
 
             }
-
-
-            Execute = Action();
+            while (!done);
         }
 
         public IEnumerator Action()
         {
+
             character.enemyTransform = targets[0];
             GetOutcome(skill_Stats[0], targets[0]);
 
@@ -2207,7 +2071,7 @@ public class Sakura : Combat_Character
                 chosenAction.targets.Add(target);
                 //chosenAttack.targets.Add(TurnController.left_Players[0].transform);
 
-                int level = 3;
+                int level = 2;
 
                 AddStatChanger(skill.skill_Stats[level-1].statChanger);
 
@@ -2237,12 +2101,12 @@ public class Sakura : Combat_Character
 
                 if (skill.numOfHits > 0)
                 {
-                    dBox.ATK_Mult.SetActive(true);
-                    dBox.ATK_Mult.transform.GetChild(0).GetComponent<TMPro.TextMeshProUGUI>().text = "x" + skill.numOfHits.ToString();
+                    dBox.ATK_Mult.gameObject.SetActive(true);
+                    dBox.ATK_Mult.text = "x" + skill.numOfHits.ToString();
                 }
                 else
                 {
-                    dBox.ATK_Mult.SetActive(false);
+                    dBox.ATK_Mult.gameObject.SetActive(false);
                 }
 
 

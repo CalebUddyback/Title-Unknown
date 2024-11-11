@@ -1,51 +1,51 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using System;
 
 public class SubMenu_Controller_2 : MonoBehaviour
 {
     public TextMeshProUGUI title;
     public GameObject buttonPrefab;
     public Transform buttonContainer;
-    public Button returnButton;
+    public SubMenu_Button returnButton;
 
     public Combat_Character Owner => transform.parent.parent.GetComponent<Combat_Character>();
+
+    public string subMenuID = "Actions";
+
+    public bool waiting = true;
+
+    public int hovering = 0;
 
     [System.Serializable]
     public class SubMenu_2
     {
         public string ID;
         public string title;
-        public int ButtonChoice = -2;       // -2 (Waiting), -1 (Return)
+        public int buttonChoice = -2;
         public SubMenu_2 previousSubMenu;
     }
 
+    [Serializable]
     public class Tab
     {
         public string buttonText;
         public string nextID;
-        public Combat_Character.Skill storedSkill = null;
-        public IEnumerator submenuTree;
+        public IEnumerator nextMethod;
 
-
-        public Tab(string t, string s)
+        public Tab(string t, string n)
         {
             buttonText = t;
-            nextID = s;
+            nextID = n;
         }
 
         public Tab(string t, IEnumerator e)
         {
             buttonText = t;
-            submenuTree = e;
-        }
-
-        public void StoreSkill(Combat_Character.Skill skill)
-        {
-            storedSkill = skill;
+            nextMethod = e;
         }
     }
 
@@ -57,42 +57,80 @@ public class SubMenu_Controller_2 : MonoBehaviour
 
     private void Start()
     {
-        returnButton.onClick.AddListener(() => currentSubMenu.ButtonChoice = -1);
-        StartCoroutine(DefaultMenu());
+        returnButton.returnButton = true;
+        returnButton.GetComponent<Button>().onClick.AddListener(() => Select(-1));
     }
 
-    public IEnumerator DefaultMenu()
+    public IEnumerator Menus()
     {
-        string subMenuID = "Actions";
-
         bool done = false;
 
         dictionary.Clear();
 
         currentSubMenu = null;
 
+        transform.GetChild(0).gameObject.SetActive(true);
+
+        if (Owner.chosenAction != null && Owner.chosenAction.charging)
+            subMenuID = "Charging";
+        else
+            subMenuID = "Actions";
+
         do
         {
             switch (subMenuID)
             {
                 case "Actions":
-                    OpenSubMenu(subMenuID, "Actions", new Tab[]{ new Tab("Attacks", "Attacks"), new Tab("Defense", "Confirm"), new Tab("Items", "x"), new Tab("Rest", "Confirm") });
-                    yield return WaitForChoice();
+                    OpenSubMenu(subMenuID, "Actions", new Tab[] { new Tab("Attacks", "Attacks"), new Tab("Defense", ConfirmSubMenu("Done")), new Tab("Items", "x"), new Tab("Rest", "Confirm") });
+
+                    while (waiting)
+                    {
+                        yield return null;
+                    }
+
+                    UnityEngine.EventSystems.EventSystem.current.SetSelectedGameObject(null);
+                    transform.GetChild(0).gameObject.SetActive(false);
+
+                    yield return null;
+
+                    int b = currentSubMenu.buttonChoice;
+
+                    subMenuID = currentButtons[b].nextID;
+                    yield return currentButtons[b].nextMethod;
+
                     break;
 
                 case "Attacks":
                     OpenSubMenu(subMenuID, "Attacks", Owner.attackList.ToArray());
-                    yield return WaitForChoice();
+
+                    while (waiting)
+                    {
+                        Owner.TurnController.left_descriptionBox.Description(Owner.attackList[hovering]);
+                        Owner.TurnController.left_descriptionBox.container.SetActive(true);
+                        yield return null;
+                    }
+
+                    UnityEngine.EventSystems.EventSystem.current.SetSelectedGameObject(null);
+                    transform.GetChild(0).gameObject.SetActive(false);
+
+                    yield return null;
+
+                    b = currentSubMenu.buttonChoice;
+
+                    if (b == -1)
+                        yield return Return();
+                    else
+                    {
+                        Owner.ActionChoice(Owner.attackList[b]);
+
+                        subMenuID = currentButtons[b].nextID;
+                        yield return currentButtons[b].nextMethod;
+                    }
+
                     break;
 
-                case "Confirm":
-                    ConfirmSubMenu();
-                    yield return WaitForChoice();
-                    break;
-
-                case "Return":
-                    subMenuID = currentSubMenu.previousSubMenu.ID;
-                    CloseSubMenu();
+                case "Charging":
+                    yield return Owner.chosenAction.SubMenus(this);
                     break;
 
                 case "Done":
@@ -100,51 +138,20 @@ public class SubMenu_Controller_2 : MonoBehaviour
                     break;
 
                 default:
-                    Debug.Log("Menu Dead End");
-                    currentSubMenu.ButtonChoice = -2;
-                    subMenuID = subMenuID.Substring(0, subMenuID.Length - 2);
+                    Debug.Log(subMenuID + " Case Does Not Exist");
+                    subMenuID = currentSubMenu.ID;
+                    yield return Return();
                     break;
             }
-
-            IEnumerator WaitForChoice()
-            {
-                yield return new WaitWhile(() => currentSubMenu.ButtonChoice == -2);
-
-                UnityEngine.EventSystems.EventSystem.current.SetSelectedGameObject(null);
-
-                transform.GetChild(0).gameObject.SetActive(false);
-
-                yield return null;
-
-                transform.GetChild(0).gameObject.SetActive(true);
-
-                if (currentSubMenu.ButtonChoice > -1)
-                {
-                    if (currentButtons[currentSubMenu.ButtonChoice].submenuTree != null)
-                    {
-                        Owner.ActionChoice(Owner.attackList[currentSubMenu.ButtonChoice]);
-                        yield return StartCoroutine(currentButtons[currentSubMenu.ButtonChoice].submenuTree);
-
-                        CloseSubMenu();
-                    }
-                    else
-                        subMenuID = currentButtons[currentSubMenu.ButtonChoice].nextID;
-                }
-                else
-                {
-                    subMenuID = "Return";
-                }
-            }
-
         }
         while (!done);
 
         Debug.Log("Done");
 
-        transform.GetChild(0).gameObject.SetActive(false);
+        Owner.EndTurn();
     }
 
-    public SubMenu_2 OpenSubMenu(string nextID, string nextTitle, object[] nextButtons)
+    public void OpenSubMenu(string nextID, string nextTitle, object[] nextButtons)
     {
         SubMenu_2 previousSubMenu = null;
 
@@ -169,7 +176,11 @@ public class SubMenu_Controller_2 : MonoBehaviour
 
         dictionary.Add(currentSubMenu.ID, currentSubMenu);
 
-        return currentSubMenu;
+        transform.GetChild(0).gameObject.SetActive(true);
+
+        hovering = 0;
+
+        waiting = true;
     }
 
     public void AdjustButtons(object[] objArray)
@@ -178,10 +189,7 @@ public class SubMenu_Controller_2 : MonoBehaviour
         {
             for (int i = 0; i < buttonContainer.childCount; i++)
             {
-                if (i < objArray.Length)
-                    buttonContainer.GetChild(i).gameObject.SetActive(true);
-                else
-                    buttonContainer.GetChild(i).gameObject.SetActive(false);
+                buttonContainer.GetChild(i).gameObject.SetActive( i < objArray.Length ? true : false);
             }
         }
         else
@@ -190,7 +198,7 @@ public class SubMenu_Controller_2 : MonoBehaviour
             {
                 Button newButton = Instantiate(buttonPrefab, buttonContainer).GetComponent<Button>();
 
-                newButton.onClick.AddListener(() => currentSubMenu.ButtonChoice = newButton.transform.GetSiblingIndex());
+                newButton.onClick.AddListener(() => Select(newButton.transform.GetSiblingIndex()));
 
                 newButton.GetComponent<SubMenu_Button>().SubMenu_Controller_2 = this;
             }
@@ -202,14 +210,7 @@ public class SubMenu_Controller_2 : MonoBehaviour
         {
             SubMenu_Button buttonInst = buttonContainer.GetChild(i).GetComponent<SubMenu_Button>();
 
-            if (objArray is string[])
-            {
-                string label = (string)objArray[i];
-
-                buttons[i] = new Tab(label, "");
-                buttonInst.buttonText.text = (string)objArray[i];
-            }
-            else if (objArray is Tab[])
+            if (objArray is Tab[])
             {
                 Tab tab = (Tab)objArray[i];
 
@@ -219,27 +220,28 @@ public class SubMenu_Controller_2 : MonoBehaviour
             else if (objArray is Combat_Character.Skill[])
             {
                 Combat_Character.Skill skill = (Combat_Character.Skill)objArray[i];
-                buttons[i] = new Tab(skill.name, skill.SubMenus(this));
-                buttons[i].StoreSkill(skill);
+
+                buttons[i] = new Tab(skill.name, "Start")
+                {
+                    nextMethod = skill.SubMenus(this),
+                };
+
                 buttonInst.buttonText.text = skill.name;
             }
 
-            if (buttons[i].nextID == "x")
-                buttonInst.GetComponent<Button>().interactable = false;
-            else
-                buttonInst.GetComponent<Button>().interactable = true;
+            buttonInst.GetComponent<Button>().interactable = (buttons[i].nextID == "x") ? false : true;
         }
 
         currentButtons = buttons;
     }
 
-    public SubMenu_2 ConfirmSubMenu()
+    public IEnumerator ConfirmSubMenu(string nextID)
     {
         SubMenu_2 previousSubMenu = null;
 
-        Tab[] newButtons = new Tab[] { new Tab("Confirm", "Done"), new Tab("Cancel", "Return") };
+        Tab[] newButtons = new Tab[] { new Tab("Confirm", nextID), new Tab("Cancel", Return()) };
 
-        title.text = currentButtons[currentSubMenu.ButtonChoice].buttonText;
+        title.text = "Confirm";
 
         if (dictionary.Count > 0)
         {
@@ -260,7 +262,48 @@ public class SubMenu_Controller_2 : MonoBehaviour
 
         dictionary.Add(currentSubMenu.ID, currentSubMenu);
 
-        return currentSubMenu;
+        transform.GetChild(0).gameObject.SetActive(true);
+
+        hovering = 0;
+
+        waiting = true;
+
+        while (waiting)
+        {
+            yield return null;
+        }
+
+        UnityEngine.EventSystems.EventSystem.current.SetSelectedGameObject(null);
+        transform.GetChild(0).gameObject.SetActive(false);
+
+        yield return null;
+
+        if (currentSubMenu.buttonChoice == -1)
+        {
+            yield return Return();
+        }
+        else
+        {
+            subMenuID = currentButtons[currentSubMenu.buttonChoice].nextID;
+            yield return currentButtons[currentSubMenu.buttonChoice].nextMethod;
+        }
+    }
+
+    public void Select(int b)
+    {
+        currentSubMenu.buttonChoice = b;
+
+        waiting = false;
+    }
+
+    public IEnumerator Return()
+    {
+        if (currentSubMenu.previousSubMenu != null)
+            subMenuID = currentSubMenu.previousSubMenu.ID;
+
+        CloseSubMenu();
+
+        yield return null;
     }
 
     public void CloseSubMenu()
@@ -269,12 +312,17 @@ public class SubMenu_Controller_2 : MonoBehaviour
         {
             string removeID = currentSubMenu.ID;
 
-            if(removeID == "Actions")
+            if (removeID == "Actions")
+            {
                 currentSubMenu = null;
+                dictionary.Remove(removeID);
+                break;
+            }
             else
+            {
                 currentSubMenu = currentSubMenu.previousSubMenu;
-
-            dictionary.Remove(removeID);
+                dictionary.Remove(removeID);
+            }
         }
     }
 }
