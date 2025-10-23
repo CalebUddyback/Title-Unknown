@@ -10,12 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 88dcc4cf74d52114a96a5e9635bae512, type: 3}
-  m_Name: Sakura 3
+  m_Name: Joanna D'Arc
   m_EditorClassIdentifier: 
-  max_Health: 110
+  max_Health: 100
   max_Mana: 100
-  reaction: 10
+  reaction: 200
   speed: 20
   strength: 5
   critical: 0
-  luck: 10
+  luck: 100

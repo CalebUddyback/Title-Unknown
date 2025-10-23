@@ -24,10 +24,10 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4143909492879046855}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.128, y: 0.551, z: 0}
+  m_LocalPosition: {x: 0.064, y: 0.551, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
-  m_Father: {fileID: 6058613479605374835}
+  m_Father: {fileID: 1835999153555598053}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &6058613479605374833
@@ -38,11 +38,11 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 6058613479605374835}
+  - component: {fileID: 1835999153555598053}
   - component: {fileID: 6058613479605374838}
   - component: {fileID: 6058613479605374834}
   - component: {fileID: 6058613479605374836}
-  - component: {fileID: 3112407147879541119}
+  - component: {fileID: 7628375815997620123}
   m_Layer: 8
   m_Name: Sprites
   m_TagString: Untagged
@@ -50,8 +50,8 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &6058613479605374835
-Transform:
+--- !u!224 &1835999153555598053
+RectTransform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -67,6 +67,11 @@ Transform:
   m_Father: {fileID: 6058613481054950160}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0.98, y: 0.66}
+  m_Pivot: {x: 0.4489796, y: 0.25757578}
 --- !u!212 &6058613479605374838
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -142,7 +147,7 @@ Animator:
   m_GameObject: {fileID: 6058613479605374833}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: eb850b9bc13d3a943a1481badea8a792, type: 2}
+  m_Controller: {fileID: 9100000, guid: aad9f9938da2ae94596571ccb420350d, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -151,7 +156,7 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorControllerStateOnDisable: 0
---- !u!136 &3112407147879541119
+--- !u!136 &7628375815997620123
 CapsuleCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -164,7 +169,7 @@ CapsuleCollider:
   m_Radius: 0.12
   m_Height: 0.46
   m_Direction: 1
-  m_Center: {x: 0.135, y: 0.23, z: 0}
+  m_Center: {x: 0.07, y: 0.23, z: 0}
 --- !u!1 &6058613479806275297
 GameObject:
   m_ObjectHideFlags: 0
@@ -189,10 +194,10 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6058613479806275297}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.128, y: 0.551, z: 0}
+  m_LocalPosition: {x: 0.06400018, y: 0.551, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
-  m_Father: {fileID: 6058613479605374835}
+  m_Father: {fileID: 1835999153555598053}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &6058613481054950157
@@ -221,10 +226,10 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6058613481054950157}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -1.6081882, y: 0, z: 0.28592062}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0.5684045, y: 0.5684045, z: 0.5684045}
   m_Children:
-  - {fileID: 6058613479605374835}
+  - {fileID: 1835999153555598053}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -241,7 +246,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cpu: 0
-  characterName: Sakura
+  characterName: Joanna
   enemyTransform: {fileID: 0}
   animationController: {fileID: 6058613479605374834}
   outcome_Bubble_Prefab: {fileID: 5699773286052231236, guid: b1ad6643c96800942ac08ebd7b84bafe,
@@ -250,13 +255,16 @@ MonoBehaviour:
   target_Arrow: {fileID: 3479251503719224591, guid: 5e7d6650add859c41b207e135668d55c,
     type: 3}
   currentPhase: 0
-  Deck: []
+  Deck:
+  - {fileID: -6621664565296584972, guid: 9641457c1daeec24fb81e483af0a5ca5, type: 3}
+  - {fileID: -6621664565296584972, guid: db1e0cd0855d3064aaa1aafa2c6cf2bb, type: 3}
+  - {fileID: -6621664565296584972, guid: bdf0c9b95574791458f61f059d220ce8, type: 3}
   hand: {fileID: 0}
   doneTurn: 0
   Hud: {fileID: 0}
   blocking: 0
   reaction: 0
-  character_Stats: {fileID: 11400000, guid: c0f61077917fe95439c6145afa8685d8, type: 2}
+  character_Stats: {fileID: 11400000, guid: 045550b69d0686a4783c912e96925add, type: 2}
   weapon: {fileID: 11400000, guid: 8036eb8e8a6f4904fb130ffa837c3c18, type: 2}
   statChangers: []
 --- !u!54 &6058613481054950158
@@ -304,7 +312,7 @@ Transform:
   m_LocalPosition: {x: 0, y: 0.01, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
-  m_Father: {fileID: 6058613479605374835}
+  m_Father: {fileID: 1835999153555598053}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 90, y: 0, z: 0}
 --- !u!212 &2321321629164212297

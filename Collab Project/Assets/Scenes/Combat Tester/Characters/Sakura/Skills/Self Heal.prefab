@@ -50,13 +50,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   hand: {fileID: 0}
   card_Prefab: {fileID: 0}
-  name_: Self Heal
+  displayName: Self Heal
+  animationName: Buff
   effect: 0
   description: 
   scope: 0
   selection: 0
   type: 1
   range: 1
+  distance: 0
   chargeTime: 0
   stats:
     DamageVariation: {x: 20, y: 30}

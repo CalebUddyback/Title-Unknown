@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 8425386044685355709}
   - component: {fileID: -6621664565296584972}
   m_Layer: 0
-  m_Name: Uppercut
+  m_Name: Heavy Jab
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -50,20 +50,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   hand: {fileID: 0}
   card_Prefab: {fileID: 0}
-  displayName: Uppercut
-  animationName: Attack_UpLight
+  displayName: Heavy Jab
+  animationName: Attack_Heavy
   effect: 0
   description: 
   scope: 2
   selection: 0
   type: 0
   range: 0
-  distance: 0.35
+  distance: 0.45
   chargeTime: 0
   stats:
-    DamageVariation: {x: 2, y: 4}
+    DamageVariation: {x: 4, y: 6}
     critical: 0
     defense: 0
-    mana: 25
+    mana: 30
   targetQuantity: 1
   chosen_Targets: []

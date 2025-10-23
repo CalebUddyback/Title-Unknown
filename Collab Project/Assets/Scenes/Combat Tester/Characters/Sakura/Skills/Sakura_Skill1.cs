@@ -38,9 +38,9 @@ public class Sakura_Skill1: Card
 
         yield return Character.TurnController.mainCamera.MovingTo(camTargetPos, 0.5f);
 
-        yield return Character.MoveInRange(new Vector3(-0.35f, 0, 0));
+        yield return Character.MoveInRange(new Vector3(-distance, 0, 0));
 
-        Character.animationController.Clip(Character.characterName + " " + name_);
+        Character.animationController.Clip(animationName);
 
         yield return Character.WaitForKeyFrame();
 

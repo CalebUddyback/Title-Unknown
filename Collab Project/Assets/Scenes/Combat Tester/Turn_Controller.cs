@@ -272,7 +272,7 @@ public class Turn_Controller : MonoBehaviour
     public void ResetAnimations()
     {
         foreach (Transform target in characterTurn.hand.distinctTargets)
-            target.GetComponent<Combat_Character>().animationController.Clip(characterTurn.characterName + " Idle");
+            target.GetComponent<Combat_Character>().animationController.Clip("Idle");
     }
 
     public IEnumerator ResetPositions()

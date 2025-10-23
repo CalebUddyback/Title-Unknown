@@ -50,13 +50,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   hand: {fileID: 0}
   card_Prefab: {fileID: 0}
-  name_: Discard
+  displayName: Discard
+  animationName: Buff
   effect: 0
   description: 
   scope: 0
   selection: 0
   type: 2
   range: 0
+  distance: 0
   chargeTime: 0
   stats:
     DamageVariation: {x: 0, y: 0}

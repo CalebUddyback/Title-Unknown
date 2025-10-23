@@ -22,7 +22,7 @@ public class Sakura_Skill3 : Card
 
     public override IEnumerator Action()
     {
-        Character.animationController.Clip("Sakura Buff");
+        Character.animationController.Clip("Buff");
 
         yield return Character.WaitForKeyFrame();
 

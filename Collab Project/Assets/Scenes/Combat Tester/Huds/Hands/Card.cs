@@ -17,7 +17,8 @@ public abstract class Card : MonoBehaviour
     [HideInInspector]
     public Card_Prefab card_Prefab;
 
-    public string name_;
+    public string displayName;
+    public string animationName;
     public bool effect = false;
     public string description = "";
 
@@ -29,6 +30,8 @@ public abstract class Card : MonoBehaviour
     public Type type;
     public enum Range { Close, Far };
     public Range range;
+
+    public float distance = 0.35f;
 
     public int chargeTime;
 
@@ -191,6 +194,6 @@ public abstract class Card : MonoBehaviour
 
     public void Start()
     {
-        card_Prefab.cardText.text = name_;
+        card_Prefab.cardText.text = displayName;
     }
 }

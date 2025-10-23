@@ -197,7 +197,7 @@ public abstract class Combat_Character : MonoBehaviour, IPointerEnterHandler, IP
         if (startPos == targetPos)
             yield break;
 
-        animationController.Clip("Sakura Idle");
+        animationController.Clip("Idle");
 
         float timer = 0;
         float maxTime = 0.3f;
@@ -329,7 +329,7 @@ public abstract class Combat_Character : MonoBehaviour, IPointerEnterHandler, IP
             float timer = 0;
             float maxTime = 0.3f;
 
-            animationController.Clip(characterName + " Idle");
+            animationController.Clip("Idle");
 
             while (timer < maxTime)
             {

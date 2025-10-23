@@ -18,7 +18,7 @@ public class DescriptionBox : MonoBehaviour
 
     public void Description(Card card)
     {
-        title.text = card.name_;
+        title.text = card.displayName;
     
         //if (skill is Combat_Character.Spell spell)
         //    container.GetComponent<Image>().color = new Color(0.1058824f, 0.254902f, 0.2226822f, 0.7372549f);

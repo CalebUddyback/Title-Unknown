@@ -1774,7 +1774,8 @@ public class Sakura : Combat_Character
 
     public override IEnumerator Damage()
     {
-        animationController.Clip("Sakura Damaged");
+        //animationController.Clip("Sakura Damaged");
+        animationController.Clip("Move_Hurt");
         yield return null;
     }
 
@@ -1786,7 +1787,9 @@ public class Sakura : Combat_Character
 
     public override IEnumerator Dodge()
     {
-        animationController.Clip("Sakura Dodge");
+        //animationController.Clip("Sakura Dodge");
+        animationController.Clip("Move_BackDash");
+
 
         yield return MoveAmount(new Vector3(0.3f * -Facing, 0, 0));
 
