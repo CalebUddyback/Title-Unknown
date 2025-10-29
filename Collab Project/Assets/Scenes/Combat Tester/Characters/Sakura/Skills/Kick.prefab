@@ -65,5 +65,6 @@ MonoBehaviour:
     critical: 0
     defense: 0
     mana: 30
+    knockBack: {x: 0.1, y: 0, z: 0}
   targetQuantity: 1
   chosen_Targets: []

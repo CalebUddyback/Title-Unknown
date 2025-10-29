@@ -227,7 +227,7 @@ Transform:
   m_GameObject: {fileID: 6058613481054950157}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.5684045, y: 0.5684045, z: 0.5684045}
+  m_LocalScale: {x: 0.6, y: 0.6, z: 0.6}
   m_Children:
   - {fileID: 1835999153555598053}
   m_Father: {fileID: 0}
@@ -259,6 +259,7 @@ MonoBehaviour:
   - {fileID: -6621664565296584972, guid: 9641457c1daeec24fb81e483af0a5ca5, type: 3}
   - {fileID: -6621664565296584972, guid: db1e0cd0855d3064aaa1aafa2c6cf2bb, type: 3}
   - {fileID: -6621664565296584972, guid: bdf0c9b95574791458f61f059d220ce8, type: 3}
+  - {fileID: -8288857822269860274, guid: 91065698c07472648a1b3e4c2b2263de, type: 3}
   hand: {fileID: 0}
   doneTurn: 0
   Hud: {fileID: 0}

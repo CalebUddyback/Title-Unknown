@@ -61,9 +61,10 @@ MonoBehaviour:
   distance: 0.4
   chargeTime: 0
   stats:
-    DamageVariation: {x: 2, y: 4}
+    DamageVariation: {x: 0, y: 2}
     critical: 0
     defense: 0
-    mana: 25
+    mana: 15
+    knockBack: {x: 0, y: 0, z: 0}
   targetQuantity: 1
   chosen_Targets: []

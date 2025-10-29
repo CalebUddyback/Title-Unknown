@@ -10,22 +10,22 @@ public class Character_Stats : ScriptableObject
 
     public int
 
-        reaction,   // Turn order
+        initiative,   // Turn order
         speed,      // Turn amount
 
         strength,   // Effectivness
-        critical,  // Criticals
 
+        critical,  // Criticals
         luck;       // Dodge
 
     public enum Stat
     {
-        RCT,
+        INI,
         SPD,
 
         STR,
-        CRT,
 
+        CRT,
         LCK,
     };
 }

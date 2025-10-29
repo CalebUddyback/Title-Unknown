@@ -12,10 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 88dcc4cf74d52114a96a5e9635bae512, type: 3}
   m_Name: Sakura 1
   m_EditorClassIdentifier: 
-  max_Health: 150
+  max_Health: 100
   max_Mana: 100
-  reaction: 10
+  initiative: 10
   speed: 14
-  strength: 0
+  strength: 10
   critical: 0
   luck: 10

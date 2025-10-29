@@ -6,23 +6,29 @@ using UnityEngine.UI;
 
 public class Draw_Slot : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
 {
+    [HideInInspector]
     public Draw_Selection draw_Selection;
 
+    public Animation animator;
+
+    [HideInInspector]
     public Card card;
 
     public void OnPointerEnter(PointerEventData eventData)
     {
-        GetComponent<Image>().color = Color.white;
+        if(draw_Selection.SelectedSlot != this)
+            GetComponent<Image>().color = Color.white;
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
-        GetComponent<Image>().color = Color.grey;
+        if (draw_Selection.SelectedSlot != this)
+            GetComponent<Image>().color = Color.grey;
     }
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        draw_Selection.chosenCard = card;
-        GetComponent<Image>().color = Color.grey;
+        if (draw_Selection.SelectedSlot != this)
+            draw_Selection.SelectedSlot = this;
     }
 }

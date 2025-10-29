@@ -51,6 +51,8 @@ public class Sakura_Skill1: Card
 
         GetOutcome(stats, chosen_Targets[0].GetComponent<Combat_Character>());
 
+        Coroutine knockback = Character.StartCoroutine(Character.enemyTransform.GetComponent<Combat_Character>().MoveAmount(new Vector3(stats.knockBack.x * Character.Facing, stats.knockBack.y, stats.knockBack.z), 0.1f));
+
         //CritSuccess = 3;
 
         Coroutine outcome;
@@ -63,9 +65,6 @@ public class Sakura_Skill1: Card
                 print("Continue");
 
                 outcome = Character.StartCoroutine(Character.ApplyOutcome(HitSuccess, CritSuccess, Character.GetCurrentStats(stats)[Character_Stats.Stat.STR]));
-
-                if (HitSuccess == 1 && !chosen_Targets[0].GetComponent<Combat_Character>().blocking)
-                    yield return Character.Hud.AffectTimerProgress(-1);
 
                 yield return Character.animationController.coroutine;
 
@@ -82,5 +81,7 @@ public class Sakura_Skill1: Card
                 yield break;
 
         }
+
+        yield return knockback;
     }
 }

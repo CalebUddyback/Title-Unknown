@@ -13,7 +13,7 @@ public class AnimationController : MonoBehaviour
 
     public void Clip(string trigger)
     {
-        if (!trigger.Contains("Idle"))
+        if (trigger != "Idle" || trigger != "Block_Hold")
             coroutine = StartCoroutine(Playing(trigger));
         else
             StartCoroutine(Playing(trigger));
@@ -31,11 +31,9 @@ public class AnimationController : MonoBehaviour
 
     IEnumerator Playing(string trigger)
     {
-        GetComponent<Animator>().SetTrigger("Reset");
+        GetComponent<Animator>().Play(trigger, -1, 0);
 
-        yield return null;      // THIS HAS TO BE HERE TO CLEAR LAST ANIMATION
-
-        GetComponent<Animator>().Play(trigger);
+        yield return null;
 
         yield return new WaitWhile(() => GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).normalizedTime <= 1);
     }

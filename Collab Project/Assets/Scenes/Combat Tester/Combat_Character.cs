@@ -98,6 +98,8 @@ public abstract class Combat_Character : MonoBehaviour, IPointerEnterHandler, IP
 
     public bool blocking = false;
 
+    public bool blockPenalty = true;
+
     public IEnumerator Charging()
     {
         Hud.timer_ChargeIndicator.SetActive(true);
@@ -120,10 +122,23 @@ public abstract class Combat_Character : MonoBehaviour, IPointerEnterHandler, IP
             yield return hand.GenerateCards(4, false);
         }
 
+
+        if (blocking)
+        {
+            blocking = false;
+
+            animationController.Clip("Block_Unset");
+
+            yield return animationController.coroutine;
+
+            print("Done");
+        }
+
         yield return StartCoroutine(TurnController.draw_Selection.ChooseCard());
 
-        Mana += 20;
-        Instantiate(outcome_Bubble_Prefab, TurnController.mainCamera.UIPosition(outcome_Bubble_Pos.position), Quaternion.identity, TurnController.damage_Bubbles).Input(20, new Color(0, 0.5019608f, 1));
+        int restMP = 25;
+        Mana += restMP;
+        Instantiate(outcome_Bubble_Prefab, TurnController.mainCamera.UIPosition(outcome_Bubble_Pos.position), Quaternion.identity, TurnController.damage_Bubbles).Input(restMP, new Color(0, 0.5019608f, 1));
 
         currentPhase = Phase.Draw;
 
@@ -147,8 +162,10 @@ public abstract class Combat_Character : MonoBehaviour, IPointerEnterHandler, IP
 
         if (hand.cardsPlayed == 0)
         {
-            Mana += 20;
-            Instantiate(outcome_Bubble_Prefab, TurnController.mainCamera.UIPosition(outcome_Bubble_Pos.position), Quaternion.identity, TurnController.damage_Bubbles).Input(20, new Color(0, 0.5019608f, 1));
+
+            int restMP = 25;
+            Mana += restMP;
+            Instantiate(outcome_Bubble_Prefab, TurnController.mainCamera.UIPosition(outcome_Bubble_Pos.position), Quaternion.identity, TurnController.damage_Bubbles).Input(restMP, new Color(0, 0.5019608f, 1));
         }
 
         hand.cardsPlayed = 0;
@@ -214,17 +231,22 @@ public abstract class Combat_Character : MonoBehaviour, IPointerEnterHandler, IP
         transform.position = targetPos;
     }
 
-    public IEnumerator MoveAmount(Vector3 amuont)
+    public IEnumerator MoveAmount(Vector3 amount)
+    {
+        yield return MoveAmount(amount, 0.25f);
+    }
+
+    public IEnumerator MoveAmount(Vector3 amount, float t)
     {
         Vector3 startPos = transform.position;
 
-        Vector3 targetPos = startPos + amuont;
+        Vector3 targetPos = startPos + amount;
 
         if (transform.position == targetPos)
             yield break;
 
         float timer = 0;
-        float maxTime = 0.25f;
+        float maxTime = t;
 
         while (timer < maxTime)
         {
@@ -329,8 +351,6 @@ public abstract class Combat_Character : MonoBehaviour, IPointerEnterHandler, IP
             float timer = 0;
             float maxTime = 0.3f;
 
-            animationController.Clip("Idle");
-
             while (timer < maxTime)
             {
                 float xLerp = Mathf.Lerp(currentPos.x, 0f, timer / maxTime);
@@ -390,20 +410,32 @@ public abstract class Combat_Character : MonoBehaviour, IPointerEnterHandler, IP
 
             case 1:
 
-                Enemy.Health += damage;
-
                 if (Enemy.blocking)
                 {
-                    StartCoroutine(Enemy.Block());
+                    if(blockPenalty)
+                        damage *= 2;
+
+                    if (Enemy.Mana + damage <= 0)
+                    {
+                        Enemy.animationController.Clip("Block_Break");
+                        Enemy.blocking = false;
+                    }
+                    else
+                        StartCoroutine(Enemy.Block());
+
+                    Enemy.Mana += damage;
                 }
                 else
                 {
-                    if(TurnController.left_Players.Contains(this))
+                    Enemy.Health += damage;
+
+                    if (TurnController.left_Players.Contains(this))
                         TurnController.left_Combo_Counter.SetComboCount();
                     else
                         TurnController.right_Combo_Counter.SetComboCount();
 
                     StartCoroutine(Enemy.Damage());
+                    yield return null;
                 }
 
                 if (critical != 1)
@@ -423,7 +455,7 @@ public abstract class Combat_Character : MonoBehaviour, IPointerEnterHandler, IP
                     yield return null;
                     yield return Enemy.animationController.coroutine;
                     yield return null;
-                    Enemy.animationController.Clip(Enemy.characterName + " Defeated");
+                    Enemy.animationController.Clip("Defeated");
                     yield return Enemy.animationController.coroutine;
                 }
 
@@ -435,11 +467,27 @@ public abstract class Combat_Character : MonoBehaviour, IPointerEnterHandler, IP
     public bool Defeated{ get; private set; }
 
 
-    public abstract IEnumerator Damage();
+    public virtual IEnumerator Damage()
+    {
+        animationController.Clip("Move_Hurt");
+        yield return null;
+    }
 
-    public abstract IEnumerator Block();
+    public virtual IEnumerator Block()
+    {
+        animationController.Clip("Block_Impact");
+        yield return animationController.coroutine;
+    }
 
-    public abstract IEnumerator Dodge();
+    public virtual IEnumerator Dodge()
+    {
+        animationController.Clip("Move_BackDash");
+
+
+        yield return MoveAmount(new Vector3(0.3f * -Facing, 0, 0));
+
+        yield return animationController.coroutine;
+    }
 
 
     public int reaction;
@@ -448,7 +496,7 @@ public abstract class Combat_Character : MonoBehaviour, IPointerEnterHandler, IP
     {
         get
         {
-            return reaction = Random.Range(0, character_Stats.reaction);
+            return reaction = Random.Range(0, character_Stats.initiative);
         }
 
         set
@@ -480,7 +528,7 @@ public abstract class Combat_Character : MonoBehaviour, IPointerEnterHandler, IP
             {Character_Stats.Stat.CRT, character_Stats.critical },
             {Character_Stats.Stat.SPD, character_Stats.speed},
             {Character_Stats.Stat.LCK, character_Stats.luck},
-            {Character_Stats.Stat.RCT, character_Stats.reaction},
+            {Character_Stats.Stat.INI, character_Stats.initiative},
         };
 
         return baseStats;

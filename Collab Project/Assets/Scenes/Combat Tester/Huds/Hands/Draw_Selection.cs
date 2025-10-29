@@ -12,10 +12,36 @@ public class Draw_Selection : MonoBehaviour
 
     public bool allowDuplicates = false;
 
-    [HideInInspector]
-    public Card chosenCard;
+    private Draw_Slot selectedSlot;
+    public Draw_Slot SelectedSlot
+    {
+        get
+        {
+            return selectedSlot;
+        }
+        set
+        {
+            if(selectedSlot != null)
+                selectedSlot.GetComponent<Image>().color = Color.grey;
 
-    public Button refreshButton;
+            selectedSlot = value;
+
+            if(value != null)
+            {
+                selectedSlot.GetComponent<Image>().color = Color.yellow;
+                drawButton.interactable = true;
+            }
+            else
+            {
+                drawButton.interactable = false;
+            }
+        }
+    }
+
+    [HideInInspector]
+    public Draw_Slot chosenSlot;
+
+    public Button drawButton, refreshButton;
 
     private readonly int refreshCost = 5;
 
@@ -28,17 +54,19 @@ public class Draw_Selection : MonoBehaviour
     {
         gameObject.SetActive(true);
 
-        GenerateCards();
+        yield return GenerateCards();
 
-        yield return new WaitUntil(() => chosenCard != null);
+        yield return new WaitUntil(() => chosenSlot != null);
 
         gameObject.SetActive(false);
 
-        chosenCard.card_Prefab.usableIMG.gameObject.SetActive(true);
+        chosenSlot.card.card_Prefab.usableIMG.gameObject.SetActive(true);
 
-        yield return turn_Controller.characterTurn.hand.GenerateCards(chosenCard, 1, true);
+        yield return turn_Controller.characterTurn.hand.GenerateCards(chosenSlot.card, 1, true);
 
-        chosenCard = null;
+        chosenSlot.GetComponent<Image>().color = Color.grey;
+
+        chosenSlot = null;
 
         for (int i = 0; i < transform.childCount; i++)
         {
@@ -52,7 +80,7 @@ public class Draw_Selection : MonoBehaviour
             refreshButton.interactable = false;
     }
 
-    private void GenerateCards()
+    private IEnumerator GenerateCards()
     {
         int[] x = new int[3] {-1,-1,-1};
 
@@ -73,12 +101,25 @@ public class Draw_Selection : MonoBehaviour
         {
             Card card = Instantiate(turn_Controller.characterTurn.Deck[x[i]], slots.GetChild(i)).GetComponent<Card>();
 
+            card.transform.SetSiblingIndex(slots.GetChild(i).childCount - 2);
+
             card.card_Prefab = Instantiate(turn_Controller.characterTurn.hand.card_Prefab, card.transform).GetComponent<Card_Prefab>();
 
             card.card_Prefab.usableIMG.gameObject.SetActive(false);
 
             slots.GetChild(i).GetComponent<Draw_Slot>().card = card;
+
+            slots.GetChild(i).GetComponent<Draw_Slot>().animator.Play();
+
+            yield return new WaitForSeconds(0.25f);
         }
+    }
+
+    public void DrawCard()
+    {
+        chosenSlot = selectedSlot;
+
+        selectedSlot = null;
     }
 
     public void Refresh()
@@ -94,6 +135,8 @@ public class Draw_Selection : MonoBehaviour
             Destroy(slots.GetChild(i).GetComponent<Draw_Slot>().card.gameObject);
         }
 
-        GenerateCards();
+        SelectedSlot = null;
+
+        StartCoroutine(GenerateCards());
     }
 }

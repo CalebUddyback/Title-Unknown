@@ -42,6 +42,8 @@ public abstract class Card : MonoBehaviour
         public int critical;
         public int defense;
         public int mana;
+        public Vector3 knockBack;
+
     }
     public Stats stats;
 

@@ -1772,30 +1772,6 @@ public class Sakura : Combat_Character
         characterName = "Sakura";
     }
 
-    public override IEnumerator Damage()
-    {
-        //animationController.Clip("Sakura Damaged");
-        animationController.Clip("Move_Hurt");
-        yield return null;
-    }
-
-    public override IEnumerator Block()
-    {
-        animationController.Clip("Sakura Block");
-        yield return animationController.coroutine;
-    }
-
-    public override IEnumerator Dodge()
-    {
-        //animationController.Clip("Sakura Dodge");
-        animationController.Clip("Move_BackDash");
-
-
-        yield return MoveAmount(new Vector3(0.3f * -Facing, 0, 0));
-
-        yield return animationController.coroutine;
-    }
-
     public override IEnumerator CpuDecisionMaking()
     {
         Transform target;
