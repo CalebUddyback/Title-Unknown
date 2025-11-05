@@ -98,7 +98,7 @@ public abstract class Combat_Character : MonoBehaviour, IPointerEnterHandler, IP
 
     public bool blocking = false;
 
-    public bool blockPenalty = true;
+    private bool blockPenalty = false;
 
     public IEnumerator Charging()
     {
@@ -117,11 +117,26 @@ public abstract class Combat_Character : MonoBehaviour, IPointerEnterHandler, IP
 
         // Draw
 
+        bool selectedDraw = Random.Range(0, 100) < 100 ? true : false;
+
         if (firstTurn)
         {
-            yield return hand.GenerateCards(4, false);
+            yield return hand.GenerateCards(5, true);
         }
+        else
+        {
+            //int d = (hand.cards.Count < 5) ? 5 - hand.cards.Count : 1;
 
+            int d = 5;
+
+            if (selectedDraw)
+                d--;
+   
+            yield return hand.GenerateCards(d, !selectedDraw);
+
+            if (selectedDraw)
+                yield return StartCoroutine(TurnController.draw_Selection.ChooseCard());
+        }
 
         if (blocking)
         {
@@ -134,9 +149,8 @@ public abstract class Combat_Character : MonoBehaviour, IPointerEnterHandler, IP
             print("Done");
         }
 
-        yield return StartCoroutine(TurnController.draw_Selection.ChooseCard());
 
-        int restMP = 25;
+        int restMP = 20;
         Mana += restMP;
         Instantiate(outcome_Bubble_Prefab, TurnController.mainCamera.UIPosition(outcome_Bubble_Pos.position), Quaternion.identity, TurnController.damage_Bubbles).Input(restMP, new Color(0, 0.5019608f, 1));
 
@@ -160,15 +174,15 @@ public abstract class Combat_Character : MonoBehaviour, IPointerEnterHandler, IP
     {
         TurnController.endTurnButton.interactable = false;
 
-        if (hand.cardsPlayed == 0)
+        if (hand.cardsPlayed.Count == 0)
         {
 
-            int restMP = 25;
+            int restMP = 20;
             Mana += restMP;
             Instantiate(outcome_Bubble_Prefab, TurnController.mainCamera.UIPosition(outcome_Bubble_Pos.position), Quaternion.identity, TurnController.damage_Bubbles).Input(restMP, new Color(0, 0.5019608f, 1));
         }
 
-        hand.cardsPlayed = 0;
+        hand.cardsPlayed.Clear();
 
         hand.distinctTargets.Add(transform);
 
@@ -180,12 +194,15 @@ public abstract class Combat_Character : MonoBehaviour, IPointerEnterHandler, IP
 
         TurnController.CheckAllCards();
 
-        if (hand.cards.Count > hand.maxCardsInHand)
-        {
-            hand.ResetPreviousSlot();
-            hand.SelectedSlot = null;
-            yield return hand.DiscardCards(hand.cards.Count - hand.maxCardsInHand);
-        }
+        yield return hand.Clear();
+
+        /** Yu-gi-oh style clean up phase **/
+        //if (hand.cards.Count > hand.maxCardsInHand)
+        //{
+        //    hand.ResetPreviousSlot();
+        //    hand.SelectedSlot = null;
+        //    yield return hand.DiscardCards(hand.cards.Count - hand.maxCardsInHand);
+        //}
 
         TurnController.instructions.text = "";
 

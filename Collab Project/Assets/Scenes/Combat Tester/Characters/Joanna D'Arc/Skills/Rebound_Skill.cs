@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Sakura_Skill4 : Card
+public class Rebound_Skill : Card
 {
     public override bool UseCondition()
     {
@@ -12,10 +12,7 @@ public class Sakura_Skill4 : Card
         if (stats.mana > Character.Mana)
             return false;
 
-        if (Character.hand.cardsPlayed.Count < 1)
-            return false;
-
-        if (Character.hand.cards.Count < 2)
+        if (!Character.blocking)
             return false;
 
         return true;
@@ -23,27 +20,30 @@ public class Sakura_Skill4 : Card
 
     public override IEnumerator SetUp()
     {
-        yield return Character.hand.DiscardCards(1);
+        //yield return Character.hand.DiscardCards(1);
 
         yield return CharacterTargeting();
     }
 
     public override IEnumerator Action()
     {
-        int manaAmount = 10;
+        int manaAmount = 20;
 
-        Character.animationController.Clip("Buff");
+        Character.animationController.Clip(animationName);
 
         yield return Character.WaitForKeyFrame();
 
         Character.Mana += manaAmount;
 
+        // Should try to push thorough ApplyOutcome eventually
         Instantiate(Character.outcome_Bubble_Prefab, Character.TurnController.mainCamera.UIPosition(Character.outcome_Bubble_Pos.position), Quaternion.identity, Character.TurnController.damage_Bubbles).Input(manaAmount, new Color(0, 0.5019608f, 1));
 
         GetOutcome(stats, chosen_Targets[0].GetComponent<Combat_Character>());
 
-        yield return new WaitUntil(() => Character.hand.cardRemoved == true);
+        //yield return new WaitUntil(() => Character.hand.cardRemoved == true);
 
         yield return Character.animationController.coroutine;
+
+        Character.animationController.Clip("Block_Set");
     }
 }

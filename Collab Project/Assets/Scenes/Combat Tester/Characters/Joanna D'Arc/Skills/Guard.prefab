@@ -51,12 +51,12 @@ MonoBehaviour:
   hand: {fileID: 0}
   card_Prefab: {fileID: 0}
   displayName: Guard
-  animationName: Stance_Block
+  animationName: Block_Set
   effect: 0
   description: 
   scope: 0
   selection: 0
-  type: 0
+  type: 1
   range: 0
   distance: 0
   chargeTime: 0

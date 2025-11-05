@@ -6,7 +6,7 @@ using TMPro;
 
 public class Card_Prefab: MonoBehaviour
 {
-    public TextMeshProUGUI cardText;
+    public TextMeshProUGUI cardText, manaCost;
 
     public Image locked;
 

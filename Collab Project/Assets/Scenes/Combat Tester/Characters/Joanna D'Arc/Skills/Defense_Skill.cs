@@ -12,6 +12,12 @@ public class Defense_Skill : Card
         if (stats.mana > Character.Mana)
             return false;
 
+        if (Character.hand.cards.Count < 2)
+            return false;
+
+        if (Character.blocking)
+            return false;
+
         return true;
     }
 
@@ -24,7 +30,7 @@ public class Defense_Skill : Card
 
     public override IEnumerator Action()
     {
-        Character.animationController.Clip("Block_Set");
+        Character.animationController.Clip(animationName);
 
         GetOutcome(stats, chosen_Targets[0].GetComponent<Combat_Character>());
 

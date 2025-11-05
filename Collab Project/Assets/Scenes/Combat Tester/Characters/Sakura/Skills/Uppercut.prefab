@@ -64,6 +64,7 @@ MonoBehaviour:
     DamageVariation: {x: 2, y: 4}
     critical: 0
     defense: 0
-    mana: 25
+    mana: 10
+    knockBack: {x: 0, y: 0, z: 0}
   targetQuantity: 1
   chosen_Targets: []

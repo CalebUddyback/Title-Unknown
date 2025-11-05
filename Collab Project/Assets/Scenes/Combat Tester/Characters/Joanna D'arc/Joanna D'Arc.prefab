@@ -260,6 +260,7 @@ MonoBehaviour:
   - {fileID: -6621664565296584972, guid: db1e0cd0855d3064aaa1aafa2c6cf2bb, type: 3}
   - {fileID: -6621664565296584972, guid: bdf0c9b95574791458f61f059d220ce8, type: 3}
   - {fileID: -8288857822269860274, guid: 91065698c07472648a1b3e4c2b2263de, type: 3}
+  - {fileID: 4284417704493868962, guid: 9ca96417936ef614185129024cc514b9, type: 3}
   hand: {fileID: 0}
   doneTurn: 0
   Hud: {fileID: 0}

@@ -8,7 +8,7 @@ using UnityEngine.UI;
 public class Hand : MonoBehaviour
 {
 
-    public bool locked = false;
+    private bool locked = false;
     public bool Locked
     {
         get
@@ -38,7 +38,7 @@ public class Hand : MonoBehaviour
 
     public List<Card> cards;
 
-    public int cardsPlayed = 0;
+    public List<string> cardsPlayed = new List<string>();
 
     public readonly int maxCardsInHand = 7;
 
@@ -97,7 +97,7 @@ public class Hand : MonoBehaviour
 
         StartCoroutine(CardSetUp());
 
-        cardsPlayed++;
+        cardsPlayed.Add(executedSlot.card.displayName);
 
         character.TurnController.endTurnButton.transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = "End Turn";
     }
@@ -133,9 +133,6 @@ public class Hand : MonoBehaviour
 
         Locked = false;
 
-        //distinctTargets.Add(character.transform);
-        //distinctTargets.AddRange(executedSlot.card.chosen_Targets.Select(o => o.transform).Distinct());
-
         distinctTargets.AddRange(executedSlot.card.chosen_Targets);
 
         executedSlot.card.chosen_Targets.Clear();
@@ -143,7 +140,7 @@ public class Hand : MonoBehaviour
         executedSlot = null;
     }
 
-    public IEnumerator GenerateCards(int amount, bool autoLock)
+    public IEnumerator GenerateCards(int amount, bool autoUnlock)
     {
         Locked = true;
 
@@ -166,7 +163,11 @@ public class Hand : MonoBehaviour
 
             int x = Random.Range(0, character.Deck.Length);
 
-            Card newCard = Instantiate(character.Deck[x], new Vector2(newSlot.transform.position.x, newSlot.transform.position.y + 200), Quaternion.identity).GetComponent<Card>();
+            Card newCard = Instantiate(character.Deck[x], new Vector2(newSlot.transform.position.x, newSlot.transform.position.y + 200), Quaternion.identity, transform.parent).GetComponent<Card>();
+
+            float displayScale = 1.2f;
+
+            newCard.transform.localScale = new Vector3(displayScale, displayScale, 1);
 
             newCard.hand = this;
 
@@ -176,6 +177,8 @@ public class Hand : MonoBehaviour
 
             newCard.card_Prefab.locked.gameObject.SetActive(true);
 
+            //yield return new WaitForSeconds(0.2f);
+
             yield return newSlot.RetrieveCard();
 
             cards.Add(newCard);
@@ -183,11 +186,11 @@ public class Hand : MonoBehaviour
             cards = cards.OrderBy(o => o.transform.parent.GetSiblingIndex()).ToList();
         }
 
-        if(autoLock)
+        if(autoUnlock)
             Locked = false;
     }
 
-    public IEnumerator GenerateCards(Card card, int amount, bool autoLock)
+    public IEnumerator GenerateCards(Card card, int amount, bool autoUnlock)
     {
         Locked = true;
 
@@ -221,7 +224,7 @@ public class Hand : MonoBehaviour
             cards = cards.OrderBy(o => o.transform.parent.GetSiblingIndex()).ToList();
         }
 
-        if (autoLock)
+        if (autoUnlock)
         {
             yield return new WaitForSeconds(0.3f);
             Locked = false;
@@ -250,6 +253,15 @@ public class Hand : MonoBehaviour
         cardRemoved = true;
 
         Locked = false;
+    }
+
+    public IEnumerator Clear()
+    {
+        for (int i = 0; i < transform.childCount;)
+        {
+            yield return RemoveCard(transform.GetChild(i).GetComponent<Hand_Slot>());
+            yield return null;
+        }
     }
 
     public IEnumerator DiscardCards(int amount)
@@ -342,6 +354,8 @@ public class Hand : MonoBehaviour
         SelectedSlot.discardButton.gameObject.SetActive(false);
 
         SelectedSlot.card.card_Prefab.transform.localPosition = Vector2.zero;
+
+        SelectedSlot.GetComponent<Canvas>().overrideSorting = false;
     }
 
     public IEnumerator Raise()

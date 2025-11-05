@@ -78,6 +78,8 @@ public class Draw_Selection : MonoBehaviour
     {
         if (turn_Controller.characterTurn.Mana < refreshCost)
             refreshButton.interactable = false;
+        else
+            refreshButton.interactable = true;
     }
 
     private IEnumerator GenerateCards()

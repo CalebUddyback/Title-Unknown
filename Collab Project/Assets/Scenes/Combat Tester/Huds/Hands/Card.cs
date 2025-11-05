@@ -53,6 +53,7 @@ public abstract class Card : MonoBehaviour
 
     public int targetQuantity = 1;
 
+    [HideInInspector]
     public List<Transform> chosen_Targets = new List<Transform>();
 
     public abstract bool UseCondition();
@@ -197,5 +198,6 @@ public abstract class Card : MonoBehaviour
     public void Start()
     {
         card_Prefab.cardText.text = displayName;
+        card_Prefab.manaCost.text = stats.mana.ToString();
     }
 }
