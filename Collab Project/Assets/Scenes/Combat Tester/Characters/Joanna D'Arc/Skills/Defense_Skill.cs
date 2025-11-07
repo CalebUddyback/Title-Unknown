@@ -12,7 +12,7 @@ public class Defense_Skill : Card
         if (stats.mana > Character.Mana)
             return false;
 
-        if (Character.hand.cards.Count < 2)
+        if (Character.hand.cards.Count < discards + 1)
             return false;
 
         if (Character.blocking)
@@ -23,7 +23,7 @@ public class Defense_Skill : Card
 
     public override IEnumerator SetUp()
     {
-        yield return Character.hand.DiscardCards(1);
+        yield return Character.hand.DiscardCards(discards);
 
         yield return CharacterTargeting();
     }

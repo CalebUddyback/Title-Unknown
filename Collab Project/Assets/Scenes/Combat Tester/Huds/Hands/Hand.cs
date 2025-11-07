@@ -27,6 +27,9 @@ public class Hand : MonoBehaviour
 
                 card.card_Prefab.locked.gameObject.SetActive(value);
             }
+
+            if(value == false)
+                StartCoroutine(character.TurnController.Blink());
         }
     }
 
@@ -35,6 +38,8 @@ public class Hand : MonoBehaviour
     public Hand_Slot slot_Prefab;
 
     public Card_Prefab card_Prefab;
+
+    public Vector2 cardSize;
 
     public List<Card> cards;
 
@@ -70,7 +75,7 @@ public class Hand : MonoBehaviour
                 return;
 
             if (selectedSlot != executedSlot)
-                selectedSlot.card.card_Prefab.transform.localPosition = Vector2.up * 24;
+                selectedSlot.card.card_Prefab.transform.localPosition = Vector2.up * 12;
 
             if (discarding && selectedSlot != executedSlot)
             {
@@ -85,6 +90,11 @@ public class Hand : MonoBehaviour
 
     public List<Transform> distinctTargets = new List<Transform>();
 
+    private void Start()
+    {
+        cardSize = card_Prefab.gameObject.GetComponent<RectTransform>().sizeDelta;
+    }
+
     public void ExecuteSelectedCard()
     {
         executedSlot = SelectedSlot;
@@ -93,7 +103,7 @@ public class Hand : MonoBehaviour
 
         executedSlot.executeButton.gameObject.SetActive(false);
 
-        executedSlot.card.card_Prefab.transform.localPosition = Vector2.up * 36;
+        //executedSlot.card.card_Prefab.transform.localPosition = Vector2.up * 36;
 
         StartCoroutine(CardSetUp());
 
@@ -163,7 +173,7 @@ public class Hand : MonoBehaviour
 
             int x = Random.Range(0, character.Deck.Length);
 
-            Card newCard = Instantiate(character.Deck[x], new Vector2(newSlot.transform.position.x, newSlot.transform.position.y + 200), Quaternion.identity, transform.parent).GetComponent<Card>();
+            Card newCard = Instantiate(character.Deck[x], new Vector3(newSlot.GetComponent<RectTransform>().position.x, newSlot.GetComponent<RectTransform>().position.y, newSlot.GetComponent<RectTransform>().position.z), newSlot.transform.rotation, transform.parent).GetComponent<Card>();
 
             float displayScale = 1.2f;
 
@@ -211,7 +221,7 @@ public class Hand : MonoBehaviour
 
             yield return ShiftCards();
 
-            Card newCard = Instantiate(card, new Vector2(newSlot.transform.position.x, newSlot.transform.position.y + 200), Quaternion.identity).GetComponent<Card>();
+            Card newCard = Instantiate(card, new Vector3(newSlot.transform.position.x, newSlot.transform.position.y + 200, newSlot.transform.position.z), Quaternion.identity).GetComponent<Card>();
 
             newCard.hand = this;
 
@@ -301,45 +311,19 @@ public class Hand : MonoBehaviour
 
     }
 
+    [HideInInspector]
+    public float cardSpacing = 10f;
+
     private IEnumerator ShiftCards()
     {
-        int handMinCardCapcity = 5;
-        
-        float cardWidth = 125f;
-
-        float spacing = 5f;
-        
-        if (transform.childCount <= handMinCardCapcity)
-            GetComponent<HorizontalLayoutGroup>().spacing = spacing;
-        else
-        {
-            float cw = (cardWidth / (transform.childCount - 1)) * (transform.childCount - handMinCardCapcity);
-
-            float x = (cardWidth - cw) * (transform.childCount - 1) + cardWidth;
-
-            float y = (cardWidth * handMinCardCapcity) + (spacing * (handMinCardCapcity - 1));
-
-            float sw = (x - y) / (transform.childCount - 1);
-
-            GetComponent<HorizontalLayoutGroup>().spacing = -(cw + sw);
-        }
-
-        yield return null;
-
-
         Coroutine retrieval = null;
 
         for (int r = 0; r < transform.childCount; r++)
         {
-            if (transform.GetChild(r).GetComponent<Hand_Slot>().card == null)
-                continue;
-
             retrieval = StartCoroutine(transform.GetChild(r).GetComponent<Hand_Slot>().RetrieveCard());
         }
 
         yield return retrieval;
-
-        yield return null;
     }
 
     public void ResetPreviousSlot()
@@ -353,9 +337,7 @@ public class Hand : MonoBehaviour
         SelectedSlot.executeButton.gameObject.SetActive(false);
         SelectedSlot.discardButton.gameObject.SetActive(false);
 
-        SelectedSlot.card.card_Prefab.transform.localPosition = Vector2.zero;
-
-        SelectedSlot.GetComponent<Canvas>().overrideSorting = false;
+        SelectedSlot.ResetCard();
     }
 
     public IEnumerator Raise()

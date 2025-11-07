@@ -12,7 +12,7 @@ public class Sakura_Skill4 : Card
         if (stats.mana > Character.Mana)
             return false;
 
-        if (Character.hand.cardsPlayed.Count < 1)
+        if (Character.hand.cards.Count < discards + 1)
             return false;
 
         if (Character.hand.cards.Count < 2)
@@ -23,22 +23,20 @@ public class Sakura_Skill4 : Card
 
     public override IEnumerator SetUp()
     {
-        yield return Character.hand.DiscardCards(1);
+        yield return Character.hand.DiscardCards(discards);
 
         yield return CharacterTargeting();
     }
 
     public override IEnumerator Action()
     {
-        int manaAmount = 10;
-
         Character.animationController.Clip("Buff");
 
         yield return Character.WaitForKeyFrame();
 
-        Character.Mana += manaAmount;
+        Character.Mana += mana;
 
-        Instantiate(Character.outcome_Bubble_Prefab, Character.TurnController.mainCamera.UIPosition(Character.outcome_Bubble_Pos.position), Quaternion.identity, Character.TurnController.damage_Bubbles).Input(manaAmount, new Color(0, 0.5019608f, 1));
+        Instantiate(Character.outcome_Bubble_Prefab, Character.TurnController.mainCamera.UIPosition(Character.outcome_Bubble_Pos.position), Quaternion.identity, Character.TurnController.damage_Bubbles).Input(mana, new Color(0, 0.5019608f, 1));
 
         GetOutcome(stats, chosen_Targets[0].GetComponent<Combat_Character>());
 

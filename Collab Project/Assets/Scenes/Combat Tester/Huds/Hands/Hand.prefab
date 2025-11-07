@@ -55,9 +55,14 @@ MonoBehaviour:
     type: 3}
   card_Prefab: {fileID: 9044226727184429373, guid: 7ef4bfa788a357c4caa29f01be5c2d35,
     type: 3}
+  cardSize: {x: 0, y: 0}
   cards: []
+  cardsPlayed: []
+  discarding: 0
+  cardRemoved: 0
   executedSlot: {fileID: 0}
   distinctTargets: []
+  cardSpacing: 10
 --- !u!114 &7988864709323344906
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -81,8 +86,8 @@ MonoBehaviour:
   m_ChildForceExpandHeight: 0
   m_ChildControlWidth: 0
   m_ChildControlHeight: 0
-  m_ChildScaleWidth: 0
-  m_ChildScaleHeight: 0
+  m_ChildScaleWidth: 1
+  m_ChildScaleHeight: 1
 --- !u!114 &-6496526732546863266
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -96,4 +101,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_HorizontalFit: 1
-  m_VerticalFit: 0
+  m_VerticalFit: 2

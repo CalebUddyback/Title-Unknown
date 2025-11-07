@@ -17,10 +17,12 @@ public class Hand_Slot : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
     {
         if (hand.SelectedSlot != this && hand.executedSlot != this && !hand.Locked)
         {
-            //card.card_Prefab.transform.localPosition = Vector2.up * 12;
+            //card.card_Prefab.transform.localPosition = Vector2.up * 12f;
+            transform.localScale = Vector3.one * 2f;
 
-            card.card_Prefab.transform.localPosition = Vector2.up * 40f;
-            card.card_Prefab.transform.localScale = Vector3.one * 1.5f;
+            GetComponent<RectTransform>().sizeDelta = new Vector2(hand.cardSize.x + hand.cardSpacing + 5, hand.cardSize.y);
+
+            LayoutRebuilder.ForceRebuildLayoutImmediate(transform.parent.GetComponent<RectTransform>());
             GetComponent<Canvas>().overrideSorting = true;
             hand.ResetPreviousSlot();
             hand.SelectedSlot = null;
@@ -31,9 +33,7 @@ public class Hand_Slot : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
     {
         if (hand.SelectedSlot != this && hand.executedSlot != this && !hand.Locked)
         {
-            card.card_Prefab.transform.localPosition = Vector2.zero;
-            card.card_Prefab.transform.localScale = Vector3.one;
-            GetComponent<Canvas>().overrideSorting = false;
+            ResetCard();
         }
     }
 
@@ -55,6 +55,11 @@ public class Hand_Slot : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
 
     public IEnumerator RetrieveCard()
     {
+        if (card == null)
+            yield break;
+
+        GetComponent<RectTransform>().sizeDelta = new Vector2(hand.cardSize.x - hand.cardSpacing, hand.cardSize.y);
+
         card.transform.SetParent(transform);
 
         Vector3 startPos = card.GetComponent<RectTransform>().anchoredPosition;
@@ -79,5 +84,16 @@ public class Hand_Slot : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
         card.GetComponent<RectTransform>().anchoredPosition = targetPos;
 
         card.transform.localScale = Vector3.one;
+
+        yield return null;
+    }
+
+    public void ResetCard()
+    {
+        card.card_Prefab.transform.localPosition = Vector2.zero;
+        transform.localScale = Vector3.one;
+        GetComponent<RectTransform>().sizeDelta = new Vector2(hand.cardSize.x - hand.cardSpacing, hand.cardSize.y);
+        LayoutRebuilder.ForceRebuildLayoutImmediate(transform.parent.GetComponent<RectTransform>());
+        GetComponent<Canvas>().overrideSorting = false;
     }
 }

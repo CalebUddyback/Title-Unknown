@@ -33,14 +33,17 @@ public abstract class Card : MonoBehaviour
 
     public float distance = 0.35f;
 
+    public int discards;
     public int chargeTime;
+
+    public int health;
+    public int mana;
 
     [System.Serializable]
     public class Stats
     {
         public Vector2Int DamageVariation;
         public int critical;
-        public int defense;
         public int mana;
         public Vector3 knockBack;
 
@@ -199,5 +202,52 @@ public abstract class Card : MonoBehaviour
     {
         card_Prefab.cardText.text = displayName;
         card_Prefab.manaCost.text = stats.mana.ToString();
+
+        if (stats.DamageVariation.y > 0)
+        {
+            int dam1 = Character.GetCurrentStats()[Character_Stats.Stat.STR] + stats.DamageVariation.x;
+            int dam2 = Character.GetCurrentStats()[Character_Stats.Stat.STR] + stats.DamageVariation.y;
+
+            GameObject effect = Instantiate(card_Prefab.effects.GetChild(0).gameObject, card_Prefab.effects);
+
+            effect.gameObject.SetActive(true);
+
+            //effect.transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = "Deal " + "<color=red>" + "<b>" + dam1 + " - " + dam2 + "</b>" + "</color>" + " Damage";
+
+            if (stats.DamageVariation.x == stats.DamageVariation.y)
+                effect.transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = "Deal: " + "<b>" + dam2 + "</b>" + " damage";
+            else
+                effect.transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = "Deal: " + "<b>" + dam1 + "-" + dam2 + "</b>" + " damage";
+        }
+
+        if(discards > 0)
+        {
+            GameObject effect = Instantiate(card_Prefab.effects.GetChild(0).gameObject, card_Prefab.effects);
+
+            effect.gameObject.SetActive(true);
+
+            effect.transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = "Discard: " + discards + ((discards > 1) ? " cards" : " card");
+        }
+
+        if (description != "")
+        {
+            GameObject effect = Instantiate(card_Prefab.effects.GetChild(0).gameObject, card_Prefab.effects);
+
+            effect.gameObject.SetActive(true);
+
+            effect.transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = description;
+        }
+
+        if (mana != 0)
+        {
+            string s = (mana > 0) ? "Gain: " : "Lose: ";
+
+            GameObject effect = Instantiate(card_Prefab.effects.GetChild(0).gameObject, card_Prefab.effects);
+
+            effect.gameObject.SetActive(true);
+
+            effect.transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = s + mana + " MP";
+        }
+
     }
 }

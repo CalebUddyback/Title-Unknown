@@ -53,17 +53,19 @@ MonoBehaviour:
   displayName: Guard
   animationName: Block_Set
   effect: 0
-  description: 
+  description: Damage reduces MP instead of HP
   scope: 0
   selection: 0
   type: 1
   range: 0
   distance: 0
+  discards: 1
   chargeTime: 0
+  health: 0
+  mana: 0
   stats:
     DamageVariation: {x: 0, y: 0}
     critical: 0
-    defense: 0
     mana: 0
     knockBack: {x: 0, y: 0, z: 0}
   targetQuantity: 1

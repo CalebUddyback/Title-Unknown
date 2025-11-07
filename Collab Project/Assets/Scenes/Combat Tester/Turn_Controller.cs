@@ -47,6 +47,8 @@ public class Turn_Controller : MonoBehaviour
 
     public Turn_Timeline turn_Timeline;
 
+    public GameObject raycastBlocker;
+
 
     private void Start()
     {
@@ -382,5 +384,12 @@ public class Turn_Controller : MonoBehaviour
                 card.card_Prefab.Usable = card.UseCondition();
             }
         }
+    }
+
+    public IEnumerator Blink()
+    {
+        raycastBlocker.SetActive(true);
+        yield return null;
+        raycastBlocker.SetActive(false);
     }
 }

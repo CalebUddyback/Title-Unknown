@@ -20,14 +20,12 @@ public class Rebound_Skill : Card
 
     public override IEnumerator SetUp()
     {
-        //yield return Character.hand.DiscardCards(1);
-
         yield return CharacterTargeting();
     }
 
     public override IEnumerator Action()
     {
-        int manaAmount = 20;
+        int manaAmount = mana;
 
         Character.animationController.Clip(animationName);
 

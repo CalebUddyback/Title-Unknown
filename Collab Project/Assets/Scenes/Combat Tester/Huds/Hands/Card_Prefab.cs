@@ -14,6 +14,8 @@ public class Card_Prefab: MonoBehaviour
 
     public Animation discardable;
 
+    public Transform effects;
+
     private bool usable;
     public bool Usable
     {

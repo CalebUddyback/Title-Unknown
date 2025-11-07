@@ -59,11 +59,13 @@ MonoBehaviour:
   type: 0
   range: 0
   distance: 0.4
+  discards: 0
   chargeTime: 0
+  health: 0
+  mana: 0
   stats:
-    DamageVariation: {x: 2, y: 5}
+    DamageVariation: {x: 5, y: 5}
     critical: 0
-    defense: 0
     mana: 10
     knockBack: {x: 0, y: 0, z: 0}
   targetQuantity: 1
