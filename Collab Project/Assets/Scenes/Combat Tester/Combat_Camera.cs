@@ -10,6 +10,8 @@ public class Combat_Camera : MonoBehaviour
 
     public SpriteRenderer blackOutSprite, whiteOutSprite;
 
+    public RectTransform hud_Canvas;
+
     public float idleSwaySpeed = 3f;
     public float idleSwayDistance = 0.05f;
 
@@ -32,7 +34,7 @@ public class Combat_Camera : MonoBehaviour
     {
         int direction = 1;
 
-        while (true)
+        while (idleSwaySpeed != 0)
         {
 
             Vector3 startPosition = cam.transform.localPosition;
@@ -47,7 +49,6 @@ public class Combat_Camera : MonoBehaviour
 
             while (elapsedTime < idleSwaySpeed)
             {
-
                 lerp = Mathf.Lerp(0.0f, 1.0f, elapsedTime / idleSwaySpeed);
                 smoothLerp = Mathf.SmoothStep(0.0f, 1.0f, lerp);
                 cam.transform.localPosition = Vector3.Lerp(startPosition, newPosition, smoothLerp);
@@ -233,20 +234,24 @@ public class Combat_Camera : MonoBehaviour
         transform.position = startPos;
     }
 
-
-    public Vector3 UIPosition(Vector3 objectPos)
+    public Vector2 UIPosition(Vector3 objectPos)
     {
-        // Use Bellow if Ui elements should stay within Border around screen
+        Vector2 screenPos = RectTransformUtility.WorldToScreenPoint(cam, objectPos);
 
-        //Vector3 camForward = Character.TurnController.mainCamera.transform.forward;
+        Vector2 border = new Vector2 (30, 30);
 
-        //Vector3 camPos = Character.TurnController.mainCamera.transform.position + camForward;
+        screenPos.x *= hud_Canvas.rect.width / cam.pixelWidth;
 
-        //float distanceInFrontOfCamera = Vector3.Dot(targPos - camPos, camForward);
+        screenPos.y *= hud_Canvas.rect.height / cam.pixelHeight;
 
-        //if (distanceInFrontOfCamera < 0f)
-        //    targPos -= camForward * distanceInFrontOfCamera;
+        Vector2 screenRadi = hud_Canvas.sizeDelta / 2f;
 
-        return RectTransformUtility.WorldToScreenPoint(cam, objectPos);
+        screenPos -= screenRadi;
+
+        screenPos.x = Mathf.Clamp(screenPos.x, -(screenRadi.x - border.x), screenRadi.x - border.x);
+
+        screenPos.y = Mathf.Clamp(screenPos.y, -(screenRadi.y - border.y), screenRadi.y - border.y);
+
+        return screenPos;
     }
 }

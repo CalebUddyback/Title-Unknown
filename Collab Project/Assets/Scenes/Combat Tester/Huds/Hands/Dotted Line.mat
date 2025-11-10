@@ -27,6 +27,6 @@ Material:
     m_Floats:
     - Boolean_5E897317: 1
     - Vector1_B277C0EF: 2.5
-    - _TilingAmount: 34
+    - _TilingAmount: 3
     m_Colors:
-    - Color_706908D1: {r: 1, g: 0.8217633, b: 0.2783019, a: 0}
+    - Color_706908D1: {r: 1, g: 1, b: 1, a: 0}

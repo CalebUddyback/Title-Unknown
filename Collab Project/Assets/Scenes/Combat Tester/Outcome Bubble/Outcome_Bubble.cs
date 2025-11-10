@@ -11,6 +11,8 @@ public class Outcome_Bubble : MonoBehaviour
 
     public TMP_ColorGradient heal_Color;
 
+    private Color invisible = new Color(0, 0, 0, 0);
+
     public Coroutine coroutine;
 
     private void Awake()
@@ -33,48 +35,25 @@ public class Outcome_Bubble : MonoBehaviour
         //Input(100);
     }
 
-    public void Input(int num)
-    {
-        Input(num, "", Color.white);
-    }
-
     public void Input(int num, Color clr)
     {
-        Input(num, "", clr);
-    }
-
-    public void Input(string str)
-    {
-        Input(0, str, Color.white);
+        Input(num, clr, "", invisible);
     }
 
     public void Input(string str, Color clr)
     {
-        Input(0, str, clr);
+        Input(0, invisible, str, clr);
     }
 
-    public void Input(int num, string str, Color clr)
+    public void Input(int num, Color numClr, string str, Color strClr)
     {
-        num = Mathf.Clamp(num, -999, 999);
-
-        if (num > 0 && clr == Color.white)
+    
+        foreach (Transform digit in INT_canvas.transform)
         {
-            foreach (Transform digit in INT_canvas.transform)
-            {
-                digit.GetComponent<TextMeshProUGUI>().colorGradientPreset = heal_Color;
-            }
-
-            STRING_canvas.transform.GetChild(0).GetComponent<TextMeshProUGUI>().colorGradientPreset = heal_Color;
+            digit.GetComponent<TextMeshProUGUI>().color = numClr;
         }
-        else
-        {
-            foreach (Transform digit in INT_canvas.transform)
-            {
-                digit.GetComponent<TextMeshProUGUI>().color = clr;
-            }
 
-            STRING_canvas.transform.GetChild(0).GetComponent<TextMeshProUGUI>().color = clr;
-        }
+        STRING_canvas.transform.GetChild(0).GetComponent<TextMeshProUGUI>().color = strClr;
 
         numText = Mathf.Abs(num).ToString();
 

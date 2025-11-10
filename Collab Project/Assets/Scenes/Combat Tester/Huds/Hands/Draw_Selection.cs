@@ -43,7 +43,7 @@ public class Draw_Selection : MonoBehaviour
 
     public Button drawButton, refreshButton;
 
-    private readonly int refreshCost = 5;
+    private readonly int refreshCost = -5;
 
     public void Awake()
     {
@@ -60,9 +60,17 @@ public class Draw_Selection : MonoBehaviour
 
         gameObject.SetActive(false);
 
-        chosenSlot.card.card_Prefab.usableIMG.gameObject.SetActive(true);
+        chosenSlot.card.usableIMG.gameObject.SetActive(true);
 
-        yield return turn_Controller.characterTurn.hand.GenerateCards(chosenSlot.card, 1, true);
+        Hand_Slot slot = turn_Controller.characterTurn.hand.CreateSlot();
+
+        slot.card = chosenSlot.card;
+
+        yield return null;
+
+        yield return turn_Controller.characterTurn.hand.ShiftCards();
+
+        yield return slot.RetrieveCard();
 
         chosenSlot.GetComponent<Image>().color = Color.grey;
 
@@ -76,7 +84,7 @@ public class Draw_Selection : MonoBehaviour
 
     private void OnEnable()
     {
-        if (turn_Controller.characterTurn.Mana < refreshCost)
+        if (turn_Controller.characterTurn.Mana() < refreshCost)
             refreshButton.interactable = false;
         else
             refreshButton.interactable = true;
@@ -92,7 +100,7 @@ public class Draw_Selection : MonoBehaviour
 
             do
             {
-                r = Random.Range(0, turn_Controller.characterTurn.Deck.Length);
+                r = Random.Range(0, turn_Controller.characterTurn.hand.drawDeck.Count);
             }
             while (x.Contains(r) && !allowDuplicates);
 
@@ -101,15 +109,15 @@ public class Draw_Selection : MonoBehaviour
 
         for (int i = 0; i < x.Length; i++)
         {
-            Card card = Instantiate(turn_Controller.characterTurn.Deck[x[i]], slots.GetChild(i)).GetComponent<Card>();
+            Card card = Instantiate(turn_Controller.characterTurn.hand.card_Prefab, slots.GetChild(i)).GetComponent<Card>();
+
+            card.hand = turn_Controller.characterTurn.hand;
 
             card.transform.SetSiblingIndex(slots.GetChild(i).childCount - 2);
 
-            card.card_Prefab = Instantiate(turn_Controller.characterTurn.hand.card_Prefab, card.transform).GetComponent<Card_Prefab>();
+            card.usableIMG.gameObject.SetActive(false);
 
-            card.card_Prefab.usableIMG.gameObject.SetActive(false);
-
-            slots.GetChild(i).GetComponent<Draw_Slot>().card = card;
+            slots.GetChild(i).GetComponent<Draw_Slot>().card.skill = turn_Controller.characterTurn.hand.drawDeck[x[i]].skill;
 
             slots.GetChild(i).GetComponent<Draw_Slot>().animator.Play();
 
@@ -127,9 +135,9 @@ public class Draw_Selection : MonoBehaviour
     public void Refresh()
     {
 
-        turn_Controller.characterTurn.Mana -= refreshCost;
+        turn_Controller.characterTurn.Mana(refreshCost, false);
 
-        if (turn_Controller.characterTurn.Mana < refreshCost)
+        if (turn_Controller.characterTurn.Mana() < refreshCost)
             refreshButton.interactable = false;
 
         for (int i = 0; i < transform.childCount; i++)

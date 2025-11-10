@@ -16,6 +16,6 @@ MonoBehaviour:
   max_Mana: 100
   initiative: 20
   speed: 20
-  strength: 5
+  strength: 0
   critical: 0
   luck: 10

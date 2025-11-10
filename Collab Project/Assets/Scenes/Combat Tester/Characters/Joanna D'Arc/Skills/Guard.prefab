@@ -48,8 +48,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87268f766288670468aed9c0bfc958c2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hand: {fileID: 0}
-  card_Prefab: {fileID: 0}
   displayName: Guard
   animationName: Block_Set
   effect: 0
@@ -58,15 +56,15 @@ MonoBehaviour:
   selection: 0
   type: 1
   range: 0
-  distance: 0
-  discards: 1
+  discards: 2
   chargeTime: 0
-  health: 0
-  mana: 0
+  targetQuantity: 1
   stats:
+    distance: 0
     DamageVariation: {x: 0, y: 0}
     critical: 0
-    mana: 0
+    manaCost: 0
     knockBack: {x: 0, y: 0, z: 0}
-  targetQuantity: 1
+  health: 0
+  mana: 0
   chosen_Targets: []

@@ -25,10 +25,10 @@ public abstract class Combat_Character : MonoBehaviour, IPointerEnterHandler, IP
     public enum Phase {Waiting, Draw, Main, Action, End}
     public Phase currentPhase = Phase.Waiting;
 
-    public Card[] Deck;
+    public Transform skills;
 
     [HideInInspector]
-    public Hand hand;
+    public Decks hand;
 
     public int Facing { get; set; } = 1;
 
@@ -47,64 +47,109 @@ public abstract class Combat_Character : MonoBehaviour, IPointerEnterHandler, IP
 
     private int health;
 
-    public int Health
+    public int InitialHealth
     {
-        get
-        {
-            return health;
-        }
         set
         {
-            int former = health;
-
-            health = value;
-
-            if (health <= 0)
-            {
-                health = 0;
-                Defeated = true;
-            }
-
-            if (health > character_Stats.max_Health)
-                health = character_Stats.max_Health;
-
-            Hud.healthBar.Adjust(former, health);
+            health = value;  
         }
     }
 
+    public int Health()
+    {
+        return health;
+    }
+
+    public void Health(int change, float mutiplier)
+    {
+        int former = health;
+
+        health += change;
+
+        Outcome_Bubble bubble = Instantiate(outcome_Bubble_Prefab, TurnController.damage_Bubbles);
+        bubble.GetComponent<RectTransform>().anchoredPosition = TurnController.mainCamera.UIPosition(outcome_Bubble_Pos.position);
+
+        if(change <= 0)
+        {
+            if (mutiplier > 1)
+            {
+                bubble.Input(change, Color.yellow, "CRITICAL", Color.yellow);
+                TurnController.mainCamera.WhiteOut(this, this, 0.25f * mutiplier);
+            }
+            else
+            {
+                bubble.Input(change, Color.red);
+            }
+        }
+        else
+        {
+            bubble.Input(change, Color.green);
+        }
+
+        if (health <= 0)
+        {
+            health = 0;
+            Defeated = true;
+        }
+
+        if (health > character_Stats.max_Health)
+            health = character_Stats.max_Health;
+
+        Hud.healthBar.Adjust(former, health);
+    }
+
+
     private int mana;
 
-    public int Mana
+    public int InitialMana
     {
-        get
-        {
-            return mana;
-        }
         set
         {
-            int former = mana;
-
             mana = value;
-
-            if (mana <= 0)
-                mana = 0;
-            
-            if (mana > character_Stats.max_Mana)
-                mana = character_Stats.max_Mana;
-
-            Hud.manaBar.Adjust(former, mana);
         }
+    }
+
+    public int Mana()
+    {
+        return mana;
+    }
+
+    public void Mana(int change, bool show)
+    {
+        int former = mana;
+
+        mana += change;
+
+        if (show)
+        {
+            Outcome_Bubble bubble = Instantiate(outcome_Bubble_Prefab, TurnController.damage_Bubbles);
+            bubble.GetComponent<RectTransform>().anchoredPosition = TurnController.mainCamera.UIPosition(outcome_Bubble_Pos.position);
+
+            if (change > 0)
+                bubble.Input(change, new Color(0, 0.5019608f, 1));
+            else
+                bubble.Input(change, Color.white);
+
+
+
+        }
+
+        if (mana > character_Stats.max_Mana)
+            mana = character_Stats.max_Mana;
+
+        Hud.manaBar.Adjust(former, mana);
     }
 
     public bool blocking = false;
 
     private bool blockPenalty = false;
 
+
     public IEnumerator Charging()
     {
         Hud.timer_ChargeIndicator.SetActive(true);
 
-        yield return Hud.ScrollTimerTo(hand.SelectedSlot.card.chargeTime);
+        yield return Hud.ScrollTimerTo(hand.SelectedSlot.card.skill.chargeTime);
     }
 
     public IEnumerator StartTurn()
@@ -121,7 +166,7 @@ public abstract class Combat_Character : MonoBehaviour, IPointerEnterHandler, IP
 
         if (firstTurn)
         {
-            yield return hand.GenerateCards(5, true);
+            yield return hand.DrawCards(5, true);
         }
         else
         {
@@ -132,7 +177,7 @@ public abstract class Combat_Character : MonoBehaviour, IPointerEnterHandler, IP
             if (selectedDraw)
                 d--;
    
-            yield return hand.GenerateCards(d, !selectedDraw);
+            yield return hand.DrawCards(d, !selectedDraw);
 
             if (selectedDraw)
                 yield return StartCoroutine(TurnController.draw_Selection.ChooseCard());
@@ -150,9 +195,8 @@ public abstract class Combat_Character : MonoBehaviour, IPointerEnterHandler, IP
         }
 
 
-        int restMP = 20;
-        Mana += restMP;
-        Instantiate(outcome_Bubble_Prefab, TurnController.mainCamera.UIPosition(outcome_Bubble_Pos.position), Quaternion.identity, TurnController.damage_Bubbles).Input(restMP, new Color(0, 0.5019608f, 1));
+        int startMP = 20;
+        Mana(startMP, true);
 
         currentPhase = Phase.Draw;
 
@@ -178,8 +222,7 @@ public abstract class Combat_Character : MonoBehaviour, IPointerEnterHandler, IP
         {
 
             int restMP = 20;
-            Mana += restMP;
-            Instantiate(outcome_Bubble_Prefab, TurnController.mainCamera.UIPosition(outcome_Bubble_Pos.position), Quaternion.identity, TurnController.damage_Bubbles).Input(restMP, new Color(0, 0.5019608f, 1));
+            Mana(restMP, true);
         }
 
         hand.cardsPlayed.Clear();
@@ -193,6 +236,8 @@ public abstract class Combat_Character : MonoBehaviour, IPointerEnterHandler, IP
         currentPhase = Phase.End;
 
         TurnController.CheckAllCards();
+
+        hand.ResetPreviousSlot();
 
         yield return hand.Clear();
 
@@ -416,12 +461,14 @@ public abstract class Combat_Character : MonoBehaviour, IPointerEnterHandler, IP
         damage *= -1;
         damage *= critical;
 
-        //critical = 3;
+        damage = Mathf.Clamp(damage, -999, 999); // outcome bubble can only display 3 digits
+
+        // damage should NOT be changed beyond this point
 
         switch (success)
         {
             case 0:
-                Instantiate(outcome_Bubble_Prefab, TurnController.mainCamera.UIPosition(Enemy.outcome_Bubble_Pos.position), Quaternion.identity, TurnController.damage_Bubbles).Input("MISS");
+                Instantiate(outcome_Bubble_Prefab, TurnController.mainCamera.UIPosition(Enemy.outcome_Bubble_Pos.position), Quaternion.identity, TurnController.damage_Bubbles).Input("MISS", Color.white);
                 yield return StartCoroutine(enemyTransform.GetComponent<Combat_Character>().Dodge());
                 break;
 
@@ -429,10 +476,7 @@ public abstract class Combat_Character : MonoBehaviour, IPointerEnterHandler, IP
 
                 if (Enemy.blocking)
                 {
-                    if(blockPenalty)
-                        damage *= 2;
-
-                    if (Enemy.Mana + damage <= 0)
+                    if (Enemy.Mana() + damage <= 0)
                     {
                         Enemy.animationController.Clip("Block_Break");
                         Enemy.blocking = false;
@@ -440,11 +484,10 @@ public abstract class Combat_Character : MonoBehaviour, IPointerEnterHandler, IP
                     else
                         StartCoroutine(Enemy.Block());
 
-                    Enemy.Mana += damage;
+                    Enemy.Mana(damage, true);
                 }
                 else
                 {
-                    Enemy.Health += damage;
 
                     if (TurnController.left_Players.Contains(this))
                         TurnController.left_Combo_Counter.SetComboCount();
@@ -453,16 +496,9 @@ public abstract class Combat_Character : MonoBehaviour, IPointerEnterHandler, IP
 
                     StartCoroutine(Enemy.Damage());
                     yield return null;
-                }
 
-                if (critical != 1)
-                {
-                    Instantiate(outcome_Bubble_Prefab, TurnController.mainCamera.UIPosition(Enemy.outcome_Bubble_Pos.position), Quaternion.identity, TurnController.damage_Bubbles).Input(damage, "CRITICAL", Color.red);
-                    //Instantiate(outcome_Bubble_Prefab, TurnController.mainCamera.UIPosition(Enemy.outcome_Bubble_Pos.position), Quaternion.identity, TurnController.damage_Bubbles).Input(damage, Color.red);
-                    TurnController.mainCamera.WhiteOut(this, Enemy, 0.25f * critical);
+                    Enemy.Health(damage, critical);
                 }
-                else
-                    Instantiate(outcome_Bubble_Prefab, TurnController.mainCamera.UIPosition(Enemy.outcome_Bubble_Pos.position), Quaternion.identity, TurnController.damage_Bubbles).Input(damage);
 
 
                 yield return Impact(0.25f * critical);
@@ -564,20 +600,23 @@ public abstract class Combat_Character : MonoBehaviour, IPointerEnterHandler, IP
             }
         }
 
-        currentStats[Character_Stats.Stat.STR] += weapon.attack;
-        currentStats[Character_Stats.Stat.CRT] += weapon.critical;
+        if(weapon != null)
+        {
+            currentStats[Character_Stats.Stat.STR] += weapon.attack;
+            currentStats[Character_Stats.Stat.CRT] += weapon.critical;
+        }
 
         return currentStats;
     }
 
-    public Dictionary<Character_Stats.Stat, int> GetCurrentStats(Card.Stats stats)
+    public Dictionary<Character_Stats.Stat, int> GetCurrentStats(Skill skill)
     {
         var currentStats = GetCurrentStats();
 
-        int attack = Random.Range(stats.DamageVariation.x, stats.DamageVariation.y + 1);
+        int attack = Random.Range(skill.intervals.DamageVariation.x, skill.intervals.DamageVariation.y + 1);
 
         currentStats[Character_Stats.Stat.STR] += attack;
-        currentStats[Character_Stats.Stat.CRT] += stats.critical;
+        currentStats[Character_Stats.Stat.CRT] += skill.critical;
 
         return currentStats;
     }

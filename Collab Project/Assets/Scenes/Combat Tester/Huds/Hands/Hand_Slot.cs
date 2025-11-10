@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 public class Hand_Slot : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
 {
-    public Hand hand;
+    public Decks hand;
 
     public Card card;
 
@@ -17,10 +17,11 @@ public class Hand_Slot : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
     {
         if (hand.SelectedSlot != this && hand.executedSlot != this && !hand.Locked)
         {
-            //card.card_Prefab.transform.localPosition = Vector2.up * 12f;
+            //card.GetComponent<RectTransform>().anchoredPosition  = Vector2.up * 12f;        
             transform.localScale = Vector3.one * 2f;
 
             GetComponent<RectTransform>().sizeDelta = new Vector2(hand.cardSize.x + hand.cardSpacing + 5, hand.cardSize.y);
+            card.GetComponent<RectTransform>().localRotation = Quaternion.Euler(0, 0, 0);
 
             LayoutRebuilder.ForceRebuildLayoutImmediate(transform.parent.GetComponent<RectTransform>());
             GetComponent<Canvas>().overrideSorting = true;
@@ -69,7 +70,7 @@ public class Hand_Slot : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
         Vector3 targetPos = Vector3.zero;
 
         float timer = 0;
-        float maxTime = 0.15f;
+        float maxTime = 0.3f;
 
         while (timer < maxTime)
         {
@@ -90,7 +91,12 @@ public class Hand_Slot : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
 
     public void ResetCard()
     {
-        card.card_Prefab.transform.localPosition = Vector2.zero;
+        if (card != null)
+        {
+            card.GetComponent<RectTransform>().anchoredPosition = Vector2.zero;
+            card.GetComponent<RectTransform>().localRotation *= Quaternion.Euler(0, -1, 0);
+        }
+
         transform.localScale = Vector3.one;
         GetComponent<RectTransform>().sizeDelta = new Vector2(hand.cardSize.x - hand.cardSpacing, hand.cardSize.y);
         LayoutRebuilder.ForceRebuildLayoutImmediate(transform.parent.GetComponent<RectTransform>());

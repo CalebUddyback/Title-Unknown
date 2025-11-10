@@ -10,13 +10,14 @@ public class DescriptionBox : MonoBehaviour
     public TextMeshProUGUI title;
     public TextMeshProUGUI ATK_Label, ATK_Num, ATK_Mult, HIT_Label, HIT_Num, CRT_Label, CRT_Num, REC_Label, REC_Num, MP_Label, MP_Num;
     public TextMeshProUGUI type;
+
     [SerializeField]
-    private TextMeshProUGUI description;
+    public TextMeshProUGUI description;
 
     private string[] keywords = { "charge", "heal", "increase", "decrease", "hp", "second(s)"};
     private char[] endPunc = { '.', ',', ';' };
 
-    public void Description(Card card)
+    public void Description(Skill card)
     {
         title.text = card.displayName;
     
@@ -38,14 +39,14 @@ public class DescriptionBox : MonoBehaviour
         REC_Num.color = Color.white;
     
     
-        MP_Num.text = card.stats.mana.ToString();
+        MP_Num.text = card.intervals.manaCost.ToString();
     
     
         //ATK_Num.text = Mathf.Abs(skill.Character.GetCombatStats(skill.skill_Stats)[Character_Stats.Stat.ATK]).ToString();
     
         //HIT_Num.text = skill.skill_Stats.accuracy != 0 ? skill.skill_Stats.accuracy.ToString() : "-";
     
-        CRT_Num.text = card.stats.critical != 0 ? card.stats.critical.ToString() : "-";
+        CRT_Num.text = card.intervals.critical != 0 ? card.intervals.critical.ToString() : "-";
     
         //dBox.CRT_Num.text = combat_Character.character_Stats.GetCombatStats(skill.skill_Stats[0])[Character_Stats.Stat.Crit].ToString();
     

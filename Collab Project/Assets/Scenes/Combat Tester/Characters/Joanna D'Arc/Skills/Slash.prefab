@@ -48,8 +48,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c8f2b80f1e4f1ad4f8be4b1942747ebe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hand: {fileID: 0}
-  card_Prefab: {fileID: 0}
   displayName: Slash
   animationName: Attack_Light
   effect: 0
@@ -61,12 +59,12 @@ MonoBehaviour:
   distance: 0.4
   discards: 0
   chargeTime: 0
-  health: 0
-  mana: 0
   stats:
     DamageVariation: {x: 5, y: 5}
     critical: 0
-    mana: 10
+    manaCost: -10
     knockBack: {x: 0, y: 0, z: 0}
+  health: 0
+  mana: 0
   targetQuantity: 1
   chosen_Targets: []

@@ -2,14 +2,14 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Sakura_Skill1: Card
+public class Sakura_Skill1: Skill
 {
     public override bool UseCondition()
     {
         if (Character.currentPhase != Combat_Character.Phase.Main)
             return false;
 
-        if (stats.mana > Character.Mana)
+        if (manaCost > Character.Mana())
             return false;
 
         return true;
@@ -38,7 +38,7 @@ public class Sakura_Skill1: Card
 
         yield return Character.TurnController.mainCamera.MovingTo(camTargetPos, 0.5f);
 
-        yield return Character.MoveInRange(new Vector3(-distance, 0, 0));
+        yield return Character.MoveInRange(new Vector3(-(intervals.distance), 0, 0));
 
         Character.animationController.Clip(animationName);
 
@@ -49,9 +49,9 @@ public class Sakura_Skill1: Card
         CoroutineWithData cwd = new CoroutineWithData(Character, Character.TurnController.Reactions(Turn_Controller.Stage.IMPACT));
         yield return cwd.coroutine;
 
-        GetOutcome(stats, chosen_Targets[0].GetComponent<Combat_Character>());
+        GetOutcome(intervals, chosen_Targets[0].GetComponent<Combat_Character>());
 
-        Coroutine knockback = Character.StartCoroutine(Character.enemyTransform.GetComponent<Combat_Character>().MoveAmount(new Vector3(stats.knockBack.x * Character.Facing, stats.knockBack.y, stats.knockBack.z), 0.1f));
+        Coroutine knockback = Character.StartCoroutine(Character.enemyTransform.GetComponent<Combat_Character>().MoveAmount(new Vector3(intervals.knockBack.x * Character.Facing, intervals.knockBack.y, intervals.knockBack.z), 0.1f));
 
         //CritSuccess = 3;
 
@@ -64,7 +64,7 @@ public class Sakura_Skill1: Card
 
                 print("Continue");
 
-                outcome = Character.StartCoroutine(Character.ApplyOutcome(HitSuccess, CritSuccess, Character.GetCurrentStats(stats)[Character_Stats.Stat.STR]));
+                outcome = Character.StartCoroutine(Character.ApplyOutcome(HitSuccess, CritSuccess, Character.GetCurrentStats(this)[Character_Stats.Stat.STR]));
 
                 yield return Character.animationController.coroutine;
 

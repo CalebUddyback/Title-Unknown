@@ -23,7 +23,7 @@ public class Turn_Controller : MonoBehaviour
 
     public Transform all_Hands;
 
-    public GameObject handPrefab;
+    public GameObject hand_Prefab;
 
     public Draw_Selection draw_Selection;
 
@@ -109,13 +109,15 @@ public class Turn_Controller : MonoBehaviour
             character.Hud.diplayName.text = character.gameObject.name;
             character.Hud.TurnController = this;
 
-            character.Health = character.character_Stats.max_Health; // remove this line for persistant stats
-            character.Hud.healthBar.Initialize(character.Health, character.character_Stats.max_Health); 
+            character.InitialHealth = character.character_Stats.max_Health; // remove this line for persistant stats
+            character.Hud.healthBar.Initialize(character.Health(), character.character_Stats.max_Health); 
 
-            character.Mana = character.character_Stats.max_Mana;
-            character.Hud.manaBar.Initialize(character.Mana, character.character_Stats.max_Mana);
+            character.InitialMana = character.character_Stats.max_Mana;
+            character.Hud.manaBar.Initialize(character.Mana(), character.character_Stats.max_Mana);
 
-            Hand newHand = Instantiate(handPrefab, all_Hands).GetComponent<Hand>();
+            Decks newHand = Instantiate(hand_Prefab, all_Hands).GetComponent<Decks>();
+
+            newHand.gameObject.gameObject.SetActive(false);
 
             character.hand = newHand;
 
@@ -165,7 +167,7 @@ public class Turn_Controller : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            StartCoroutine(characterTurn.hand.GenerateCards(1, true));
+            StartCoroutine(characterTurn.hand.DrawCards(1, true));
         }
     }
 
@@ -286,7 +288,7 @@ public class Turn_Controller : MonoBehaviour
     {
         yield return new WaitForSeconds(0.4f);
 
-        descriptionBox.container.SetActive(false);
+        //descriptionBox.container.SetActive(false);
 
         left_Combo_Counter.ResetComboCount();
 
@@ -379,9 +381,9 @@ public class Turn_Controller : MonoBehaviour
     {
         foreach(Combat_Character character in all_Players)
         {
-            foreach (Card card in character.hand.cards)
+            foreach (Card card_Prefab in character.hand.hand)
             {
-                card.card_Prefab.Usable = card.UseCondition();
+                card_Prefab.Usable = card_Prefab.skill.UseCondition();
             }
         }
     }

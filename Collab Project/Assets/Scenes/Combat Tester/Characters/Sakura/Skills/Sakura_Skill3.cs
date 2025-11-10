@@ -2,14 +2,14 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Sakura_Skill3 : Card
+public class Sakura_Skill3 : Skill
 {
     public override bool UseCondition()
     {
         if (Character.currentPhase != Combat_Character.Phase.Main)
             return false;
 
-        if (stats.mana > Character.Mana)
+        if (manaCost > Character.Mana())
             return false;
 
         return true;
@@ -29,11 +29,11 @@ public class Sakura_Skill3 : Card
         // Should try to push thorough ApplyOutcome eventually
 
 
-        GetOutcome(stats, chosen_Targets[0].GetComponent<Combat_Character>());
+        GetOutcome(intervals, chosen_Targets[0].GetComponent<Combat_Character>());
 
         yield return new WaitUntil(() => Character.hand.cardRemoved == true);
 
-        yield return Character.hand.GenerateCards(2, true);
+        yield return Character.hand.DrawCards(2, true);
 
         yield return Character.animationController.coroutine;
     }

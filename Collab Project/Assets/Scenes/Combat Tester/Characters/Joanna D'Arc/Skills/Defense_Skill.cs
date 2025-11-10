@@ -2,17 +2,17 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Defense_Skill : Card
+public class Defense_Skill : Skill
 {
     public override bool UseCondition()
     {
         if (Character.currentPhase != Combat_Character.Phase.Main)
             return false;
 
-        if (stats.mana > Character.Mana)
+        if (manaCost > Character.Mana())
             return false;
 
-        if (Character.hand.cards.Count < discards + 1)
+        if (Character.hand.hand.Count < discards + 1)
             return false;
 
         if (Character.blocking)
@@ -32,7 +32,7 @@ public class Defense_Skill : Card
     {
         Character.animationController.Clip(animationName);
 
-        GetOutcome(stats, chosen_Targets[0].GetComponent<Combat_Character>());
+        GetOutcome(intervals, chosen_Targets[0].GetComponent<Combat_Character>());
 
         Character.blocking = true;
 

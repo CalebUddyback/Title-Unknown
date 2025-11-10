@@ -6,7 +6,7 @@ public class Target_Manager : MonoBehaviour
 {
     public List<Combat_Character> elligbleTargets;
 
-    public Card.Selection selection;
+    public Skill.Selection selection;
 
     private Targetable hovering;
 
