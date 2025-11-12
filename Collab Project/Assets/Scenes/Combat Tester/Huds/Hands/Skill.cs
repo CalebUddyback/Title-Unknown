@@ -26,22 +26,21 @@ public abstract class Skill : MonoBehaviour
 
     [Header("Requirements")]
 
-    public int discards;
+    public bool discard;
     public int chargeTime;
     public int targetQuantity = 1;
 
     [Header("Stats")]
 
-    public int critical;
     public int manaCost;
+    public Vector2Int DamageVariation;
+    public int critical;
 
     [System.Serializable]
     public class Intervals
     {
         public float distance = 0.35f;
-        public Vector2Int DamageVariation;
         public Vector3 knockBack;
-
     }
     public Intervals intervals;
 
@@ -67,6 +66,25 @@ public abstract class Skill : MonoBehaviour
             manaCost *= -1;
             Debug.LogWarning("Positive values are not allowed for 'Mana Cost'");
         }
+
+        if (DamageVariation.x < 0)
+        {
+            DamageVariation.x *= -1;
+            Debug.LogWarning("Positive values are not allowed for 'DamageVariation.x'");
+        }
+
+        if (DamageVariation.y < 0)
+        {
+            DamageVariation.y *= -1;
+            Debug.LogWarning("Positive values are not allowed for 'DamageVariation.y'");
+        }
+
+        if (DamageVariation.y < DamageVariation.x)
+        {
+            DamageVariation.x = DamageVariation.y;
+            Debug.LogWarning("DamageVariation.y' cannot be lower than 'DamageVariation.x'");
+        }
+
     }
 
     public IEnumerator CharacterTargeting()
@@ -183,9 +201,11 @@ public abstract class Skill : MonoBehaviour
         HideTargets();
     }
 
-    public abstract IEnumerator Action();
+    public abstract IEnumerator Execute();
 
-    public void GetOutcome(Intervals stats, Combat_Character target)
+    public abstract IEnumerator Resolve();
+
+    public void GetOutcome(Combat_Character target)
     {
         int critRoll = Random.Range(0, 100);
 

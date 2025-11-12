@@ -13,10 +13,7 @@ public class AnimationController : MonoBehaviour
 
     public void Clip(string trigger)
     {
-        if (trigger != "Idle" || trigger != "Block_Hold")
-            coroutine = StartCoroutine(Playing(trigger));
-        else
-            StartCoroutine(Playing(trigger));
+        coroutine = StartCoroutine(Playing(trigger));
     }
 
     public void Pause()
@@ -35,7 +32,11 @@ public class AnimationController : MonoBehaviour
 
         yield return null;
 
-        yield return new WaitWhile(() => GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).normalizedTime <= 1);
+        //yield return new WaitWhile(() => GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).normalizedTime <= 1);
+
+        yield return new WaitForSeconds(GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).length);
+
+        eventFrame = false;
     }
 
     public void EventFrame()

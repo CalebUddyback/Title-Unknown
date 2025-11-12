@@ -39,14 +39,14 @@ public class DescriptionBox : MonoBehaviour
         REC_Num.color = Color.white;
     
     
-        MP_Num.text = card.intervals.manaCost.ToString();
+        //MP_Num.text = card.intervals.manaCost.ToString();
     
     
         //ATK_Num.text = Mathf.Abs(skill.Character.GetCombatStats(skill.skill_Stats)[Character_Stats.Stat.ATK]).ToString();
     
         //HIT_Num.text = skill.skill_Stats.accuracy != 0 ? skill.skill_Stats.accuracy.ToString() : "-";
     
-        CRT_Num.text = card.intervals.critical != 0 ? card.intervals.critical.ToString() : "-";
+        //CRT_Num.text = card.intervals.critical != 0 ? card.intervals.critical.ToString() : "-";
     
         //dBox.CRT_Num.text = combat_Character.character_Stats.GetCombatStats(skill.skill_Stats[0])[Character_Stats.Stat.Crit].ToString();
     

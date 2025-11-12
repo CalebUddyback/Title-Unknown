@@ -44,10 +44,10 @@ public class Card: MonoBehaviour
         cardText.text = skill.displayName;
         manaCost.text = Mathf.Abs(skill.manaCost).ToString();
 
-        if (skill.intervals.DamageVariation.y > 0)
+        if (skill.DamageVariation.y > 0)
         {
-            int dam1 = skill.Character.GetCurrentStats()[Character_Stats.Stat.STR] + skill.intervals.DamageVariation.x;
-            int dam2 = skill.Character.GetCurrentStats()[Character_Stats.Stat.STR] + skill.intervals.DamageVariation.y;
+            int dam1 = skill.Character.GetCurrentStats()[Character_Stats.Stat.STR] + skill.DamageVariation.x;
+            int dam2 = skill.Character.GetCurrentStats()[Character_Stats.Stat.STR] + skill.DamageVariation.y;
 
             GameObject effect = Instantiate(effects.GetChild(0).gameObject, effects);
 
@@ -55,19 +55,19 @@ public class Card: MonoBehaviour
 
             //effect.transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = "Deal " + "<color=red>" + "<b>" + dam1 + " - " + dam2 + "</b>" + "</color>" + " Damage";
 
-            if (skill.intervals.DamageVariation.x == skill.intervals.DamageVariation.y)
+            if (skill.DamageVariation.x == skill.DamageVariation.y)
                 effect.transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = "Deal: " + "<b>" + dam2 + "</b>" + " damage";
             else
                 effect.transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = "Deal: " + "<b>" + dam1 + "-" + dam2 + "</b>" + " damage";
         }
 
-        if (skill.discards > 0)
+        if (skill.discard)
         {
             GameObject effect = Instantiate(effects.GetChild(0).gameObject, effects);
 
             effect.gameObject.SetActive(true);
 
-            effect.transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = "Discard: " + skill.discards + ((skill.discards > 1) ? " cards" : " card");
+            effect.transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = "Discard: 1 card";
         }
 
         if (skill.description != "")

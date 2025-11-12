@@ -12,8 +12,9 @@ public class Defense_Skill : Skill
         if (manaCost > Character.Mana())
             return false;
 
-        if (Character.hand.hand.Count < discards + 1)
-            return false;
+        if(discard)
+            if (Character.cards.hand.Count < 1)
+                return false;
 
         if (Character.blocking)
             return false;
@@ -23,21 +24,31 @@ public class Defense_Skill : Skill
 
     public override IEnumerator SetUp()
     {
-        yield return Character.hand.DiscardCards(discards);
+        yield return Character.cards.DiscardCards();
 
         yield return CharacterTargeting();
     }
 
-    public override IEnumerator Action()
+    public override IEnumerator Execute()
     {
         Character.animationController.Clip(animationName);
 
-        GetOutcome(intervals, chosen_Targets[0].GetComponent<Combat_Character>());
+        GetOutcome(chosen_Targets[0].GetComponent<Combat_Character>());
+
+        yield return Character.WaitForKeyFrame();
+
+        yield return new WaitUntil(() => Character.cards.cardRemoved == true);
+
+        Character.animationController.Pause();
+    }
+
+    public override IEnumerator Resolve()
+    {
+        Character.animationController.Play();
 
         Character.blocking = true;
 
-        yield return new WaitUntil(() => Character.hand.cardRemoved == true);
-
+        //yield return null;
         yield return Character.animationController.coroutine;
     }
 }

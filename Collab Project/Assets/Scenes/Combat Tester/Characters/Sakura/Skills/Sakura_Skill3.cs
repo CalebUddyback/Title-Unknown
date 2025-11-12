@@ -20,20 +20,24 @@ public class Sakura_Skill3 : Skill
         yield return CharacterTargeting();
     }
 
-    public override IEnumerator Action()
+    public override IEnumerator Execute()
     {
+        GetOutcome(chosen_Targets[0].GetComponent<Combat_Character>());
+
         Character.animationController.Clip("Buff");
 
         yield return Character.WaitForKeyFrame();
 
-        // Should try to push thorough ApplyOutcome eventually
+        Character.animationController.Pause();
+    }
 
+    public override IEnumerator Resolve()
+    {
+        yield return new WaitUntil(() => Character.cards.cardRemoved == true);
 
-        GetOutcome(intervals, chosen_Targets[0].GetComponent<Combat_Character>());
+        Character.animationController.Play();
 
-        yield return new WaitUntil(() => Character.hand.cardRemoved == true);
-
-        yield return Character.hand.DrawCards(2, true);
+        yield return Character.cards.DrawCards(2, true);
 
         yield return Character.animationController.coroutine;
     }

@@ -12,10 +12,11 @@ public class Sakura_Skill4 : Skill
         if (manaCost > Character.Mana())
             return false;
 
-        if (Character.hand.hand.Count < discards + 1)
-            return false;
+        if(discard)
+            if (Character.cards.hand.Count < 1)
+                return false;
 
-        if (Character.hand.hand.Count < 2)
+        if (Character.cards.hand.Count < 2)
             return false;
 
         return true;
@@ -23,22 +24,29 @@ public class Sakura_Skill4 : Skill
 
     public override IEnumerator SetUp()
     {
-        yield return Character.hand.DiscardCards(discards);
+        yield return Character.cards.DiscardCards();
 
         yield return CharacterTargeting();
     }
 
-    public override IEnumerator Action()
+    public override IEnumerator Execute()
     {
+        GetOutcome(chosen_Targets[0].GetComponent<Combat_Character>());
+
         Character.animationController.Clip("Buff");
 
         yield return Character.WaitForKeyFrame();
 
-        Character.Mana(mana, true);
+        Character.animationController.Pause();
+    }
 
-        GetOutcome(intervals, chosen_Targets[0].GetComponent<Combat_Character>());
+    public override IEnumerator Resolve()
+    {
+        yield return new WaitUntil(() => Character.cards.cardRemoved == true);
 
-        yield return new WaitUntil(() => Character.hand.cardRemoved == true);
+        Character.animationController.Play();
+
+        Character.AdjustMana(mana, true);
 
         yield return Character.animationController.coroutine;
     }

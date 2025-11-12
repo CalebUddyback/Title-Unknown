@@ -25,10 +25,13 @@ public class Sakura_Skill1: Skill
         yield return CharacterTargeting();
     }
 
-    public override IEnumerator Action()
-    {
 
+
+    public override IEnumerator Execute()
+    {
         Character.enemyTransform = chosen_Targets[0];
+
+        GetOutcome(chosen_Targets[0].GetComponent<Combat_Character>());
 
         /*CAMERA CONTROL*/
 
@@ -44,44 +47,18 @@ public class Sakura_Skill1: Skill
 
         yield return Character.WaitForKeyFrame();
 
-        //yield return character.TurnController.Reactions(Turn_Controller.Stage.IMPACT, info[0]);
+        Character.animationController.Pause();
+
+        Character.Enemy.animationController.Pause();
 
         CoroutineWithData cwd = new CoroutineWithData(Character, Character.TurnController.Reactions(Turn_Controller.Stage.IMPACT));
         yield return cwd.coroutine;
+    }
 
-        GetOutcome(intervals, chosen_Targets[0].GetComponent<Combat_Character>());
+    public override IEnumerator Resolve()
+    {
+        Coroutine outcome = Character.StartCoroutine(Character.ApplyOutcome(this));
 
-        Coroutine knockback = Character.StartCoroutine(Character.enemyTransform.GetComponent<Combat_Character>().MoveAmount(new Vector3(intervals.knockBack.x * Character.Facing, intervals.knockBack.y, intervals.knockBack.z), 0.1f));
-
-        //CritSuccess = 3;
-
-        Coroutine outcome;
-
-
-        switch ((int)cwd.result)
-        {
-            case 0:
-
-                print("Continue");
-
-                outcome = Character.StartCoroutine(Character.ApplyOutcome(HitSuccess, CritSuccess, Character.GetCurrentStats(this)[Character_Stats.Stat.STR]));
-
-                yield return Character.animationController.coroutine;
-
-                yield return outcome;
-
-                break;
-
-            case 1:
-                print("Pause");
-                break;
-
-            case 2:
-                print("Break");
-                yield break;
-
-        }
-
-        yield return knockback;
+        yield return outcome;
     }
 }

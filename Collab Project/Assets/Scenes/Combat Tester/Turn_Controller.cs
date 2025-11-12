@@ -119,9 +119,28 @@ public class Turn_Controller : MonoBehaviour
 
             newHand.gameObject.gameObject.SetActive(false);
 
-            character.hand = newHand;
+            character.cards = newHand;
 
             newHand.character = character;
+
+            foreach (Transform skill in character.skills.transform)
+            {
+                Card card = Instantiate(newHand.card_Prefab, newHand.drawDeck);
+
+                card.GetComponent<RectTransform>().anchoredPosition = newHand.drawDeck.GetComponent<RectTransform>().anchoredPosition;
+
+                card.gameObject.SetActive(false);
+
+                card.gameObject.name = skill.name + " Card";
+
+                card.skill = skill.GetComponent<Skill>();
+            }
+
+            newHand.drawDeckQuantity.text = newHand.drawDeck.childCount.ToString();
+
+            newHand.discardDeckQuantity.text = newHand.discardDeck.childCount.ToString();
+
+            yield return newHand.ShuffleCards();
 
             character.target_Arrow = Instantiate(character.target_Arrow, target_Arrows);
         }
@@ -167,7 +186,7 @@ public class Turn_Controller : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            StartCoroutine(characterTurn.hand.DrawCards(1, true));
+            StartCoroutine(characterTurn.cards.DrawCards(1, true));
         }
     }
 
@@ -220,7 +239,7 @@ public class Turn_Controller : MonoBehaviour
                 while (currentTurnOrder[currentTurnOrder.Count - 1] == nextTurnOrder[0])
                 {
                     nextTurnOrder = all_Players.OrderByDescending(o => o.Reaction).ToList();
-                    Debug.Log("Shuffle");
+                    Debug.Log("Re-roll");
                 }
 
                 currentTurnOrder.AddRange(nextTurnOrder);
@@ -251,6 +270,8 @@ public class Turn_Controller : MonoBehaviour
 
             endTurnButton.transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = "Rest";
 
+            characterTurn.animationController.GetComponent<SpriteRenderer>().sortingOrder = 1;
+
             yield return characterTurn.StartTurn();
 
             yield return new WaitUntil(() => endTurn == true);
@@ -258,6 +279,8 @@ public class Turn_Controller : MonoBehaviour
             endTurn = false;
 
             yield return characterTurn.EndTurn();
+
+            characterTurn.animationController.GetComponent<SpriteRenderer>().sortingOrder = 0;
 
             characterTurn.Hud.timer_Animations.Play("Pulser_Burst");
 
@@ -275,7 +298,7 @@ public class Turn_Controller : MonoBehaviour
 
     public void ResetAnimations()
     {
-        foreach (Transform target in characterTurn.hand.distinctTargets)
+        foreach (Transform target in characterTurn.cards.distinctTargets)
         {
             if(target.GetComponent<Combat_Character>().blocking)
                 target.GetComponent<Combat_Character>().animationController.Clip("Block_Hold");
@@ -308,12 +331,12 @@ public class Turn_Controller : MonoBehaviour
 
         Coroutine coroutine = null;
 
-        foreach (Transform target in characterTurn.hand.distinctTargets)
+        foreach (Transform target in characterTurn.cards.distinctTargets)
             coroutine = StartCoroutine(target.GetComponent<Combat_Character>().ResetPos());
 
         yield return coroutine;
 
-        foreach (Transform target in characterTurn.hand.distinctTargets)
+        foreach (Transform target in characterTurn.cards.distinctTargets)
             yield return target.GetComponent<Combat_Character>().Hud.healthBar.followBarCO;
 
         yield return cam;
@@ -381,7 +404,7 @@ public class Turn_Controller : MonoBehaviour
     {
         foreach(Combat_Character character in all_Players)
         {
-            foreach (Card card_Prefab in character.hand.hand)
+            foreach (Card card_Prefab in character.cards.hand)
             {
                 card_Prefab.Usable = card_Prefab.skill.UseCondition();
             }

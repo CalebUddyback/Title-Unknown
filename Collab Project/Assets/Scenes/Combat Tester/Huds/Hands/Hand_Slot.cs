@@ -46,7 +46,7 @@ public class Hand_Slot : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
 
     public void ExecuteCard()
     {
-        hand.ExecuteSelectedCard();
+        hand.ExecuteSelectedSlot();
     }
 
     public void DiscardCard()

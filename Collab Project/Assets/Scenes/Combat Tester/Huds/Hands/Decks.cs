@@ -41,14 +41,14 @@ public class Decks : MonoBehaviour
 
     public Vector2 cardSize;
 
-    public Transform drawDeck_Pos;
-    public List<Card> drawDeck;
+    public Transform drawDeck;
+    public TextMeshProUGUI drawDeckQuantity;
 
     public Transform hand_Pos;
     public List<Card> hand;
 
-    public Transform discardDeck_Pos;
-    public List<Card> discardDeck;
+    public Transform discardDeck;
+    public TextMeshProUGUI discardDeckQuantity;
 
     public List<string> cardsPlayed = new List<string>();
 
@@ -97,27 +97,26 @@ public class Decks : MonoBehaviour
 
     public List<Transform> distinctTargets = new List<Transform>();
 
+    public Stack<Card> resolveStack = new Stack<Card>();
+
     private void Start()
     {
         cardSize = card_Prefab.gameObject.GetComponent<RectTransform>().sizeDelta;
-
-        foreach (Transform skill in character.skills.transform)
-        {
-            Card card = Instantiate(card_Prefab, drawDeck_Pos);
-
-            card.GetComponent<RectTransform>().anchoredPosition = drawDeck_Pos.GetComponent<RectTransform>().anchoredPosition;
-
-            card.gameObject.SetActive(false);
-
-            card.gameObject.name = skill.name + " Card";
-
-            card.skill = skill.GetComponent<Skill>();
-
-            drawDeck.Add(card);
-        }
     }
 
-    public void ExecuteSelectedCard()
+    public IEnumerator ShuffleCards()
+    {
+        Debug.Log("Shuffle");
+
+        for (int i = 0; i < drawDeck.childCount-1; i++)
+        {
+            drawDeck.GetChild(i).SetSiblingIndex(Random.Range(0, drawDeck.childCount));
+            yield return null;
+        }
+
+    }
+
+    public void ExecuteSelectedSlot()
     {
         executedSlot = SelectedSlot;
 
@@ -147,23 +146,30 @@ public class Decks : MonoBehaviour
 
         cardRemoved = false;
 
+        resolveStack.Push(executedSlot.card);
+
         yield return executedSlot.card.skill.SetUp();
 
-        cardCoroutine = StartCoroutine(executedSlot.card.skill.Action());
+        character.AdjustMana(executedSlot.card.skill.manaCost, false);
 
-        character.Mana(executedSlot.card.skill.manaCost, false);
-
-        Debug.Log(character.Mana());
+        yield return executedSlot.card.skill.Execute();
 
         character.TurnController.CheckAllCards();
 
-        yield return null;
+        // Resolve Cards
 
-        yield return RemoveCard(executedSlot);
+        for (int i = 0; i < resolveStack.Count; i++)
+        {
+            Card card = resolveStack.Pop();
 
-        Locked = true;
+            Debug.Log(card.skill.name + " resolved");
 
-        yield return cardCoroutine;
+            //Debug.Break();
+
+            yield return card.skill.Resolve();
+
+            yield return RemoveCard(card.transform.parent.GetComponent<Hand_Slot>());
+        }
 
         Locked = false;
 
@@ -190,27 +196,72 @@ public class Decks : MonoBehaviour
         return newSlot;
     }
 
+    public IEnumerator RecoupeCards()
+    {
+        Debug.Log("Recoupe");
+
+        int r = discardDeck.childCount;
+
+        for (int i = 0; i < r; i++)
+        {
+            discardDeck.GetChild(0).SetParent(drawDeck);
+
+            drawDeckQuantity.text = drawDeck.childCount.ToString();
+
+            discardDeckQuantity.text = (discardDeck.childCount).ToString();
+
+            yield return null;
+        }
+
+        yield return ShuffleCards();
+
+        yield return new WaitForSeconds(0.5f);
+    }
+
     public IEnumerator DrawCards(int amount, bool autoUnlock)
     {
         Locked = true;
 
-        if (amount > drawDeck.Count)
-            amount = drawDeck.Count;
+        int overflow = 0;
+
+        if (amount > drawDeck.childCount)
+        {
+            overflow = amount - drawDeck.childCount;
+
+            amount = drawDeck.childCount;
+        }
 
         for (int i = 0; i < amount; i++)
         {
+            yield return PullCard();
+        }
 
+        if (overflow > 0)
+        {
+            yield return RecoupeCards();
+
+            for (int i = 0; i < overflow; i++)
+            {
+                yield return PullCard();
+            }
+        }
+
+        if (autoUnlock)
+            Locked = false;
+
+        IEnumerator PullCard()
+        {
             Hand_Slot newSlot = CreateSlot();
 
             yield return null;
 
             yield return ShiftCards();
 
-            int x = Random.Range(0, drawDeck.Count);
+            //int x = Random.Range(0, drawDeck.childCount);
 
-            Card drawnCard = drawDeck[x];
+            int x = 0;
 
-            drawDeck.Remove(drawnCard);
+            Card drawnCard = drawDeck.GetChild(x).GetComponent<Card>();
 
             drawnCard.hand = this;
 
@@ -230,15 +281,14 @@ public class Decks : MonoBehaviour
 
             drawnCard.gameObject.SetActive(true);
 
+            drawDeckQuantity.text = (drawDeck.childCount - 1).ToString();
+
             yield return newSlot.RetrieveCard();
 
             hand.Add(drawnCard);
 
             hand = hand.OrderBy(o => o.transform.parent.GetSiblingIndex()).ToList();
         }
-
-        if (autoUnlock)
-            Locked = false;
     }
 
     public IEnumerator RemoveCard(Hand_Slot slot)
@@ -248,20 +298,24 @@ public class Decks : MonoBehaviour
         for (int r = 0; r < hand.Count; r++)
         {
             if(hand[r] == slot.card)
-                hand[r].transform.SetParent(discardDeck_Pos);
+            {
+                hand[r].transform.SetParent(discardDeck);
+                hand[r].GetComponent<RectTransform>().anchoredPosition = Vector2.zero;
+                hand[r].gameObject.SetActive(false);
+            }
             else
                 hand[r].transform.SetParent(transform.parent);
-
-            yield return null;
         }
+
+        slot.GetComponent<Animation>().Play();
+
+        discardDeckQuantity.text = (discardDeck.childCount).ToString();
+
+        yield return new WaitForSeconds(slot.GetComponent<Animation>().clip.length);
 
         hand.Remove(slot.card);
 
-        discardDeck.Add(slot.card);
-
         //Destroy(slot.card.gameObject); // Optional
-
-        slot.card.GetComponent<Animation>().Play();
 
         Destroy(slot.gameObject);
 
@@ -283,7 +337,7 @@ public class Decks : MonoBehaviour
         }
     }
 
-    public IEnumerator DiscardCards(int amount)
+    public IEnumerator DiscardCards()
     {
         Locked = false;
         discarding = true;
@@ -296,24 +350,16 @@ public class Decks : MonoBehaviour
             card.Discardable(true);
         }
 
-        int i = 0;
+        character.TurnController.instructions.text = "Discard a card";
 
-        while(i < amount)
-        {
-            character.TurnController.instructions.text = "Discard " + (amount - i) + (((amount - i) > 1) ? " Cards" : " Card");
+        yield return new WaitUntil(() => cardToRemove != null);
 
-            yield return new WaitUntil(() => cardToRemove != null);
 
-            if (i == amount - 1)
-            {
-                foreach (Card card in hand)
-                    card.Discardable(false);
-            }
+        foreach (Card card in hand)
+            card.Discardable(false);
 
-            yield return RemoveCard(cardToRemove);
-            cardToRemove = null;
-            i++;
-        }
+        yield return RemoveCard(cardToRemove);
+        cardToRemove = null;
 
         Locked = true;
         discarding = false;

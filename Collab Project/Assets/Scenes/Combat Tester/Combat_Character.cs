@@ -28,7 +28,7 @@ public abstract class Combat_Character : MonoBehaviour, IPointerEnterHandler, IP
     public Transform skills;
 
     [HideInInspector]
-    public Decks hand;
+    public Decks cards;
 
     public int Facing { get; set; } = 1;
 
@@ -60,7 +60,7 @@ public abstract class Combat_Character : MonoBehaviour, IPointerEnterHandler, IP
         return health;
     }
 
-    public void Health(int change, float mutiplier)
+    public void AdjustHealth(int change, float mutiplier)
     {
         int former = health;
 
@@ -114,7 +114,7 @@ public abstract class Combat_Character : MonoBehaviour, IPointerEnterHandler, IP
         return mana;
     }
 
-    public void Mana(int change, bool show)
+    public void AdjustMana(int change, bool show)
     {
         int former = mana;
 
@@ -149,39 +149,44 @@ public abstract class Combat_Character : MonoBehaviour, IPointerEnterHandler, IP
     {
         Hud.timer_ChargeIndicator.SetActive(true);
 
-        yield return Hud.ScrollTimerTo(hand.SelectedSlot.card.skill.chargeTime);
+        yield return Hud.ScrollTimerTo(cards.SelectedSlot.card.skill.chargeTime);
     }
 
     public IEnumerator StartTurn()
     {
         TurnController.CheckAllCards();
 
-        yield return hand.Raise();
+        yield return cards.Raise();
 
         yield return new WaitForSeconds(0.5f);
 
         // Draw
 
-        bool selectedDraw = Random.Range(0, 100) < 100 ? true : false;
+        bool selectedDraw = Random.Range(0, 100) < 0 ? true : false;
+
+        if (cards.drawDeck.childCount < 3)
+            selectedDraw = false;
+
+        int d = 5;
+
+        if (selectedDraw)
+            d--;
 
         if (firstTurn)
         {
-            yield return hand.DrawCards(5, true);
+            yield return cards.DrawCards(d, true);
         }
         else
         {
             //int d = (hand.cards.Count < 5) ? 5 - hand.cards.Count : 1;
-
-            int d = 5;
-
-            if (selectedDraw)
-                d--;
    
-            yield return hand.DrawCards(d, !selectedDraw);
+            yield return cards.DrawCards(d, !selectedDraw);
 
             if (selectedDraw)
                 yield return StartCoroutine(TurnController.draw_Selection.ChooseCard());
         }
+
+        cards.Locked = false;
 
         if (blocking)
         {
@@ -196,7 +201,7 @@ public abstract class Combat_Character : MonoBehaviour, IPointerEnterHandler, IP
 
 
         int startMP = 20;
-        Mana(startMP, true);
+        AdjustMana(startMP, true);
 
         currentPhase = Phase.Draw;
 
@@ -218,18 +223,18 @@ public abstract class Combat_Character : MonoBehaviour, IPointerEnterHandler, IP
     {
         TurnController.endTurnButton.interactable = false;
 
-        if (hand.cardsPlayed.Count == 0)
+        if (cards.cardsPlayed.Count == 0)
         {
 
             int restMP = 20;
-            Mana(restMP, true);
+            AdjustMana(restMP, true);
         }
 
-        hand.cardsPlayed.Clear();
+        cards.cardsPlayed.Clear();
 
-        hand.distinctTargets.Add(transform);
+        cards.distinctTargets.Add(transform);
 
-        hand.distinctTargets = hand.distinctTargets.Select(o => o.transform).Distinct().ToList();
+        cards.distinctTargets = cards.distinctTargets.Select(o => o.transform).Distinct().ToList();
 
         // End 
 
@@ -237,9 +242,9 @@ public abstract class Combat_Character : MonoBehaviour, IPointerEnterHandler, IP
 
         TurnController.CheckAllCards();
 
-        hand.ResetPreviousSlot();
+        cards.ResetPreviousSlot();
 
-        yield return hand.Clear();
+        yield return cards.Clear();
 
         /** Yu-gi-oh style clean up phase **/
         //if (hand.cards.Count > hand.maxCardsInHand)
@@ -255,7 +260,7 @@ public abstract class Combat_Character : MonoBehaviour, IPointerEnterHandler, IP
 
         yield return null;
 
-        yield return hand.Lower();
+        yield return cards.Lower();
 
         firstTurn = false;
 
@@ -442,34 +447,30 @@ public abstract class Combat_Character : MonoBehaviour, IPointerEnterHandler, IP
         animationController.eventFrame = false;
     }
 
-    public IEnumerator Impact(float timer)
+    public IEnumerator ApplyOutcome(Skill skill)
     {
-        animationController.Pause();
 
-        Enemy.animationController.Pause();
-
-        yield return new WaitForSeconds(timer); // contact pause
-
-        animationController.Play();
-
-        Enemy.animationController.Play();
-    }
-
-    public IEnumerator ApplyOutcome(int success, int critical, int damage)
-    {
+        int damage = GetCurrentStats(skill)[Character_Stats.Stat.STR];
 
         damage *= -1;
-        damage *= critical;
+
+        damage *= skill.CritSuccess;
 
         damage = Mathf.Clamp(damage, -999, 999); // outcome bubble can only display 3 digits
 
         // damage should NOT be changed beyond this point
 
-        switch (success)
+        switch (skill.HitSuccess)
         {
             case 0:
-                Instantiate(outcome_Bubble_Prefab, TurnController.mainCamera.UIPosition(Enemy.outcome_Bubble_Pos.position), Quaternion.identity, TurnController.damage_Bubbles).Input("MISS", Color.white);
-                yield return StartCoroutine(enemyTransform.GetComponent<Combat_Character>().Dodge());
+                Outcome_Bubble bubble = Instantiate(outcome_Bubble_Prefab, TurnController.damage_Bubbles);
+                bubble.GetComponent<RectTransform>().anchoredPosition = TurnController.mainCamera.UIPosition(Enemy.outcome_Bubble_Pos.position);
+                bubble.Input("MISS", Color.white);
+
+                animationController.Play();
+                Enemy.animationController.Play();
+
+                yield return StartCoroutine(Enemy.Dodge());
                 break;
 
             case 1:
@@ -484,7 +485,7 @@ public abstract class Combat_Character : MonoBehaviour, IPointerEnterHandler, IP
                     else
                         StartCoroutine(Enemy.Block());
 
-                    Enemy.Mana(damage, true);
+                    Enemy.AdjustMana(damage, true);
                 }
                 else
                 {
@@ -497,11 +498,15 @@ public abstract class Combat_Character : MonoBehaviour, IPointerEnterHandler, IP
                     StartCoroutine(Enemy.Damage());
                     yield return null;
 
-                    Enemy.Health(damage, critical);
+                    Enemy.AdjustHealth(damage, skill.CritSuccess);
                 }
 
+                yield return new WaitForSeconds(0.25f * skill.CritSuccess); // Impact Delay
 
-                yield return Impact(0.25f * critical);
+                animationController.Play();
+                Enemy.animationController.Play();
+
+                yield return Enemy.MoveAmount(new Vector3(skill.intervals.knockBack.x * Facing, skill.intervals.knockBack.y, skill.intervals.knockBack.z), 0.1f); ;
 
                 if (Enemy.Defeated)
                 {
@@ -514,6 +519,8 @@ public abstract class Combat_Character : MonoBehaviour, IPointerEnterHandler, IP
 
                 break;
         }
+
+        yield return animationController.coroutine;
     }
 
 
@@ -613,7 +620,7 @@ public abstract class Combat_Character : MonoBehaviour, IPointerEnterHandler, IP
     {
         var currentStats = GetCurrentStats();
 
-        int attack = Random.Range(skill.intervals.DamageVariation.x, skill.intervals.DamageVariation.y + 1);
+        int attack = Random.Range(skill.DamageVariation.x, skill.DamageVariation.y + 1);
 
         currentStats[Character_Stats.Stat.STR] += attack;
         currentStats[Character_Stats.Stat.CRT] += skill.critical;

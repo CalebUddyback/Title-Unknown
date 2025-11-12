@@ -1736,7 +1736,6 @@ GameObject:
   - component: {fileID: 9208106161487706784}
   - component: {fileID: 9208106161487706786}
   - component: {fileID: 9044226727184429373}
-  - component: {fileID: 1058386720620463315}
   m_Layer: 0
   m_Name: Card_Prefab
   m_TagString: Untagged
@@ -1794,19 +1793,3 @@ MonoBehaviour:
   effects: {fileID: 7907089521571611313}
   skill: {fileID: 0}
   hand: {fileID: 0}
---- !u!111 &1058386720620463315
-Animation:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9208106161487706791}
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Animation: {fileID: 7400000, guid: b6868f4bf64bb644fab63c53c3f12191, type: 2}
-  m_Animations:
-  - {fileID: 7400000, guid: b6868f4bf64bb644fab63c53c3f12191, type: 2}
-  m_WrapMode: 0
-  m_PlayAutomatically: 0
-  m_AnimatePhysics: 0
-  m_CullingType: 0

@@ -23,22 +23,27 @@ public class Rebound_Skill : Skill
         yield return CharacterTargeting();
     }
 
-    public override IEnumerator Action()
+    public override IEnumerator Execute()
     {
-        int manaAmount = mana;
-
         Character.animationController.Clip(animationName);
+
+        GetOutcome(chosen_Targets[0].GetComponent<Combat_Character>());
 
         yield return Character.WaitForKeyFrame();
 
-        Character.Mana(manaAmount, true);
+        Character.animationController.Pause();
+    }
 
-        GetOutcome(intervals, chosen_Targets[0].GetComponent<Combat_Character>());
+    public override IEnumerator Resolve()
+    {
+        Character.animationController.Play();
 
-        //yield return new WaitUntil(() => Character.hand.cardRemoved == true);
+        Character.AdjustMana(mana, true);
 
         yield return Character.animationController.coroutine;
 
         Character.animationController.Clip("Block_Set");
+
+        yield return Character.animationController.coroutine;
     }
 }
