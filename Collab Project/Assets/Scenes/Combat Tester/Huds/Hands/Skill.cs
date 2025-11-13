@@ -29,6 +29,7 @@ public abstract class Skill : MonoBehaviour
     public bool discard;
     public int chargeTime;
     public int targetQuantity = 1;
+    public bool mustBeSet = false;
 
     [Header("Stats")]
 

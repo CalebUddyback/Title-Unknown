@@ -20,6 +20,8 @@ public class Card: MonoBehaviour
 
     public Decks hand;
 
+    public bool negated = false;
+
     private bool usable;
     public bool Usable
     {

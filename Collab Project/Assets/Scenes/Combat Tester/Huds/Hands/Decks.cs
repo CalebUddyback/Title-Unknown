@@ -64,6 +64,8 @@ public class Decks : MonoBehaviour
 
     public Hand_Slot executedSlot;
 
+    public Hand_Slot setSlot;
+
     private Hand_Slot selectedSlot;
 
     public Hand_Slot SelectedSlot
@@ -88,9 +90,13 @@ public class Decks : MonoBehaviour
             {
                 selectedSlot.discardButton.gameObject.SetActive(true);
             }
-            else if (selectedSlot.card.skill.UseCondition() == true && executedSlot == null)
+            else if (selectedSlot.card.skill.UseCondition() == true && executedSlot == null && !selectedSlot.card.skill.mustBeSet)
             {
                 selectedSlot.executeButton.gameObject.SetActive(true);
+            }
+            else
+            {
+                selectedSlot.setButton.gameObject.SetActive(true);
             }
         }
     }
@@ -116,6 +122,42 @@ public class Decks : MonoBehaviour
 
     }
 
+    public void SetSelectedSlot()
+    {
+        setSlot = SelectedSlot;
+
+        SelectedSlot = null;
+
+        setSlot.setButton.gameObject.SetActive(false);
+
+        //executedSlot.card.card_Prefab.transform.localPosition = Vector2.up * 36;
+
+        StartCoroutine(CardSetUp());
+
+        cardsPlayed.Add(setSlot.card.skill.displayName);
+
+        character.TurnController.endTurnButton.transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = "End Turn";
+
+        IEnumerator CardSetUp()
+        {
+            Locked = true;
+
+            character.TurnController.endTurnButton.interactable = false;
+
+            cardRemoved = false;
+
+            yield return setSlot.card.skill.SetUp();
+
+            character.AdjustMana(setSlot.card.skill.manaCost, false);
+
+            setSlot.set = true;
+
+            character.TurnController.CheckAllCards();
+
+            Locked = false;
+        }
+    }
+
     public void ExecuteSelectedSlot()
     {
         executedSlot = SelectedSlot;
@@ -131,6 +173,55 @@ public class Decks : MonoBehaviour
         cardsPlayed.Add(executedSlot.card.skill.displayName);
 
         character.TurnController.endTurnButton.transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = "End Turn";
+
+        IEnumerator CardSetUp()
+        {
+            Locked = true;
+
+            character.TurnController.endTurnButton.interactable = false;
+
+            cardRemoved = false;
+
+            yield return executedSlot.card.skill.SetUp();
+
+            resolveStack.Push(executedSlot.card);
+
+            character.AdjustMana(executedSlot.card.skill.manaCost, false);
+
+            yield return executedSlot.card.skill.Execute();
+
+            character.TurnController.CheckAllCards();
+
+            // Resolve Cards
+
+            for (int i = 0; i < resolveStack.Count;)
+            {
+                Card card = resolveStack.Pop();
+
+                //Debug.Break();
+
+                if (!card.negated)
+                {
+                    Debug.Log(card.skill.name + " resolved");
+                    yield return card.skill.Resolve();
+                }
+                else
+                {
+                    Debug.Log(card.skill.name + " negated");
+                    card.negated = false;
+                }
+
+                yield return RemoveCard(card.transform.parent.GetComponent<Hand_Slot>());
+            }
+
+            Locked = false;
+
+            distinctTargets.AddRange(executedSlot.card.skill.chosen_Targets);
+
+            executedSlot.card.skill.chosen_Targets.Clear();
+
+            executedSlot = null;
+        }
     }
 
     public void DiscardSelectedCard()
@@ -138,47 +229,6 @@ public class Decks : MonoBehaviour
         cardToRemove = SelectedSlot;
     }
 
-    IEnumerator CardSetUp()
-    {
-        Locked = true; 
-
-        character.TurnController.endTurnButton.interactable = false;
-
-        cardRemoved = false;
-
-        resolveStack.Push(executedSlot.card);
-
-        yield return executedSlot.card.skill.SetUp();
-
-        character.AdjustMana(executedSlot.card.skill.manaCost, false);
-
-        yield return executedSlot.card.skill.Execute();
-
-        character.TurnController.CheckAllCards();
-
-        // Resolve Cards
-
-        for (int i = 0; i < resolveStack.Count; i++)
-        {
-            Card card = resolveStack.Pop();
-
-            Debug.Log(card.skill.name + " resolved");
-
-            //Debug.Break();
-
-            yield return card.skill.Resolve();
-
-            yield return RemoveCard(card.transform.parent.GetComponent<Hand_Slot>());
-        }
-
-        Locked = false;
-
-        distinctTargets.AddRange(executedSlot.card.skill.chosen_Targets);
-
-        executedSlot.card.skill.chosen_Targets.Clear();
-
-        executedSlot = null;
-    }
 
     public Hand_Slot CreateSlot()
     {
@@ -191,7 +241,7 @@ public class Decks : MonoBehaviour
 
         newSlot.transform.SetSiblingIndex(Random.Range(0, hand_Pos.childCount));
 
-        newSlot.hand = this;
+        newSlot.decks = this;
 
         return newSlot;
     }
@@ -222,28 +272,17 @@ public class Decks : MonoBehaviour
     {
         Locked = true;
 
-        int overflow = 0;
+        if (amount > drawDeck.childCount + discardDeck.childCount)
+            amount = drawDeck.childCount + discardDeck.childCount;
 
-        if (amount > drawDeck.childCount)
-        {
-            overflow = amount - drawDeck.childCount;
-
-            amount = drawDeck.childCount;
-        }
+        Debug.Log(amount);
 
         for (int i = 0; i < amount; i++)
         {
+            if (drawDeck.childCount <= 0)
+                yield return RecoupeCards();
+
             yield return PullCard();
-        }
-
-        if (overflow > 0)
-        {
-            yield return RecoupeCards();
-
-            for (int i = 0; i < overflow; i++)
-            {
-                yield return PullCard();
-            }
         }
 
         if (autoUnlock)
@@ -295,25 +334,25 @@ public class Decks : MonoBehaviour
     {
         Locked = true;
 
-        for (int r = 0; r < hand.Count; r++)
+        for (int r = 0; r < slot.decks.hand.Count; r++)
         {
-            if(hand[r] == slot.card)
+            if(slot.decks.hand[r] == slot.card)
             {
-                hand[r].transform.SetParent(discardDeck);
-                hand[r].GetComponent<RectTransform>().anchoredPosition = Vector2.zero;
-                hand[r].gameObject.SetActive(false);
+                slot.decks.hand[r].transform.SetParent(slot.decks.discardDeck);
+                slot.decks.hand[r].GetComponent<RectTransform>().anchoredPosition = Vector2.zero;
+                slot.decks.hand[r].gameObject.SetActive(false);
             }
             else
-                hand[r].transform.SetParent(transform.parent);
+                slot.decks.hand[r].transform.SetParent(slot.decks.transform.parent);
         }
 
         slot.GetComponent<Animation>().Play();
 
-        discardDeckQuantity.text = (discardDeck.childCount).ToString();
+        slot.decks.discardDeckQuantity.text = (slot.decks.discardDeck.childCount).ToString();
 
         yield return new WaitForSeconds(slot.GetComponent<Animation>().clip.length);
 
-        hand.Remove(slot.card);
+        slot.decks.hand.Remove(slot.card);
 
         //Destroy(slot.card.gameObject); // Optional
 
@@ -332,6 +371,12 @@ public class Decks : MonoBehaviour
     {
         for (int i = 0; i < hand_Pos.childCount;)
         {
+            if (hand_Pos.GetChild(i).GetComponent<Hand_Slot>().set)
+            {
+                i++;
+                continue;
+            }
+
             yield return RemoveCard(hand_Pos.GetChild(i).GetComponent<Hand_Slot>());
             yield return null;
         }
@@ -389,6 +434,7 @@ public class Decks : MonoBehaviour
         if (SelectedSlot == executedSlot)
             return;
 
+        SelectedSlot.setButton.gameObject.SetActive(false);
         SelectedSlot.executeButton.gameObject.SetActive(false);
         SelectedSlot.discardButton.gameObject.SetActive(false);
 

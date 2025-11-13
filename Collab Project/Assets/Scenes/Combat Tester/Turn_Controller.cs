@@ -125,6 +125,9 @@ public class Turn_Controller : MonoBehaviour
 
             foreach (Transform skill in character.skills.transform)
             {
+                if (skill.gameObject.activeSelf == false)
+                    continue;
+
                 Card card = Instantiate(newHand.card_Prefab, newHand.drawDeck);
 
                 card.GetComponent<RectTransform>().anchoredPosition = newHand.drawDeck.GetComponent<RectTransform>().anchoredPosition;
@@ -345,57 +348,19 @@ public class Turn_Controller : MonoBehaviour
 
     public IEnumerator Reactions(Stage stage)
     {
-        //foreach (Combat_Character character in all_Players)
-        //{
-        //    List<string> labels = new List<string>();
-        //    List<int> indexs = new List<int>();
-        //
-        //    for (int i = 0; i < character.setSpells.Length; i++)
-        //    {
-        //        if (character.setSpells[i] == null || character.setSpells[i].Condition(stage, info) == false)
-        //            continue;
-        //        else
-        //        {
-        //            labels.Add(character.setSpells[i].name);
-        //            indexs.Add(i);
-        //        }
-        //    }
-        //
-        //    if (labels.Count == 0)
-        //    {
-        //        yield return 0;
-        //        continue;
-        //    }
-        //
-        //    foreach (Combat_Character c in all_Players)
-        //        c.animationController.Pause();
-        //
-        //    //character.MenuPositioning();
-        //
-        //    yield return character.SubMenuController.OpenSubMenu("Prompts", labels);
-        //
-        //    yield return character.SubMenuController.CurrentCD.coroutine;
-        //
-        //    foreach (Combat_Character c in all_Players)
-        //        c.animationController.Play();
-        //
-        //    if (character.SubMenuController.CurrentSubMenu.ButtonChoice == -1)
-        //    {
-        //        continue;
-        //    }
-        //    else
-        //    {
-        //        character.SubMenuController.ResetMenus();
-        //
-        //        character.animationController.Clip(character.characterName + " Idle");
-        //        yield return null;
-        //        CoroutineWithData cd = new CoroutineWithData(this, character.setSpells[indexs[character.SubMenuController.CurrentSubMenu.ButtonChoice]].Action2(indexs[character.SubMenuController.CurrentSubMenu.ButtonChoice]));
-        //        yield return cd.coroutine;
-        //
-        //        yield return (int)cd.result;
-        //        break;
-        //    }
-        //}
+        foreach (Combat_Character character in all_Players)
+        {
+            foreach(Transform slot in character.cards.hand_Pos)
+            {
+                if (slot.GetComponent<Hand_Slot>().set)
+                {
+                    characterTurn.cards.resolveStack.Push(slot.GetComponent<Hand_Slot>().card);
+                    yield return slot.GetComponent<Hand_Slot>().card.skill.Execute();
+
+                    slot.GetComponent<Hand_Slot>().set = false;
+                }
+            }
+        }
 
         yield return 0;
     }

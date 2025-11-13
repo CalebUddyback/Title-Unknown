@@ -142,9 +142,6 @@ public abstract class Combat_Character : MonoBehaviour, IPointerEnterHandler, IP
 
     public bool blocking = false;
 
-    private bool blockPenalty = false;
-
-
     public IEnumerator Charging()
     {
         Hud.timer_ChargeIndicator.SetActive(true);
@@ -460,6 +457,9 @@ public abstract class Combat_Character : MonoBehaviour, IPointerEnterHandler, IP
 
         // damage should NOT be changed beyond this point
 
+
+        Coroutine dodge = null;
+
         switch (skill.HitSuccess)
         {
             case 0:
@@ -470,7 +470,7 @@ public abstract class Combat_Character : MonoBehaviour, IPointerEnterHandler, IP
                 animationController.Play();
                 Enemy.animationController.Play();
 
-                yield return StartCoroutine(Enemy.Dodge());
+                dodge = StartCoroutine(Enemy.Dodge());
                 break;
 
             case 1:
@@ -507,20 +507,17 @@ public abstract class Combat_Character : MonoBehaviour, IPointerEnterHandler, IP
                 Enemy.animationController.Play();
 
                 yield return Enemy.MoveAmount(new Vector3(skill.intervals.knockBack.x * Facing, skill.intervals.knockBack.y, skill.intervals.knockBack.z), 0.1f); ;
-
-                if (Enemy.Defeated)
-                {
-                    yield return null;
-                    yield return Enemy.animationController.coroutine;
-                    yield return null;
-                    Enemy.animationController.Clip("Defeated");
-                    yield return Enemy.animationController.coroutine;
-                }
-
                 break;
         }
 
+        yield return dodge;
         yield return animationController.coroutine;
+
+        if (Enemy.Defeated)
+        {
+            Enemy.animationController.Clip("Defeated");
+            yield return Enemy.animationController.coroutine;
+        }
     }
 
 
