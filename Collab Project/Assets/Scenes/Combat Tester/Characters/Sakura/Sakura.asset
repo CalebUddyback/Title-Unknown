@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   max_Health: 110
   max_Mana: 100
-  initiative: 20
+  initiative: 0
   speed: 20
   strength: 0
   critical: 0

@@ -51,7 +51,7 @@ public class Sakura_Skill1: Skill
 
         Character.Enemy.animationController.Pause();
 
-        CoroutineWithData cwd = new CoroutineWithData(Character, Character.TurnController.Reactions(Turn_Controller.Stage.IMPACT));
+        CoroutineWithData cwd = new CoroutineWithData(Character, Character.TurnController.Reactions(this, Turn_Controller.Stage.IMPACT));
         yield return cwd.coroutine;
     }
 

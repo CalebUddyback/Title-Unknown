@@ -13,10 +13,10 @@ public class Sakura_Skill4 : Skill
             return false;
 
         if(discard)
-            if (Character.cards.hand.Count < 1)
+            if (Character.decks.hand.Count < 1)
                 return false;
 
-        if (Character.cards.hand.Count < 2)
+        if (Character.decks.hand.Count < 2)
             return false;
 
         return true;
@@ -24,7 +24,7 @@ public class Sakura_Skill4 : Skill
 
     public override IEnumerator SetUp()
     {
-        yield return Character.cards.DiscardCards();
+        yield return Character.decks.DiscardCards();
 
         yield return CharacterTargeting();
     }
@@ -42,7 +42,7 @@ public class Sakura_Skill4 : Skill
 
     public override IEnumerator Resolve()
     {
-        yield return new WaitUntil(() => Character.cards.cardRemoved == true);
+        yield return new WaitUntil(() => Character.decks.cardRemoved == true);
 
         Character.animationController.Play();
 

@@ -14,25 +14,30 @@ public abstract class Combat_Character : MonoBehaviour, IPointerEnterHandler, IP
 
     public Combat_Character Enemy => enemyTransform.GetComponent<Combat_Character>();
 
+    public Turn_Controller.Team Team { get; set; }
+
     public AnimationController animationController;
 
     public Outcome_Bubble outcome_Bubble_Prefab;
 
     public Transform outcome_Bubble_Pos;
 
-    public GameObject target_Arrow;
+    [HideInInspector]
+    public GameObject target_Arrow, reaction_Arrow;
 
-    public enum Phase {Waiting, Draw, Main, Action, End}
+    public enum Phase {Waiting, Draw, Main, Action, End, Reacting}
     public Phase currentPhase = Phase.Waiting;
 
     public Transform skills;
 
     [HideInInspector]
-    public Decks cards;
+    public Decks decks;
 
     public int Facing { get; set; } = 1;
 
     private bool firstTurn = true;
+
+    public bool reacting = false;
 
 
     [Header("Turn Controller")]
@@ -146,14 +151,14 @@ public abstract class Combat_Character : MonoBehaviour, IPointerEnterHandler, IP
     {
         Hud.timer_ChargeIndicator.SetActive(true);
 
-        yield return Hud.ScrollTimerTo(cards.SelectedSlot.card.skill.chargeTime);
+        yield return Hud.ScrollTimerTo(decks.SelectedSlot.card.skill.chargeTime);
     }
 
     public IEnumerator StartTurn()
     {
         TurnController.CheckAllCards();
 
-        yield return cards.Raise();
+        yield return decks.Raise();
 
         yield return new WaitForSeconds(0.5f);
 
@@ -161,7 +166,7 @@ public abstract class Combat_Character : MonoBehaviour, IPointerEnterHandler, IP
 
         bool selectedDraw = Random.Range(0, 100) < 0 ? true : false;
 
-        if (cards.drawDeck.childCount < 3)
+        if (decks.drawDeck.childCount < 3)
             selectedDraw = false;
 
         int d = 5;
@@ -171,19 +176,19 @@ public abstract class Combat_Character : MonoBehaviour, IPointerEnterHandler, IP
 
         if (firstTurn)
         {
-            yield return cards.DrawCards(d, true);
+            yield return decks.DrawCards(d, true);
         }
         else
         {
             //int d = (hand.cards.Count < 5) ? 5 - hand.cards.Count : 1;
    
-            yield return cards.DrawCards(d, !selectedDraw);
+            yield return decks.DrawCards(d, !selectedDraw);
 
             if (selectedDraw)
                 yield return StartCoroutine(TurnController.draw_Selection.ChooseCard());
         }
 
-        cards.Locked = false;
+        decks.Locked = false;
 
         if (blocking)
         {
@@ -220,18 +225,18 @@ public abstract class Combat_Character : MonoBehaviour, IPointerEnterHandler, IP
     {
         TurnController.endTurnButton.interactable = false;
 
-        if (cards.cardsPlayed.Count == 0)
+        if (decks.cardsPlayed.Count == 0)
         {
 
             int restMP = 20;
             AdjustMana(restMP, true);
         }
 
-        cards.cardsPlayed.Clear();
+        decks.cardsPlayed.Clear();
 
-        cards.distinctTargets.Add(transform);
+        decks.distinctTargets.Add(transform);
 
-        cards.distinctTargets = cards.distinctTargets.Select(o => o.transform).Distinct().ToList();
+        decks.distinctTargets = decks.distinctTargets.Select(o => o.transform).Distinct().ToList();
 
         // End 
 
@@ -239,9 +244,9 @@ public abstract class Combat_Character : MonoBehaviour, IPointerEnterHandler, IP
 
         TurnController.CheckAllCards();
 
-        cards.ResetPreviousSlot();
+        decks.ResetPreviousSlot();
 
-        yield return cards.Clear();
+        yield return decks.Clear();
 
         /** Yu-gi-oh style clean up phase **/
         //if (hand.cards.Count > hand.maxCardsInHand)
@@ -257,13 +262,19 @@ public abstract class Combat_Character : MonoBehaviour, IPointerEnterHandler, IP
 
         yield return null;
 
-        yield return cards.Lower();
+        //yield return cards.Lower();
 
         firstTurn = false;
 
         // Done
 
         currentPhase = Phase.Waiting;
+    }
+
+    public IEnumerator Interuption()
+    {
+
+        yield return null;
     }
 
     public abstract IEnumerator CpuDecisionMaking();
@@ -489,11 +500,7 @@ public abstract class Combat_Character : MonoBehaviour, IPointerEnterHandler, IP
                 }
                 else
                 {
-
-                    if (TurnController.left_Players.Contains(this))
-                        TurnController.left_Combo_Counter.SetComboCount();
-                    else
-                        TurnController.right_Combo_Counter.SetComboCount();
+                    skill.Character.Team.combo_Counter.SetComboCount();
 
                     StartCoroutine(Enemy.Damage());
                     yield return null;
@@ -511,6 +518,7 @@ public abstract class Combat_Character : MonoBehaviour, IPointerEnterHandler, IP
         }
 
         yield return dodge;
+
         yield return animationController.coroutine;
 
         if (Enemy.Defeated)
@@ -692,6 +700,7 @@ public abstract class Combat_Character : MonoBehaviour, IPointerEnterHandler, IP
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        TurnController.selected = this;
+        if(eventData.button == PointerEventData.InputButton.Left)
+            TurnController.selectedCharacter = this;
     }
 }

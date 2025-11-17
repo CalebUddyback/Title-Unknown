@@ -41,8 +41,11 @@ public class Hand_Slot : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        if (decks.SelectedSlot != this && !decks.Locked)
-            decks.SelectedSlot = this;
+        if (eventData.button == PointerEventData.InputButton.Left)
+        {
+            if (decks.SelectedSlot != this && !decks.Locked)
+                decks.SelectedSlot = this;
+        }
     }
 
     public void SetCard()

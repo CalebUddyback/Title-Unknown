@@ -56,15 +56,11 @@ public class Decks : MonoBehaviour
 
     public bool discarding = false;
 
-    private Coroutine cardCoroutine;
-
     public bool cardRemoved = false;
 
     private Hand_Slot cardToRemove;
 
     public Hand_Slot executedSlot;
-
-    public Hand_Slot setSlot;
 
     private Hand_Slot selectedSlot;
 
@@ -90,20 +86,27 @@ public class Decks : MonoBehaviour
             {
                 selectedSlot.discardButton.gameObject.SetActive(true);
             }
-            else if (selectedSlot.card.skill.UseCondition() == true && executedSlot == null && !selectedSlot.card.skill.mustBeSet)
+            else if (selectedSlot.card.skill.mustBeSet)
             {
-                selectedSlot.executeButton.gameObject.SetActive(true);
+                if (selectedSlot.set)
+                {
+                    if (character.reacting)
+                        selectedSlot.executeButton.gameObject.SetActive(true);
+                }
+                else
+                {
+                    selectedSlot.setButton.gameObject.SetActive(true);
+                } 
             }
-            else
+            else if (selectedSlot.card.skill.UseCondition() && executedSlot == null)
             {
-                selectedSlot.setButton.gameObject.SetActive(true);
+                    selectedSlot.executeButton.gameObject.SetActive(true);
             }
+
         }
     }
 
     public List<Transform> distinctTargets = new List<Transform>();
-
-    public Stack<Card> resolveStack = new Stack<Card>();
 
     private void Start()
     {
@@ -112,7 +115,7 @@ public class Decks : MonoBehaviour
 
     public IEnumerator ShuffleCards()
     {
-        Debug.Log("Shuffle");
+        //Debug.Log("Shuffle");
 
         for (int i = 0; i < drawDeck.childCount-1; i++)
         {
@@ -124,42 +127,46 @@ public class Decks : MonoBehaviour
 
     public void SetSelectedSlot()
     {
-        setSlot = SelectedSlot;
 
-        SelectedSlot = null;
-
-        setSlot.setButton.gameObject.SetActive(false);
+        SelectedSlot.setButton.gameObject.SetActive(false);
 
         //executedSlot.card.card_Prefab.transform.localPosition = Vector2.up * 36;
 
-        StartCoroutine(CardSetUp());
+        //StartCoroutine(CardSetUp());
 
-        cardsPlayed.Add(setSlot.card.skill.displayName);
+        SelectedSlot.set = true;
+
+        cardsPlayed.Add(SelectedSlot.card.skill.displayName);
+
+        SelectedSlot = null;
 
         character.TurnController.endTurnButton.transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = "End Turn";
 
-        IEnumerator CardSetUp()
-        {
-            Locked = true;
-
-            character.TurnController.endTurnButton.interactable = false;
-
-            cardRemoved = false;
-
-            yield return setSlot.card.skill.SetUp();
-
-            character.AdjustMana(setSlot.card.skill.manaCost, false);
-
-            setSlot.set = true;
-
-            character.TurnController.CheckAllCards();
-
-            Locked = false;
-        }
+        //IEnumerator CardSetUp()
+        //{
+        //    Locked = true;
+        //
+        //    character.TurnController.endTurnButton.interactable = false;
+        //
+        //    cardRemoved = false;
+        //
+        //    yield return setSlot.card.skill.SetUp();
+        //
+        //    character.AdjustMana(setSlot.card.skill.manaCost, false);
+        //
+        //    setSlot.set = true;
+        //
+        //    character.TurnController.CheckAllCards();
+        //
+        //    Locked = false;
+        //}
     }
 
     public void ExecuteSelectedSlot()
     {
+        if (character.reacting)
+            character.reacting = false;
+
         executedSlot = SelectedSlot;
 
         SelectedSlot = null;
@@ -184,35 +191,17 @@ public class Decks : MonoBehaviour
 
             yield return executedSlot.card.skill.SetUp();
 
-            resolveStack.Push(executedSlot.card);
+            character.TurnController.resolveStack.Add(executedSlot.card);
 
             character.AdjustMana(executedSlot.card.skill.manaCost, false);
+
+            StartCoroutine(RemoveCard(executedSlot));
 
             yield return executedSlot.card.skill.Execute();
 
             character.TurnController.CheckAllCards();
 
-            // Resolve Cards
-
-            for (int i = 0; i < resolveStack.Count;)
-            {
-                Card card = resolveStack.Pop();
-
-                //Debug.Break();
-
-                if (!card.negated)
-                {
-                    Debug.Log(card.skill.name + " resolved");
-                    yield return card.skill.Resolve();
-                }
-                else
-                {
-                    Debug.Log(card.skill.name + " negated");
-                    card.negated = false;
-                }
-
-                yield return RemoveCard(card.transform.parent.GetComponent<Hand_Slot>());
-            }
+            yield return character.TurnController.ResolveCards();
 
             Locked = false;
 
@@ -274,8 +263,6 @@ public class Decks : MonoBehaviour
 
         if (amount > drawDeck.childCount + discardDeck.childCount)
             amount = drawDeck.childCount + discardDeck.childCount;
-
-        Debug.Log(amount);
 
         for (int i = 0; i < amount; i++)
         {
@@ -355,6 +342,8 @@ public class Decks : MonoBehaviour
         slot.decks.hand.Remove(slot.card);
 
         //Destroy(slot.card.gameObject); // Optional
+
+        slot.set = false;
 
         Destroy(slot.gameObject);
 
@@ -443,7 +432,12 @@ public class Decks : MonoBehaviour
 
     public IEnumerator Raise()
     {
-        gameObject.SetActive(true);
+        //gameObject.SetActive(true);
+
+        if (character.Team.visibleDeck != null && character.Team.visibleDeck != this)
+            yield return character.Team.visibleDeck.Lower();
+
+        character.Team.visibleDeck = this;
 
         Vector3 startPos = new Vector3(0, -170f, 0);
 
@@ -468,7 +462,7 @@ public class Decks : MonoBehaviour
     {
         Locked = true;
 
-        yield return new WaitForSeconds(0.3f);
+        ResetPreviousSlot();
 
         Vector3 startPos = new Vector3(0, 0, 0);
 
@@ -488,7 +482,8 @@ public class Decks : MonoBehaviour
 
         GetComponent<RectTransform>().anchoredPosition = targetPos;
 
+        character.Team.visibleDeck = null;
 
-        gameObject.SetActive(false);
+        //gameObject.SetActive(false);
     }
 }

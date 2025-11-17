@@ -1774,12 +1774,12 @@ public class Sakura : Combat_Character
 
     public override IEnumerator CpuDecisionMaking()
     {
-        Transform target;
+        //Transform target;
 
-        if (Facing == 1)
-            target = TurnController.right_Players[0].transform;
-        else
-            target = TurnController.left_Players[0].transform;
+        //if (Facing == 1)
+        //    target = TurnController.right_Players[0].transform;
+        //else
+        //    target = TurnController.left_Players[0].transform;
 
 
         int r = Random.Range(0, 1);

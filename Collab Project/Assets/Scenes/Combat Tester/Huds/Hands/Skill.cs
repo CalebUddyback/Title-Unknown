@@ -8,7 +8,7 @@ public abstract class Skill : MonoBehaviour
 {
     public Combat_Character Character => transform.parent.parent.GetComponent<Combat_Character>();
 
-    public Turn_Controller Turn_Controller => Character.TurnController;
+    public Turn_Controller TurnController => Character.TurnController;
 
     public string displayName;
     public string animationName;
@@ -58,6 +58,11 @@ public abstract class Skill : MonoBehaviour
 
     public abstract bool UseCondition();
 
+    public virtual bool ReactCondition(Skill skill, Turn_Controller.Stage stage)
+    {
+        return false;
+    }
+
     public abstract IEnumerator SetUp();
 
     private void OnValidate()
@@ -94,9 +99,9 @@ public abstract class Skill : MonoBehaviour
 
         Vector3 initialCameraPosition = Character.TurnController.mainCamera.transform.position;
 
-        Turn_Controller.instructions.text = "Select Target";
+        TurnController.instructions.text = "Select Target";
 
-        Turn_Controller.selected = null;
+        TurnController.selectedCharacter = null;
 
         switch (scope)
         {
@@ -105,14 +110,14 @@ public abstract class Skill : MonoBehaviour
                 break;
 
             case Scope.Team:
-                targets = Turn_Controller.left_Players.Contains(Character) ? Turn_Controller.left_Players : Turn_Controller.right_Players;
+                targets = Character.Team.members;
 
                 yield return Character.TurnController.mainCamera.Reset(0.2f);
 
                 break;
 
             case Scope.Enemy:
-                targets = Turn_Controller.left_Players.Contains(Character) ? Turn_Controller.right_Players : Turn_Controller.left_Players;
+                targets = Character.Team.Opposition.members;
                 break;
         }
 
@@ -137,7 +142,7 @@ public abstract class Skill : MonoBehaviour
 
             for (int i = 0; i < targets.Count; i++)
             {
-                targets[i].target_Arrow.GetComponent<RectTransform>().anchoredPosition = Turn_Controller.mainCamera.UIPosition(targets[i].outcome_Bubble_Pos.position);
+                targets[i].target_Arrow.GetComponent<RectTransform>().anchoredPosition = TurnController.mainCamera.UIPosition(targets[i].outcome_Bubble_Pos.position);
             }
 
             Color arrowColor = Color.black;
@@ -147,39 +152,39 @@ public abstract class Skill : MonoBehaviour
                 case Selection.Singular:
                     foreach (Combat_Character c in targets)
                     {
-                        if (c == Turn_Controller.hoveringOver)
+                        if (c == TurnController.hoveringOver)
                             c.target_Arrow.GetComponent<Image>().color = arrowColor;
                         else
                             c.target_Arrow.GetComponent<Image>().color = new Color(arrowColor.r, arrowColor.g, arrowColor.b, 0.5f);
                     }
 
-                    if (targets.Contains(Turn_Controller.selected))
-                        chosen_Targets.Add(Turn_Controller.selected.transform);
+                    if (targets.Contains(TurnController.selectedCharacter))
+                        chosen_Targets.Add(TurnController.selectedCharacter.transform);
                     break;
 
                 case Selection.All:
                     foreach (Combat_Character c in targets)
                     {
-                        if (targets.Contains(Turn_Controller.hoveringOver))
+                        if (targets.Contains(TurnController.hoveringOver))
                             c.target_Arrow.GetComponent<Image>().color = arrowColor;
                         else
                             c.target_Arrow.GetComponent<Image>().color = new Color(arrowColor.r, arrowColor.g, arrowColor.b, 0.5f);
                     }
 
-                    if (targets.Contains(Turn_Controller.selected))
+                    if (targets.Contains(TurnController.selectedCharacter))
                         chosen_Targets = targets.Select(o => o.transform).ToList();
                     break;
 
                 case Selection.Random:
                     foreach (Combat_Character c in targets)
                     {
-                        if (targets.Contains(Turn_Controller.hoveringOver))
+                        if (targets.Contains(TurnController.hoveringOver))
                             c.target_Arrow.GetComponent<Image>().color = arrowColor;
                         else
                             c.target_Arrow.GetComponent<Image>().color = new Color(arrowColor.r, arrowColor.g, arrowColor.b, 0.5f);
                     }
 
-                    if (targets.Contains(Turn_Controller.selected))
+                    if (targets.Contains(TurnController.selectedCharacter))
                         for (int i = 0; i < targetQuantity; i++)
                         {
                             int x;
@@ -219,9 +224,9 @@ public abstract class Skill : MonoBehaviour
 
     public void HideTargets()
     {
-        for (int i = 0; i < Turn_Controller.target_Arrows.childCount; i++)
+        for (int i = 0; i < TurnController.target_Arrows.childCount; i++)
         {
-            Turn_Controller.target_Arrows.GetChild(i).gameObject.SetActive(false);
+            TurnController.target_Arrows.GetChild(i).gameObject.SetActive(false);
         }
     }
 }

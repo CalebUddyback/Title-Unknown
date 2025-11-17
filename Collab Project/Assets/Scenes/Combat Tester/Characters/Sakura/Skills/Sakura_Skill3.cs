@@ -33,11 +33,11 @@ public class Sakura_Skill3 : Skill
 
     public override IEnumerator Resolve()
     {
-        yield return new WaitUntil(() => Character.cards.cardRemoved == true);
+        yield return new WaitUntil(() => Character.decks.cardRemoved == true);
 
         Character.animationController.Play();
 
-        yield return Character.cards.DrawCards(2, true);
+        yield return Character.decks.DrawCards(2, true);
 
         yield return Character.animationController.coroutine;
     }

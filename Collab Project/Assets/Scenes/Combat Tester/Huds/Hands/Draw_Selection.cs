@@ -70,7 +70,7 @@ public class Draw_Selection : MonoBehaviour
 
         chosenSlot.card.usableIMG.gameObject.SetActive(true);
 
-        Hand_Slot slot = turn_Controller.characterTurn.cards.CreateSlot();
+        Hand_Slot slot = turn_Controller.characterTurn.decks.CreateSlot();
 
         slot.card = chosenSlot.card;
 
@@ -78,15 +78,15 @@ public class Draw_Selection : MonoBehaviour
 
         yield return null;
 
-        yield return turn_Controller.characterTurn.cards.ShiftCards();
+        yield return turn_Controller.characterTurn.decks.ShiftCards();
 
-        turn_Controller.characterTurn.cards.drawDeckQuantity.text = turn_Controller.characterTurn.cards.drawDeck.childCount.ToString();
+        turn_Controller.characterTurn.decks.drawDeckQuantity.text = turn_Controller.characterTurn.decks.drawDeck.childCount.ToString();
 
         yield return slot.RetrieveCard();
 
-        turn_Controller.characterTurn.cards.hand.Add(slot.card);
+        turn_Controller.characterTurn.decks.hand.Add(slot.card);
 
-        turn_Controller.characterTurn.cards.hand = turn_Controller.characterTurn.cards.hand.OrderBy(o => o.transform.parent.GetSiblingIndex()).ToList();
+        turn_Controller.characterTurn.decks.hand = turn_Controller.characterTurn.decks.hand.OrderBy(o => o.transform.parent.GetSiblingIndex()).ToList();
 
         for (int i = 0; i < transform.childCount; i++)
         {
@@ -95,7 +95,7 @@ public class Draw_Selection : MonoBehaviour
 
             slots.GetChild(i).GetComponent<Draw_Slot>().card.gameObject.SetActive(false);
 
-            slots.GetChild(i).GetComponent<Draw_Slot>().card.transform.SetParent(turn_Controller.characterTurn.cards.drawDeck);
+            slots.GetChild(i).GetComponent<Draw_Slot>().card.transform.SetParent(turn_Controller.characterTurn.decks.drawDeck);
 
             slots.GetChild(i).GetComponent<Draw_Slot>().card.GetComponent<RectTransform>().anchoredPosition = Vector2.zero;
         }
@@ -124,7 +124,7 @@ public class Draw_Selection : MonoBehaviour
 
         for (int i = 0; i < transform.childCount; i++)
         {
-            Card card = turn_Controller.characterTurn.cards.drawDeck.GetChild(0).GetComponent<Card>();
+            Card card = turn_Controller.characterTurn.decks.drawDeck.GetChild(0).GetComponent<Card>();
 
             slots.GetChild(i).GetComponent<Draw_Slot>().card = card;
 
@@ -163,7 +163,7 @@ public class Draw_Selection : MonoBehaviour
         {
             slots.GetChild(i).GetComponent<Draw_Slot>().card.gameObject.SetActive(false);
 
-            slots.GetChild(i).GetComponent<Draw_Slot>().card.transform.SetParent(turn_Controller.characterTurn.cards.drawDeck);
+            slots.GetChild(i).GetComponent<Draw_Slot>().card.transform.SetParent(turn_Controller.characterTurn.decks.drawDeck);
 
             slots.GetChild(i).GetComponent<Draw_Slot>().card.GetComponent<RectTransform>().anchoredPosition = Vector2.zero;
         }

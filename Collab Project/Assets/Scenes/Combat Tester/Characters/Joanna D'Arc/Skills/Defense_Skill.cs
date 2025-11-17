@@ -13,7 +13,7 @@ public class Defense_Skill : Skill
             return false;
 
         if(discard)
-            if (Character.cards.hand.Count < 1)
+            if (Character.decks.hand.Count < 1)
                 return false;
 
         if (Character.blocking)
@@ -24,7 +24,7 @@ public class Defense_Skill : Skill
 
     public override IEnumerator SetUp()
     {
-        yield return Character.cards.DiscardCards();
+        yield return Character.decks.DiscardCards();
 
         yield return CharacterTargeting();
     }
@@ -37,7 +37,7 @@ public class Defense_Skill : Skill
 
         yield return Character.WaitForKeyFrame();
 
-        yield return new WaitUntil(() => Character.cards.cardRemoved == true);
+        yield return new WaitUntil(() => Character.decks.cardRemoved == true);
 
         Character.animationController.Pause();
     }
