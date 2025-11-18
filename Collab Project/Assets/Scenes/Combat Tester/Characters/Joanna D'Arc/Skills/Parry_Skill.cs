@@ -37,13 +37,14 @@ public class Parry_Skill : Skill
     {
         //yield return CharacterTargeting();
 
-        chosen_Targets.Add(Character.TurnController.resolveStack[Character.TurnController.resolveStack.Count - 1].hand.character.transform);
+        chosen_Targets.Add(Character.TurnController.resolveStack[Character.TurnController.resolveStack.Count - 2].hand.character.transform);
 
         yield return null;
     }
 
     public override IEnumerator Execute()
     {
+
         Character.enemyTransform = chosen_Targets[0];
 
         Character.TurnController.resolveStack[Character.TurnController.resolveStack.Count - 2].negated = true;

@@ -41,8 +41,6 @@ public class Turn_Controller : MonoBehaviour
 
     private bool endTurn = false;
 
-    private bool endReaction = false;
-
     public Turn_Timeline turn_Timeline;
 
     public GameObject raycastBlocker;
@@ -50,6 +48,7 @@ public class Turn_Controller : MonoBehaviour
     [System.Serializable]
     public class Team
     {
+        public string name;
         public Canvas huds;
         public Transform positions;
         public List<Combat_Character> members = new List<Combat_Character>();
@@ -57,6 +56,7 @@ public class Turn_Controller : MonoBehaviour
         public Transform decks;
         public Decks visibleDeck;
         public Combo_Counter combo_Counter;
+        public bool reacting = false;
         public int facing;
     }
     public Team[] teams = new Team[2];
@@ -447,8 +447,11 @@ public class Turn_Controller : MonoBehaviour
 
         skill.Character.Team.visibleDeck.Locked = true;
 
-        if(skill.Character.Team.Opposition.visibleDeck != null)
+        if (skill.Character.Team.Opposition.visibleDeck != null)
             skill.Character.Team.Opposition.visibleDeck.Locked = false;
+
+        skill.Character.Team.Opposition.reacting = true;
+
 
         foreach (Combat_Character character in skill.Character.Team.Opposition.members)
         {
@@ -458,43 +461,39 @@ public class Turn_Controller : MonoBehaviour
 
                 if (slot.set && !resolveStack.Contains(slot.card) && slot.card.skill.ReactCondition(skill, stage))
                 {
-                    StartCoroutine(Mark(character));
                     reactors.Add(character);
+                    StartCoroutine(Mark(character));
                     break;
                 }
 
             }
         }
 
-        if (reactors.Count > 0)
+        // yield return new WaitUntil(() => slot.decks.cardCoroutine != null);
+        // yield return slot.decks.cardCoroutine;
+
+
+        if (reactors.Count <= 0)
+        {
+            skill.Character.Team.Opposition.reacting = false;
+        }
+        else
         {
             endTurnButton.transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = "Skip";
 
             endTurnButton.onClick.RemoveAllListeners();
 
-            endTurnButton.onClick.AddListener(() => endReaction = true);
+            endTurnButton.onClick.AddListener(() => skill.Character.Team.Opposition.reacting = false);
 
-            while (endReaction == false)
-            {
+            yield return new WaitWhile(() => skill.Character.Team.Opposition.reacting == true && skill.Character.Team.Opposition.visibleDeck.cardCoroutine == null);
 
-                if (selectedCharacter != null && reactors.Contains(selectedCharacter))
-                {
-                    Combat_Character temp = selectedCharacter;
-                    selectedCharacter = null;
+            skill.Character.Team.Opposition.reacting = false;
 
-                    if (temp.Team.visibleDeck != temp.decks)
-                        yield return temp.decks.Raise();
-
-                    temp.decks.Locked = false;
-                }
-                yield return null;
-            }
+            yield return skill.Character.Team.Opposition.visibleDeck.cardCoroutine;
 
             endTurnButton.onClick.RemoveAllListeners();
 
             endTurnButton.onClick.AddListener(() => endTurn = true);
-
-            endTurnButton.transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = "End Turn";
         }
 
         yield return 0;
@@ -504,19 +503,35 @@ public class Turn_Controller : MonoBehaviour
     {
         character.reaction_Arrow.SetActive(true);
 
-        while (endReaction == false)
+        character.reacting = true;
+
+        while (character.Team.reacting == true)
         {
             character.reaction_Arrow.GetComponent<RectTransform>().anchoredPosition = mainCamera.UIPosition(character.outcome_Bubble_Pos.position);
 
-            if(character.Team.visibleDeck == character.decks)
+            if (character == selectedCharacter && character.decks != character.Team.visibleDeck)
+            {
+                StartCoroutine(character.decks.Raise(false));
+                selectedCharacter = null;
+            }
+
+            if (character.decks == character.Team.visibleDeck)
+            {
                 character.reaction_Arrow.transform.GetChild(0).GetComponent<TextMeshProUGUI>().color = Color.white;
-            else if (character == character.TurnController.hoveringOver)
+            }
+            else if (character == hoveringOver)
+            {
                 character.reaction_Arrow.transform.GetChild(0).GetComponent<TextMeshProUGUI>().color = Color.yellow;
+            }
             else
+            {
                 character.reaction_Arrow.transform.GetChild(0).GetComponent<TextMeshProUGUI>().color = Color.red;
+            }
 
             yield return null;
         }
+
+        character.reacting = false;
 
         character.reaction_Arrow.SetActive(false);
     }
@@ -532,17 +547,14 @@ public class Turn_Controller : MonoBehaviour
 
             if (!card.negated)
             {
-                //Debug.Log(card.skill.name + " resolved", card.gameObject);
+                Debug.Log(card.skill.name + " resolved", card.gameObject);
                 yield return card.skill.Resolve();
             }
             else
             {
-                //Debug.Log(card.skill.name + " negated");
+                Debug.Log(card.skill.name + " negated");
                 card.negated = false;
             }
-
-            //yield return card.transform.parent.GetComponent<Hand_Slot>().decks.RemoveCard(card.transform.parent.GetComponent<Hand_Slot>());
-
 
             resolveStack.Remove(card);
         }

@@ -162,11 +162,10 @@ public class Decks : MonoBehaviour
         //}
     }
 
+    public Coroutine cardCoroutine;
+
     public void ExecuteSelectedSlot()
     {
-        if (character.reacting)
-            character.reacting = false;
-
         executedSlot = SelectedSlot;
 
         SelectedSlot = null;
@@ -175,42 +174,44 @@ public class Decks : MonoBehaviour
 
         //executedSlot.card.card_Prefab.transform.localPosition = Vector2.up * 36;
 
-        StartCoroutine(CardSetUp());
-
         cardsPlayed.Add(executedSlot.card.skill.displayName);
 
         character.TurnController.endTurnButton.transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = "End Turn";
 
-        IEnumerator CardSetUp()
-        {
-            Locked = true;
+        cardCoroutine = StartCoroutine(CardSetUp());
+    }
 
-            character.TurnController.endTurnButton.interactable = false;
+    IEnumerator CardSetUp()
+    {
+        Locked = true;
 
-            cardRemoved = false;
+        character.TurnController.endTurnButton.interactable = false;
 
-            yield return executedSlot.card.skill.SetUp();
+        cardRemoved = false;
 
-            character.TurnController.resolveStack.Add(executedSlot.card);
+        character.TurnController.resolveStack.Add(executedSlot.card);
 
-            character.AdjustMana(executedSlot.card.skill.manaCost, false);
+        yield return executedSlot.card.skill.SetUp();
 
-            StartCoroutine(RemoveCard(executedSlot));
+        character.AdjustMana(executedSlot.card.skill.manaCost, false);
 
-            yield return executedSlot.card.skill.Execute();
+        StartCoroutine(RemoveCard(executedSlot));
 
-            character.TurnController.CheckAllCards();
+        cardCoroutine = null;
 
+        yield return executedSlot.card.skill.Execute();
+
+        character.TurnController.CheckAllCards();
+
+
+        if(character = character.TurnController.characterTurn)
             yield return character.TurnController.ResolveCards();
 
-            Locked = false;
+        Locked = false;
 
-            distinctTargets.AddRange(executedSlot.card.skill.chosen_Targets);
+        distinctTargets.AddRange(executedSlot.card.skill.chosen_Targets);
 
-            executedSlot.card.skill.chosen_Targets.Clear();
-
-            executedSlot = null;
-        }
+        executedSlot.card.skill.chosen_Targets.Clear();
     }
 
     public void DiscardSelectedCard()
@@ -430,14 +431,16 @@ public class Decks : MonoBehaviour
         SelectedSlot.ResetCard();
     }
 
-    public IEnumerator Raise()
+    public IEnumerator Raise( bool autoLock)
     {
         //gameObject.SetActive(true);
 
-        if (character.Team.visibleDeck != null && character.Team.visibleDeck != this)
-            yield return character.Team.visibleDeck.Lower();
+        Decks temp = character.Team.visibleDeck;
 
         character.Team.visibleDeck = this;
+
+        if (temp != null && temp != this)
+            yield return temp.Lower(false);
 
         Vector3 startPos = new Vector3(0, -170f, 0);
 
@@ -456,11 +459,16 @@ public class Decks : MonoBehaviour
         }
 
         GetComponent<RectTransform>().anchoredPosition = targetPos;
+
+        Locked = autoLock;
     }
 
-    public IEnumerator Lower()
+    public IEnumerator Lower(bool autoNull)
     {
         Locked = true;
+
+        if(autoNull)
+            character.Team.visibleDeck = null;
 
         ResetPreviousSlot();
 
@@ -481,8 +489,6 @@ public class Decks : MonoBehaviour
         }
 
         GetComponent<RectTransform>().anchoredPosition = targetPos;
-
-        character.Team.visibleDeck = null;
 
         //gameObject.SetActive(false);
     }

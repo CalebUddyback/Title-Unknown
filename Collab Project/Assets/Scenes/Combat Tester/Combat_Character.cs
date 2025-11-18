@@ -158,7 +158,7 @@ public abstract class Combat_Character : MonoBehaviour, IPointerEnterHandler, IP
     {
         TurnController.CheckAllCards();
 
-        yield return decks.Raise();
+        yield return decks.Raise(false);
 
         yield return new WaitForSeconds(0.5f);
 
