@@ -396,6 +396,7 @@ public class Decks : MonoBehaviour
     public IEnumerator DiscardCards()
     {
         Locked = false;
+
         discarding = true;
 
         foreach (Card card in hand)
@@ -417,8 +418,9 @@ public class Decks : MonoBehaviour
         yield return RemoveSlots(cardsToRemove, false);
         //cardsToRemove = null;
 
-        Locked = true;
         discarding = false;
+
+        Locked = false;
 
     }
 
@@ -427,6 +429,8 @@ public class Decks : MonoBehaviour
 
     public IEnumerator ShiftCards()
     {
+        Locked = true;
+
         Coroutine retrieval = null;
 
         for (int r = 0; r < hand_Pos.childCount; r++)
@@ -435,6 +439,8 @@ public class Decks : MonoBehaviour
         }
 
         yield return retrieval;
+
+        Locked = false;
     }
 
     public void ResetPreviousSlot()

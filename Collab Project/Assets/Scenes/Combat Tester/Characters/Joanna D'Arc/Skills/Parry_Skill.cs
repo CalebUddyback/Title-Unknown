@@ -42,7 +42,6 @@ public class Parry_Skill : Skill
 
         yield return CharacterTargeting();
 
-        yield return null;
     }
 
     public override IEnumerator Execute()
