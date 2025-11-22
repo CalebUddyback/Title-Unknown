@@ -4,40 +4,43 @@ using UnityEngine;
 
 public class Parry_Skill : Skill
 {
-    public override bool UseCondition()
+    public override bool SetCondition()
     {
-        return false;
+        if (Character.currentPhase != Combat_Character.Phase.Main)
+            return false;
+
+        return true;
     }
 
-    public override bool ReactCondition(Skill skill, Turn_Controller.Stage stage)
+    public override bool ReactCondition()
     {
-        //if (Character.currentPhase != Combat_Character.Phase.Waiting)
-        //    return false;
-        //
+        if (!set)
+            return false;
+
+        if (Character.TurnController.resolveStack.Count <= 0)
+            return false;
+
         //if (manaCost > Character.Mana())
-        //    return false;
-        //
-        //if (skill.selection != Selection.Singular)
-        //    return false;
-        //
-        //if (skill.type != Type.Offensive && skill.type != Type.Defensive)
         //    return false;
         //
         //if (!skill.chosen_Targets.Contains(Character.transform))
         //    return false;
+        //if (skill.selection != Selection.Singular)
+        //    return false;
         //
         //if (skill.range != Range.Close)
         //    return false;
-
+        //
+        //if (skill.type != Type.Offensive && skill.type != Type.Defensive)
+        //    return false;
 
         return true;
     }
 
     public override IEnumerator SetUp()
     {
-        //yield return CharacterTargeting();
 
-        chosen_Targets.Add(Character.TurnController.resolveStack[Character.TurnController.resolveStack.Count - 2].hand.character.transform);
+        yield return CharacterTargeting();
 
         yield return null;
     }
@@ -59,7 +62,9 @@ public class Parry_Skill : Skill
 
         Character.animationController.Pause();
 
-        CoroutineWithData cwd = new CoroutineWithData(Character, Character.TurnController.Reactions(this, Turn_Controller.Stage.IMPACT));
+        stage = Stage.Impact;
+
+        CoroutineWithData cwd = new CoroutineWithData(Character, Character.TurnController.Reactions());
         yield return cwd.coroutine;
     }   
 

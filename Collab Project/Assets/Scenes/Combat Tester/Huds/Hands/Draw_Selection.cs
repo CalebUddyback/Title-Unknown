@@ -70,7 +70,7 @@ public class Draw_Selection : MonoBehaviour
 
         chosenSlot.card.usableIMG.gameObject.SetActive(true);
 
-        Hand_Slot slot = turn_Controller.characterTurn.decks.CreateSlot();
+        Hand_Slot slot = turn_Controller.characterTurn.decks.CreateSlots(1, true)[0];
 
         slot.card = chosenSlot.card;
 

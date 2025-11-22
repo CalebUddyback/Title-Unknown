@@ -12,8 +12,6 @@ public class Hand_Slot : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
 
     public Button setButton, executeButton, discardButton;
 
-    public bool set = false;
-
     public void OnPointerEnter(PointerEventData eventData)
     {
         if (decks.SelectedSlot != this && decks.executedSlot != this && !decks.Locked)
@@ -50,12 +48,12 @@ public class Hand_Slot : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
 
     public void SetCard()
     {
-        decks.SetSelectedSlot();
+        decks.SetSelected();
     }
 
     public void ExecuteCard()
     {
-        decks.ExecuteSelectedSlot();
+        decks.ExecuteSelected();
     }
 
     public void DiscardCard()
@@ -67,8 +65,6 @@ public class Hand_Slot : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
     {
         if (card == null)
             yield break;
-
-        GetComponent<RectTransform>().sizeDelta = new Vector2(decks.cardSize.x - decks.cardSpacing, decks.cardSize.y);
 
         card.transform.SetParent(transform);
 

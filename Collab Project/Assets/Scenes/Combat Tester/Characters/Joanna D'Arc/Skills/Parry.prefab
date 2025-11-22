@@ -52,14 +52,13 @@ MonoBehaviour:
   animationName: Parry
   effect: 0
   description: 
-  scope: 2
-  selection: 0
+  selection: 7
   type: 1
   range: 0
+  stage: 0
   discard: 0
   chargeTime: 0
-  targetQuantity: 1
-  mustBeSet: 1
+  set: 0
   manaCost: 0
   DamageVariation: {x: 0, y: 0}
   critical: 0

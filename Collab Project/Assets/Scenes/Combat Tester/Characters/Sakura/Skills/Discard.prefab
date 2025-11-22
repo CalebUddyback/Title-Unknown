@@ -48,25 +48,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e5ca49266fd503145ad8eb69039d5c87, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hand: {fileID: 0}
-  card_Prefab: {fileID: 0}
   displayName: Discard
   animationName: Buff
   effect: 0
   description: 
-  scope: 0
-  selection: 0
+  selection: 3
   type: 2
   range: 0
-  distance: 0
-  discards: 1
+  stage: 0
+  discard: 0
   chargeTime: 0
+  set: 0
+  manaCost: 0
+  DamageVariation: {x: 0, y: 0}
+  critical: 0
+  intervals:
+    distance: 0.35
+    knockBack: {x: 0, y: 0, z: 0}
   health: 0
   mana: 10
-  stats:
-    DamageVariation: {x: 0, y: 0}
-    critical: 0
-    mana: 0
-    knockBack: {x: 0, y: 0, z: 0}
-  targetQuantity: 1
   chosen_Targets: []

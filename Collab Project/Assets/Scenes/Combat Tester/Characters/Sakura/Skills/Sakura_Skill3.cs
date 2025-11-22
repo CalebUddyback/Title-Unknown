@@ -37,7 +37,7 @@ public class Sakura_Skill3 : Skill
 
         Character.animationController.Play();
 
-        yield return Character.decks.DrawCards(2, true);
+        yield return Character.decks.DrawCards(2, true, true);
 
         yield return Character.animationController.coroutine;
     }

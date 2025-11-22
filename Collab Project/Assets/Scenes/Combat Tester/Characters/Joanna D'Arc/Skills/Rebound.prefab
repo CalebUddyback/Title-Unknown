@@ -48,25 +48,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b6e107e8766c0d5478e41404e4d8308f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hand: {fileID: 0}
-  card_Prefab: {fileID: 0}
   displayName: Rebound
   animationName: Cast_ShieldBuff
   effect: 0
   description: 'Required: Activated Guard'
-  scope: 0
-  selection: 0
+  selection: 3
   type: 2
   range: 0
-  distance: 0
-  discards: 0
+  stage: 0
+  discard: 0
   chargeTime: 0
+  set: 0
+  manaCost: 0
+  DamageVariation: {x: 0, y: 0}
+  critical: 0
+  intervals:
+    distance: 0.35
+    knockBack: {x: 0, y: 0, z: 0}
   health: 0
   mana: 20
-  stats:
-    DamageVariation: {x: 0, y: 0}
-    critical: 0
-    mana: 0
-    knockBack: {x: 0, y: 0, z: 0}
-  targetQuantity: 1
   chosen_Targets: []

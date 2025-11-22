@@ -307,7 +307,7 @@ public class Turn_Controller : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            StartCoroutine(characterTurn.decks.DrawCards(1, true));
+            StartCoroutine(characterTurn.decks.DrawCards(1, true, true));
         }
     }
 
@@ -439,8 +439,10 @@ public class Turn_Controller : MonoBehaviour
         }
     }
 
-    public IEnumerator Reactions(Skill skill, Stage stage)
+    public IEnumerator Reactions()
     {
+        Skill skill = resolveStack.ElementAt(resolveStack.Count - 1).skill;
+
         selectedCharacter = null;
 
         List<Combat_Character> reactors = new List<Combat_Character>();
@@ -459,7 +461,7 @@ public class Turn_Controller : MonoBehaviour
             {
                 Hand_Slot slot = child.GetComponent<Hand_Slot>();
 
-                if (slot.set && !resolveStack.Contains(slot.card) && slot.card.skill.ReactCondition(skill, stage))
+                if (!resolveStack.Contains(slot.card) && slot.card.skill.ReactCondition())
                 {
                     reactors.Add(character);
                     StartCoroutine(Mark(character));

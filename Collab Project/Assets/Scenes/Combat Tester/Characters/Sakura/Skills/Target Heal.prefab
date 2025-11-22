@@ -48,23 +48,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d25dae6e2bd91394e94f8686c6ebdfa4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hand: {fileID: 0}
-  card_Prefab: {fileID: 0}
   displayName: Target Heal
   animationName: Buff
   effect: 0
   description: 
-  scope: 1
-  selection: 0
+  selection: 4
   type: 2
   range: 1
-  distance: 0
+  stage: 0
+  discard: 0
   chargeTime: 0
-  stats:
-    DamageVariation: {x: 10, y: 20}
-    critical: 0
-    defense: 0
-    mana: 15
+  set: 0
+  manaCost: 0
+  DamageVariation: {x: 0, y: 0}
+  critical: 0
+  intervals:
+    distance: 0.35
     knockBack: {x: 0, y: 0, z: 0}
-  targetQuantity: 1
+  health: 0
+  mana: 0
   chosen_Targets: []

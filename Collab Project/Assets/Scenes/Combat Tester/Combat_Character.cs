@@ -176,13 +176,13 @@ public abstract class Combat_Character : MonoBehaviour, IPointerEnterHandler, IP
 
         if (firstTurn)
         {
-            yield return decks.DrawCards(d, true);
+            yield return decks.DrawCards(d, true, false);
         }
         else
         {
             //int d = (hand.cards.Count < 5) ? 5 - hand.cards.Count : 1;
    
-            yield return decks.DrawCards(d, !selectedDraw);
+            yield return decks.DrawCards(d, !selectedDraw, false);
 
             if (selectedDraw)
                 yield return StartCoroutine(TurnController.draw_Selection.ChooseCard());

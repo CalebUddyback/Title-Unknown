@@ -48,23 +48,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9e6a0bab6b0f0684c873ddb753c88ef7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hand: {fileID: 0}
-  card_Prefab: {fileID: 0}
   displayName: Draw 2
   animationName: Buff
   effect: 0
   description: 
-  scope: 0
-  selection: 0
+  selection: 3
   type: 2
   range: 0
-  distance: 0
+  stage: 0
+  discard: 0
   chargeTime: 0
-  stats:
-    DamageVariation: {x: 0, y: 0}
-    critical: 0
-    defense: 0
-    mana: 10
+  set: 0
+  manaCost: 0
+  DamageVariation: {x: 0, y: 0}
+  critical: 0
+  intervals:
+    distance: 0.35
     knockBack: {x: 0, y: 0, z: 0}
-  targetQuantity: 1
+  health: 0
+  mana: 0
   chosen_Targets: []

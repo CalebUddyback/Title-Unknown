@@ -41,6 +41,8 @@ public class Sakura_Skill1: Skill
 
         yield return Character.TurnController.mainCamera.MovingTo(camTargetPos, 0.5f);
 
+        stage = Stage.Moving;
+
         yield return Character.MoveInRange(new Vector3(-(intervals.distance), 0, 0));
 
         Character.animationController.Clip(animationName);
@@ -51,7 +53,9 @@ public class Sakura_Skill1: Skill
 
         Character.Enemy.animationController.Pause();
 
-        CoroutineWithData cwd = new CoroutineWithData(Character, Character.TurnController.Reactions(this, Turn_Controller.Stage.IMPACT));
+        stage = Stage.Impact;
+
+        CoroutineWithData cwd = new CoroutineWithData(Character, Character.TurnController.Reactions());
         yield return cwd.coroutine;
     }
 

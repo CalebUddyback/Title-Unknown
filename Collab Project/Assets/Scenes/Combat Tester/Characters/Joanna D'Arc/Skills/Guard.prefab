@@ -52,18 +52,18 @@ MonoBehaviour:
   animationName: Block_Set
   effect: 0
   description: Damage reduces MP instead of HP
-  scope: 0
-  selection: 0
+  selection: 3
   type: 1
   range: 0
-  discards: 2
+  stage: 0
+  discard: 0
   chargeTime: 0
-  targetQuantity: 1
-  stats:
-    distance: 0
-    DamageVariation: {x: 0, y: 0}
-    critical: 0
-    manaCost: 0
+  set: 0
+  manaCost: 0
+  DamageVariation: {x: 0, y: 0}
+  critical: 0
+  intervals:
+    distance: 0.35
     knockBack: {x: 0, y: 0, z: 0}
   health: 0
   mana: 0
