@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Dotted Line
+  m_Name: Line_Discard
   m_Shader: {fileID: -6465566751694194690, guid: ee2e94175e62db5448350a587b2f007c,
     type: 3}
   m_ShaderKeywords: 
@@ -26,7 +26,7 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Floats:
     - Boolean_5E897317: 1
-    - Vector1_B277C0EF: 2.5
-    - _TilingAmount: 3
+    - Vector1_B277C0EF: 1
+    - _TilingAmount: 10
     m_Colors:
     - Color_706908D1: {r: 1, g: 1, b: 1, a: 0}

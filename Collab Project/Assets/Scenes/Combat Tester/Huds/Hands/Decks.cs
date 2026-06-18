@@ -58,11 +58,11 @@ public class Decks : MonoBehaviour
 
     public bool cardRemoved = false;
 
-    private List<Hand_Slot> cardsToRemove;
+    public List<Hand_Slot> cardsToRemove;
 
     public Hand_Slot executedSlot;
 
-    private Hand_Slot selectedSlot;
+    public Hand_Slot selectedSlot;
 
     public Hand_Slot SelectedSlot
     {
@@ -167,7 +167,9 @@ public class Decks : MonoBehaviour
 
         SelectedSlot = null;
 
-        cardsPlayed.Add(executedSlot.card.skill.displayName);
+        Card card = executedSlot.card;
+
+        cardsPlayed.Add(card.skill.displayName);
 
         character.TurnController.endTurnButton.transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = "End Turn";
 
@@ -181,17 +183,21 @@ public class Decks : MonoBehaviour
 
             cardRemoved = false;
 
-            character.TurnController.resolveStack.Add(executedSlot.card);
+            character.TurnController.resolveStack.Add(card);
 
-            yield return executedSlot.card.skill.SetUp();
+            yield return card.skill.SetUp();
 
-            character.AdjustMana(executedSlot.card.skill.manaCost, false);
+            character.AdjustMana(card.skill.manaCost, false);
 
-            StartCoroutine(RemoveSlots(new List<Hand_Slot>(){ executedSlot }, true));
+            cardsToRemove.Add(executedSlot);
+
+            StartCoroutine(RemoveSlots(cardsToRemove, true));
+
+            executedSlot = null;
 
             cardCoroutine = null;
 
-            yield return executedSlot.card.skill.Execute();
+            yield return card.skill.Execute();
 
             character.TurnController.CheckAllCards();
 
@@ -201,21 +207,49 @@ public class Decks : MonoBehaviour
 
             Locked = false;
 
-            distinctTargets.AddRange(executedSlot.card.skill.chosen_Targets);
+            distinctTargets.AddRange(card.skill.chosen_Targets);
 
-            executedSlot.card.skill.chosen_Targets.Clear();
+            card.skill.chosen_Targets.Clear();
         }
     }
 
     public void DiscardSelectedCard()
     {
-
         ResetPreviousSlot();
 
-        cardsToRemove = new List<Hand_Slot>()
+        cardsToRemove.Add(selectedSlot);
+    }
+
+    public IEnumerator DiscardCards()
+    {
+        Locked = false;
+
+        discarding = true;
+
+        foreach (Card card in hand)
         {
-            SelectedSlot,
-        };
+            if (executedSlot != null && card == executedSlot.card)
+                continue;
+
+            card.Discardable(true);
+        }
+
+        character.TurnController.instructions.text = "Discard a card";
+
+        yield return new WaitWhile(() => cardsToRemove == null);
+
+
+        foreach (Card card in hand)
+            card.Discardable(false);
+
+        //yield return RemoveSlots(cardsToRemove, false);
+        //
+        //cardsToRemove.Clear();
+
+        discarding = false;
+
+        Locked = false;
+
     }
 
 
@@ -238,7 +272,7 @@ public class Decks : MonoBehaviour
 
         yield return ShuffleCards();
 
-        yield return new WaitForSeconds(0.5f);
+        yield return new WaitForSeconds(0.4f);
     }
 
     public IEnumerator DrawCards(int amount, bool autoUnlock, bool startLeft)
@@ -333,6 +367,7 @@ public class Decks : MonoBehaviour
 
     public IEnumerator RemoveSlots(List<Hand_Slot> slotsToRemove, bool autoShift)
     {
+
         Locked = true;
 
         float time = slotsToRemove[0].GetComponent<Animation>().clip.length;
@@ -342,14 +377,8 @@ public class Decks : MonoBehaviour
             slotsToRemove[i].GetComponent<Animation>().Play();
             slotsToRemove[i].card.gameObject.SetActive(false);
 
-            yield return new WaitForSeconds(time/2);
-        }
-
-        yield return new WaitForSeconds(time / 2);
-
-        for (int i = 0; i < slotsToRemove.Count; i++)
-        {
             slotsToRemove[i].card.transform.SetParent(discardDeck);
+
             slotsToRemove[i].card.GetComponent<RectTransform>().anchoredPosition = Vector2.zero;
 
             discardDeckQuantity.text = (discardDeck.childCount).ToString();
@@ -358,15 +387,27 @@ public class Decks : MonoBehaviour
 
             slotsToRemove[i].card.skill.set = false;
 
-            Destroy(slotsToRemove[i].gameObject);
+            slotsToRemove[i].card = null;
+
+            yield return new WaitForSeconds(time/2);
         }
+
+        yield return new WaitForSeconds(time / 2);
 
         foreach (Transform slot in hand_Pos.transform)
         {
-            slot.GetComponent<Hand_Slot>().card.transform.SetParent(transform.parent);
+            if (slot.GetComponent<Hand_Slot>().card != null)
+                slot.GetComponent<Hand_Slot>().card.transform.SetParent(transform.parent);
         }
 
         yield return null;
+
+        for (int i = 0; i < slotsToRemove.Count; i++)
+        {
+            Destroy(slotsToRemove[i].gameObject);
+
+            yield return null;
+        }
 
         cardRemoved = true;
 
@@ -391,37 +432,6 @@ public class Decks : MonoBehaviour
         }
 
         yield return RemoveSlots(slots, true);
-    }
-
-    public IEnumerator DiscardCards()
-    {
-        Locked = false;
-
-        discarding = true;
-
-        foreach (Card card in hand)
-        {
-            if (executedSlot != null && card == executedSlot.card)
-                continue;
-
-            card.Discardable(true);
-        }
-
-        character.TurnController.instructions.text = "Discard a card";
-
-        yield return new WaitWhile(() => cardsToRemove == null);
-
-
-        foreach (Card card in hand)
-            card.Discardable(false);
-
-        yield return RemoveSlots(cardsToRemove, false);
-        //cardsToRemove = null;
-
-        discarding = false;
-
-        Locked = false;
-
     }
 
     [HideInInspector]
@@ -462,30 +472,35 @@ public class Decks : MonoBehaviour
     {
         //gameObject.SetActive(true);
 
-        Decks temp = character.Team.visibleDeck;
-
-        character.Team.visibleDeck = this;
-
-        if (temp != null && temp != this)
-            yield return temp.Lower(false);
-
-        Vector3 startPos = new Vector3(0, -170f, 0);
-
-        Vector3 targetPos = new Vector3(0, 0, 0);
-
-        float timer = 0;
-        float maxTime = 0.2f;
-
-        while (timer < maxTime)
+        if (character.Team.visibleDeck != character.decks)
         {
-            GetComponent<RectTransform>().anchoredPosition = Vector3.Lerp(startPos, targetPos, timer / maxTime);
 
-            timer += Time.deltaTime;
+            Decks temp = character.Team.visibleDeck;
 
-            yield return null;
+            character.Team.visibleDeck = this;
+
+            if (temp != null && temp != this)
+                yield return temp.Lower(false);
+
+            Vector3 startPos = new Vector3(0, -170f, 0);
+
+            Vector3 targetPos = new Vector3(0, 0, 0);
+
+            float timer = 0;
+            float maxTime = 0.2f;
+
+            while (timer < maxTime)
+            {
+                GetComponent<RectTransform>().anchoredPosition = Vector3.Lerp(startPos, targetPos, timer / maxTime);
+
+                timer += Time.deltaTime;
+
+                yield return null;
+            }
+
+            GetComponent<RectTransform>().anchoredPosition = targetPos;
+
         }
-
-        GetComponent<RectTransform>().anchoredPosition = targetPos;
 
         Locked = autoLock;
     }
