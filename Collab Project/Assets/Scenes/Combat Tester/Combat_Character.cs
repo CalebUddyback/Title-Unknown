@@ -2,9 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.EventSystems;
 
-public abstract class Combat_Character : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
+public abstract class Combat_Character : MonoBehaviour
 {
     public bool cpu = false;
 
@@ -23,7 +22,10 @@ public abstract class Combat_Character : MonoBehaviour, IPointerEnterHandler, IP
     public Transform outcome_Bubble_Pos;
 
     [HideInInspector]
-    public GameObject target_Arrow, reaction_Arrow;
+    public Target_Arrow target_Arrow;
+
+    [HideInInspector]
+    public GameObject reaction_Arrow;
 
     public enum Phase {Waiting, Draw, Main, Action, End, Reacting}
     public Phase currentPhase = Phase.Waiting;
@@ -31,7 +33,7 @@ public abstract class Combat_Character : MonoBehaviour, IPointerEnterHandler, IP
     public Transform skills;
 
     [HideInInspector]
-    public Decks decks;
+    public Decks deck;
 
     public int Facing { get; set; } = 1;
 
@@ -103,7 +105,6 @@ public abstract class Combat_Character : MonoBehaviour, IPointerEnterHandler, IP
         Hud.healthBar.Adjust(former, health);
     }
 
-
     private int mana;
 
     public int InitialMana
@@ -151,14 +152,14 @@ public abstract class Combat_Character : MonoBehaviour, IPointerEnterHandler, IP
     {
         Hud.timer_ChargeIndicator.SetActive(true);
 
-        yield return Hud.ScrollTimerTo(decks.SelectedSlot.card.skill.chargeTime);
+        yield return Hud.ScrollTimerTo(deck.SelectedSlot.card.skill.chargeTime);
     }
 
     public IEnumerator StartTurn()
     {
         TurnController.CheckAllCards();
 
-        yield return decks.Raise(false);
+        yield return deck.Raise(false);
 
         yield return new WaitForSeconds(0.5f);
 
@@ -166,7 +167,7 @@ public abstract class Combat_Character : MonoBehaviour, IPointerEnterHandler, IP
 
         bool selectedDraw = Random.Range(0, 100) < 0 ? true : false;
 
-        if (decks.drawDeck.childCount < 3)
+        if (deck.drawDeck.childCount < 3)
             selectedDraw = false;
 
         int d = 5;
@@ -176,19 +177,19 @@ public abstract class Combat_Character : MonoBehaviour, IPointerEnterHandler, IP
 
         if (firstTurn)
         {
-            yield return decks.DrawCards(d, true, false);
+            yield return deck.DrawCards(d, true, false);
         }
         else
         {
             //int d = (hand.cards.Count < 5) ? 5 - hand.cards.Count : 1;
    
-            yield return decks.DrawCards(d, !selectedDraw, false);
+            yield return deck.DrawCards(d, !selectedDraw, false);
 
             if (selectedDraw)
                 yield return StartCoroutine(TurnController.draw_Selection.ChooseCard());
         }
 
-        decks.Locked = false;
+        deck.Locked = false;
 
         if (blocking)
         {
@@ -225,18 +226,18 @@ public abstract class Combat_Character : MonoBehaviour, IPointerEnterHandler, IP
     {
         TurnController.endTurnButton.interactable = false;
 
-        if (decks.cardsPlayed.Count == 0)
+        if (deck.cardsPlayed.Count == 0)
         {
 
             int restMP = 20;
             AdjustMana(restMP, true);
         }
 
-        decks.cardsPlayed.Clear();
+        deck.cardsPlayed.Clear();
 
-        decks.distinctTargets.Add(transform);
+        deck.distinctTargets.Add(this);
 
-        decks.distinctTargets = decks.distinctTargets.Select(o => o.transform).Distinct().ToList();
+        deck.distinctTargets = deck.distinctTargets.Distinct().ToList();
 
         // End 
 
@@ -244,9 +245,9 @@ public abstract class Combat_Character : MonoBehaviour, IPointerEnterHandler, IP
 
         TurnController.CheckAllCards();
 
-        decks.ResetPreviousSlot();
+        //deck.ResetPreviousSlot();
 
-        yield return decks.Clear();
+        yield return deck.Clear();
 
         /** Yu-gi-oh style clean up phase **/
         //if (hand.cards.Count > hand.maxCardsInHand)
@@ -686,21 +687,4 @@ public abstract class Combat_Character : MonoBehaviour, IPointerEnterHandler, IP
         statChangers.Clear();
     }
 
-
-    public void OnPointerEnter(PointerEventData eventData)
-    {
-        TurnController.hoveringOver = this;
-    }
-
-    public void OnPointerExit(PointerEventData eventData)
-    {
-        if (TurnController.hoveringOver == this)
-            TurnController.hoveringOver = null;
-    }
-
-    public void OnPointerClick(PointerEventData eventData)
-    {
-        if(eventData.button == PointerEventData.InputButton.Left)
-            TurnController.selectedCharacter = this;
-    }
 }

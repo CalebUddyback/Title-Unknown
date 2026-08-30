@@ -113,9 +113,9 @@ public class Turn_Controller : MonoBehaviour
 
                 //newHand.gameObject.gameObject.SetActive(false);
 
-                character.decks = newHand;
+                character.deck = newHand;
 
-                newHand.character = character;
+                newHand.owner = character;
 
                 foreach (Transform skill in character.skills.transform)
                 {
@@ -139,7 +139,9 @@ public class Turn_Controller : MonoBehaviour
 
                 yield return newHand.ShuffleCards();
 
-                character.target_Arrow = Instantiate(target_Arrow_Prefab, target_Arrows);
+                character.target_Arrow = Instantiate(target_Arrow_Prefab, target_Arrows).GetComponent<Target_Arrow>();
+
+                character.target_Arrow.owner = character;
 
                 character.reaction_Arrow = Instantiate(reaction_Mark_Prefab, reaction_Marks);
 
@@ -171,120 +173,6 @@ public class Turn_Controller : MonoBehaviour
         StartCoroutine(RotateTurns());
     }
 
-    //IEnumerator OLDInitializeCharacters()
-    //{
-    //    foreach (Transform position in GameObject.Find("Left Players").transform)     // Players should be instantiated into positions eventually
-    //    {
-    //        if (position.childCount == 0)
-    //            continue;
-    //
-    //        Combat_Character character = position.GetChild(0).GetComponent<Combat_Character>();
-    //        left_Players.Add(character);
-    //        character.transform.localPosition = Vector3.zero;
-    //    }
-    //
-    //    foreach (Transform position in GameObject.Find("Right Players").transform)
-    //    {
-    //        if (position.childCount == 0)
-    //            continue;
-    //
-    //        Combat_Character character = position.GetChild(0).GetComponent<Combat_Character>();
-    //        right_Players.Add(character);
-    //        character.transform.localPosition = Vector3.zero;
-    //        character.Facing = -1;
-    //    }
-    //
-    //
-    //    all_Players = new List<Combat_Character>(left_Players);
-    //    all_Players.AddRange(right_Players);
-    //
-    //    left_Huds.transform.GetChild(0).gameObject.SetActive(false);
-    //    right_Huds.transform.GetChild(0).gameObject.SetActive(false);
-    //
-    //    foreach (Combat_Character character in all_Players)
-    //    {
-    //        character.TurnController = this;
-    //
-    //        character.TurnController.mainCamera = mainCamera;
-    //
-    //        character.ClearStatChangers();        //This is only for DEBUGING
-    //
-    //        if (left_Players.Contains(character))
-    //        {
-    //            character.Hud = Instantiate(left_Huds.transform.GetChild(0).gameObject.GetComponent<Character_Hud>(), left_Huds.transform);
-    //        }
-    //        else
-    //        {
-    //            character.Hud = Instantiate(right_Huds.transform.GetChild(0).gameObject.GetComponent<Character_Hud>(), right_Huds.transform);
-    //        }
-    //
-    //        character.Hud.gameObject.SetActive(true);
-    //
-    //        character.Hud.diplayName.text = character.gameObject.name;
-    //        character.Hud.TurnController = this;
-    //
-    //        character.InitialHealth = character.character_Stats.max_Health; // remove this line for persistant stats
-    //        character.Hud.healthBar.Initialize(character.Health(), character.character_Stats.max_Health);
-    //
-    //        character.InitialMana = character.character_Stats.max_Mana;
-    //        character.Hud.manaBar.Initialize(character.Mana(), character.character_Stats.max_Mana);
-    //
-    //        Decks newHand = Instantiate(decks_Prefab, (left_Players.Contains(character)) ? left_Hands : right_Hands).GetComponent<Decks>();
-    //
-    //        newHand.GetComponent<RectTransform>().localPosition += Vector3.up * -170;
-    //
-    //        //newHand.gameObject.gameObject.SetActive(false);
-    //
-    //        character.cards = newHand;
-    //
-    //        newHand.character = character;
-    //
-    //        foreach (Transform skill in character.skills.transform)
-    //        {
-    //            if (skill.gameObject.activeSelf == false)
-    //                continue;
-    //
-    //            Card card = Instantiate(newHand.card_Prefab, newHand.drawDeck);
-    //
-    //            card.GetComponent<RectTransform>().anchoredPosition = newHand.drawDeck.GetComponent<RectTransform>().anchoredPosition;
-    //
-    //            card.gameObject.SetActive(false);
-    //
-    //            card.gameObject.name = skill.name + " Card";
-    //
-    //            card.skill = skill.GetComponent<Skill>();
-    //        }
-    //
-    //        newHand.drawDeckQuantity.text = newHand.drawDeck.childCount.ToString();
-    //
-    //        newHand.discardDeckQuantity.text = newHand.discardDeck.childCount.ToString();
-    //
-    //        yield return newHand.ShuffleCards();
-    //
-    //        character.target_Arrow = Instantiate(target_Arrow_Prefab, target_Arrows);
-    //
-    //        character.reaction_Arrow = Instantiate(reaction_Mark_Prefab, reaction_Marks);
-    //    }
-    //
-    //    foreach (Combat_Character character in all_Players)
-    //    {
-    //        character.Hud.charge_Timer.text = "";
-    //
-    //        character.Hud.charge_Timer.rectTransform.sizeDelta = new Vector2(6, character.Hud.charge_Timer.fontSize * 30);
-    //
-    //        for (int i = 29; i >= 0; i--)
-    //        {
-    //            character.Hud.charge_Timer.text += i + "\n";
-    //        }
-    //
-    //        yield return null;
-    //    }
-    //
-    //    yield return new WaitForSeconds(1f);
-    //
-    //    StartCoroutine(RotateTurns());
-    //}
-
     private void Update()
     {
         if (Input.GetKeyDown(KeyCode.UpArrow))
@@ -307,7 +195,7 @@ public class Turn_Controller : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            StartCoroutine(characterTurn.decks.DrawCards(1, true, true));
+            StartCoroutine(characterTurn.deck.DrawCards(1, true, true));
         }
     }
 
@@ -385,12 +273,12 @@ public class Turn_Controller : MonoBehaviour
 
     public void ResetAnimations()
     {
-        foreach (Transform target in characterTurn.decks.distinctTargets)
+        foreach (Combat_Character target in characterTurn.deck.distinctTargets)
         {
-            if(target.GetComponent<Combat_Character>().blocking)
-                target.GetComponent<Combat_Character>().animationController.Clip("Block_Hold");
+            if(target.blocking)
+                target.animationController.Clip("Block_Hold");
             else
-                target.GetComponent<Combat_Character>().animationController.Clip("Idle");
+                target.animationController.Clip("Idle");
         }
     }
 
@@ -417,13 +305,13 @@ public class Turn_Controller : MonoBehaviour
 
         Coroutine coroutine = null;
 
-        foreach (Transform target in characterTurn.decks.distinctTargets)
-            coroutine = StartCoroutine(target.GetComponent<Combat_Character>().ResetPos());
+        foreach (Combat_Character target in characterTurn.deck.distinctTargets)
+            coroutine = StartCoroutine(target.ResetPos());
 
         yield return coroutine;
 
-        foreach (Transform target in characterTurn.decks.distinctTargets)
-            yield return target.GetComponent<Combat_Character>().Hud.healthBar.followBarCO;
+        foreach (Combat_Character target in characterTurn.deck.distinctTargets)
+            yield return target.Hud.healthBar.followBarCO;
 
         yield return cam;
     }
@@ -432,7 +320,7 @@ public class Turn_Controller : MonoBehaviour
     {
         foreach(Combat_Character character in all_Players)
         {
-            foreach (Card card_Prefab in character.decks.hand)
+            foreach (Card card_Prefab in character.deck.hand)
             {
                 card_Prefab.Usable = card_Prefab.skill.UseCondition();
             }
@@ -457,9 +345,9 @@ public class Turn_Controller : MonoBehaviour
 
         foreach (Combat_Character character in skill.Character.Team.Opposition.members)
         {
-            foreach (Transform child in character.decks.hand_Pos)
+            foreach (Transform child in character.deck.hand_Pos)
             {
-                Hand_Slot slot = child.GetComponent<Hand_Slot>();
+                Card_Slot slot = child.GetComponent<Card_Slot>();
 
                 if (!resolveStack.Contains(slot.card) && slot.card.skill.ReactCondition())
                 {
@@ -511,13 +399,13 @@ public class Turn_Controller : MonoBehaviour
         {
             character.reaction_Arrow.GetComponent<RectTransform>().anchoredPosition = mainCamera.UIPosition(character.outcome_Bubble_Pos.position);
 
-            if (character == selectedCharacter && character.decks != character.Team.visibleDeck)
+            if (character == selectedCharacter && character.deck != character.Team.visibleDeck)
             {
-                StartCoroutine(character.decks.Raise(false));
+                StartCoroutine(character.deck.Raise(false));
                 selectedCharacter = null;
             }
 
-            if (character.decks == character.Team.visibleDeck)
+            if (character.deck == character.Team.visibleDeck)
             {
                 character.reaction_Arrow.transform.GetChild(0).GetComponent<TextMeshProUGUI>().color = Color.white;
             }

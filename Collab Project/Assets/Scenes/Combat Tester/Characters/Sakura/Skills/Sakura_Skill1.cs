@@ -22,14 +22,17 @@ public class Sakura_Skill1: Skill
         //character.TurnController.descriptionBox.HIT_Num.text = skill_Stats.accuracy.ToString();
         //character.TurnController.descriptionBox.CRT_Num.text = skill_Stats.critical.ToString();
 
-        yield return CharacterTargeting();
+        //yield return CharacterTargeting();
+
+        yield return null;
     }
 
 
 
     public override IEnumerator Execute()
     {
-        Character.enemyTransform = chosen_Targets[0];
+ 
+        Character.enemyTransform = chosen_Targets[0].transform;
 
         GetOutcome(chosen_Targets[0].GetComponent<Combat_Character>());
 
@@ -37,7 +40,7 @@ public class Sakura_Skill1: Skill
 
         //character.mCamera.BlackOut(0.9f, 0.5f);
 
-        Vector3 camTargetPos = new Vector3(chosen_Targets[0].position.x, 0.45f, chosen_Targets[0].position.z - 2f);
+        Vector3 camTargetPos = new Vector3(chosen_Targets[0].transform.position.x, 0.45f, chosen_Targets[0].transform.position.z - 2f);
 
         yield return Character.TurnController.mainCamera.MovingTo(camTargetPos, 0.5f);
 

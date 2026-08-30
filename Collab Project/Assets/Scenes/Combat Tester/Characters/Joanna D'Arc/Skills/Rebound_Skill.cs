@@ -20,7 +20,9 @@ public class Rebound_Skill : Skill
 
     public override IEnumerator SetUp()
     {
-        yield return CharacterTargeting();
+        //yield return CharacterTargeting();
+
+        yield return null;
     }
 
     public override IEnumerator Execute()

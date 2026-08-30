@@ -17,7 +17,9 @@ public class Sakura_Skill2 : Skill
 
     public override IEnumerator SetUp()
     {
-        yield return CharacterTargeting();
+        //yield return CharacterTargeting();
+
+        yield return null;
     }
 
     public override IEnumerator Execute()
@@ -38,9 +40,9 @@ public class Sakura_Skill2 : Skill
 
         int totalHeal = Random.Range(DamageVariation.x, DamageVariation.y + 1) * CritSuccess;
 
-        foreach (Transform target in chosen_Targets)
+        foreach (Combat_Character target in chosen_Targets)
         {
-            var currentTarget = target.GetComponent<Combat_Character>();
+            var currentTarget = target;
 
             currentTarget.AdjustHealth(totalHeal, CritSuccess);
         }

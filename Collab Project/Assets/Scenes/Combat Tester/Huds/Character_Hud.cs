@@ -19,7 +19,7 @@ public class Character_Hud : MonoBehaviour
 
     public StatBar healthBar, manaBar;
 
-    public Transform skills;
+    //public Transform skills;
 
     /***** TIMER *****/
 
@@ -90,16 +90,16 @@ public class Character_Hud : MonoBehaviour
         StartCoroutine(FadeColorToBase());
     }
 
-    public void SkillSlot(int slot, Sprite image)
-    {
-        skills.GetChild(slot).GetChild(0).GetComponent<Image>().sprite = image;
-    }
-
-
-    public Sprite emptySlot;
-
-    public void ClearSkillSlot(int slot)
-    {
-        skills.GetChild(slot).GetChild(0).GetComponent<Image>().sprite = emptySlot;
-    }
+    //public void SkillSlot(int slot, Sprite image)
+    //{
+    //    skills.GetChild(slot).GetChild(0).GetComponent<Image>().sprite = image;
+    //}
+    //
+    //
+    //public Sprite emptySlot;
+    //
+    //public void ClearSkillSlot(int slot)
+    //{
+    //    skills.GetChild(slot).GetChild(0).GetComponent<Image>().sprite = emptySlot;
+    //}
 }

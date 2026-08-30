@@ -18,7 +18,7 @@ public class Card: MonoBehaviour
 
     public Skill skill;
 
-    public Decks hand;
+    public Decks deck;
 
     public bool negated = false;
 
@@ -34,11 +34,6 @@ public class Card: MonoBehaviour
             usable = value;
             usableIMG.color = usable ?  Color.green : Color.red;
         }
-    }
-
-    private void Awake()
-    {
-        //gameObject.SetActive(false);
     }
 
     public void Start()

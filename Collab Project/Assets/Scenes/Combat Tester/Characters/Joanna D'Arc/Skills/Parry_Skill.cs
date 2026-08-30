@@ -4,14 +4,6 @@ using UnityEngine;
 
 public class Parry_Skill : Skill
 {
-    public override bool SetCondition()
-    {
-        if (Character.currentPhase != Combat_Character.Phase.Main)
-            return false;
-
-        return true;
-    }
-
     public override bool ReactCondition()
     {
         if (!set)
@@ -40,14 +32,16 @@ public class Parry_Skill : Skill
     public override IEnumerator SetUp()
     {
 
-        yield return CharacterTargeting();
+        //yield return CharacterTargeting();
+
+        yield return null;
 
     }
 
     public override IEnumerator Execute()
     {
 
-        Character.enemyTransform = chosen_Targets[0];
+        Character.enemyTransform = chosen_Targets[0].transform;
 
         Character.TurnController.resolveStack[Character.TurnController.resolveStack.Count - 2].negated = true;
 

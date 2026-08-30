@@ -3,62 +3,56 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using System.Linq;
 
-public class Hand_Slot : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
+public class Card_Slot : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler, IPointerUpHandler
 {
-    public Decks decks;
+    public Decks deck;
 
     public Card card;
 
-    public Button setButton, executeButton, discardButton;
-
     public void OnPointerEnter(PointerEventData eventData)
     {
-        if (decks.SelectedSlot != this && decks.executedSlot != this && !decks.Locked)
+        if (!deck.Locked)
         {
-            //card.GetComponent<RectTransform>().anchoredPosition  = Vector2.up * 12f;        
-            transform.localScale = Vector3.one * 2f;
-
-            GetComponent<RectTransform>().sizeDelta = new Vector2(decks.cardSize.x + decks.cardSpacing + 5, decks.cardSize.y);
-            card.GetComponent<RectTransform>().localRotation = Quaternion.Euler(0, 0, 0);
-
-            LayoutRebuilder.ForceRebuildLayoutImmediate(transform.parent.GetComponent<RectTransform>());
-            GetComponent<Canvas>().overrideSorting = true;
-            decks.ResetPreviousSlot();
-            decks.SelectedSlot = null;
+            deck.HoverSlot = this;
         }
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
-        if (decks.SelectedSlot != this && decks.executedSlot != this && !decks.Locked)
+        if (!deck.Locked)
         {
-            ResetCard();
+            if (deck.HoverSlot != this)
+                return;
+            else
+                deck.HoverSlot = null;
         }
     }
 
-    public void OnPointerClick(PointerEventData eventData)
+    public void OnPointerDown(PointerEventData eventData)
     {
         if (eventData.button == PointerEventData.InputButton.Left)
         {
-            if (decks.SelectedSlot != this && !decks.Locked)
-                decks.SelectedSlot = this;
+            if (deck.SelectedSlot != this && !deck.Locked)
+            {
+                deck.SelectedSlot = this;
+            }
         }
     }
 
-    public void SetCard()
-    {
-        decks.SetSelected();
-    }
 
-    public void ExecuteCard()
+    public void OnPointerUp(PointerEventData eventData)
     {
-        decks.ExecuteSelected();
+        if (eventData.button == PointerEventData.InputButton.Left)
+        {
+            deck.SelectedSlot = null;
+        }
     }
 
     public void DiscardCard()
     {
-        decks.DiscardSelectedCard();
+        deck.DiscardSelectedCard();
     }
 
     public IEnumerator RetrieveCard()
@@ -99,11 +93,10 @@ public class Hand_Slot : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
         if (card != null)
         {
             card.GetComponent<RectTransform>().anchoredPosition = Vector2.zero;
-            card.GetComponent<RectTransform>().localRotation *= Quaternion.Euler(0, -1, 0);
         }
 
         transform.localScale = Vector3.one;
-        GetComponent<RectTransform>().sizeDelta = new Vector2(decks.cardSize.x - decks.cardSpacing, decks.cardSize.y);
+        GetComponent<RectTransform>().sizeDelta = new Vector2(deck.cardSize.x - deck.cardSpacing, deck.cardSize.y);
         LayoutRebuilder.ForceRebuildLayoutImmediate(transform.parent.GetComponent<RectTransform>());
         GetComponent<Canvas>().overrideSorting = false;
     }

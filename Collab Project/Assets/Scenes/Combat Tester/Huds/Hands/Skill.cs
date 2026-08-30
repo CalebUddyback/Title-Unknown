@@ -80,13 +80,8 @@ public abstract class Skill : MonoBehaviour
 
     }
 
-    [HideInInspector]
-    public List<Transform> chosen_Targets = new List<Transform>();
-
-    public virtual bool SetCondition()
-    {
-        return false;
-    }
+    //[HideInInspector]
+    public List<Combat_Character> chosen_Targets = new List<Combat_Character>();
 
     public virtual bool ReactCondition()
     {
@@ -100,122 +95,117 @@ public abstract class Skill : MonoBehaviour
 
     public abstract IEnumerator SetUp();
 
-    public IEnumerator CharacterTargeting()
+    public virtual IEnumerator CharacterTargeting()
     {
-        List<Combat_Character> targets = new List<Combat_Character>();
+        List<Combat_Character> eligible_Targets = new List<Combat_Character>();
 
         Vector3 initialCameraPosition = Character.TurnController.mainCamera.transform.position;
 
         TurnController.instructions.text = "Select Target";
 
-        TurnController.selectedCharacter = null;
-
         switch (selection)
         {
             case Selection.Self:
-                targets.Add(Character);
+                eligible_Targets.Add(Character);
                 break;
 
             case Selection.Team:
-                targets = Character.Team.members;
-                yield return Character.TurnController.mainCamera.Reset(0.2f);
+                eligible_Targets = Character.Team.members;
+                //yield return Character.TurnController.mainCamera.Reset(0.2f);
                 break;
 
             case Selection.Team_Target:
-                targets = Character.Team.members;
-                yield return Character.TurnController.mainCamera.Reset(0.2f);
+                eligible_Targets = Character.Team.members;
+                //yield return Character.TurnController.mainCamera.Reset(0.2f);
                 break;
 
             case Selection.Team_Random:
-                targets = Character.Team.members;
-                yield return Character.TurnController.mainCamera.Reset(0.2f);
+                eligible_Targets = Character.Team.members;
+                //yield return Character.TurnController.mainCamera.Reset(0.2f);
                 break;
 
             case Selection.Oppostion:
-                targets = Character.Team.Opposition.members;
-                yield return Character.TurnController.mainCamera.Reset(0.2f);
+                eligible_Targets = Character.Team.Opposition.members;
+                //yield return Character.TurnController.mainCamera.Reset(0.2f);
                 break;
 
             case Selection.Oppostion_Target:
-                targets = Character.Team.Opposition.members;
+                eligible_Targets = Character.Team.Opposition.members;
                 //yield return Character.TurnController.mainCamera.Reset(0.2f);
                 break;
 
             case Selection.Oppostion_Random:
-                targets = Character.Team.Opposition.members;
-                yield return Character.TurnController.mainCamera.Reset(0.2f);
+                eligible_Targets = Character.Team.Opposition.members;
+                //yield return Character.TurnController.mainCamera.Reset(0.2f);
                 break;
 
             case Selection.Targeter:
-                targets.Add(Character.TurnController.resolveStack[Character.TurnController.resolveStack.Count - 2].hand.character);
+                eligible_Targets.Add(Character.TurnController.resolveStack[Character.TurnController.resolveStack.Count - 2].deck.owner);
                 break;
         }
 
-        for (int i = 0; i < targets.Count; i++)
+        for (int i = 0; i < eligible_Targets.Count; i++)
         {
-            targets[i].target_Arrow.gameObject.SetActive(true);
+            eligible_Targets[i].target_Arrow.gameObject.SetActive(true);
         }
 
         Color arrowColor = Color.black;
 
-        bool instantTarget = true;
-
-        while (chosen_Targets.Count < 1)
+        if (selection == Selection.Team || selection == Selection.Oppostion || selection == Selection.All)
         {
-            if (selection == Selection.Self || selection == Selection.Targeter || selection == Selection.Team || selection == Selection.Oppostion || selection == Selection.All)
+            while (TurnController.characterTurn.deck.SelectedSlot != null)
             {
-                foreach (Combat_Character c in targets)
-                {
-                    if (targets.Contains(TurnController.hoveringOver))
-                        c.target_Arrow.GetComponent<Image>().color = arrowColor;
-                    else
-                        c.target_Arrow.GetComponent<Image>().color = new Color(arrowColor.r, arrowColor.g, arrowColor.b, 0.5f);
-                }
+                yield return null;
 
-                if (instantTarget)
+                foreach (Combat_Character c in eligible_Targets)
                 {
-                    chosen_Targets = targets.Select(o => o.transform).ToList();
-                }
-                else
-                {
-                    if (targets.Contains(TurnController.selectedCharacter))
-                        chosen_Targets = targets.Select(o => o.transform).ToList();
+                    if (eligible_Targets.Contains(TurnController.hoveringOver) && c == TurnController.hoveringOver)
+                        continue;
+                    else if (eligible_Targets.Contains(TurnController.hoveringOver))
+                        c.target_Arrow.Highlight(true);
+                    else
+                        c.target_Arrow.Highlight(false);
                 }
             }
-            else if ( selection == Selection.Team_Target || selection == Selection.Oppostion_Target || selection == Selection.All_Target)
-            {
-                foreach (Combat_Character c in targets)
-                {
-                    if (c == TurnController.hoveringOver)
-                        c.target_Arrow.GetComponent<Image>().color = arrowColor;
-                    else
-                        c.target_Arrow.GetComponent<Image>().color = new Color(arrowColor.r, arrowColor.g, arrowColor.b, 0.5f);
-                }
 
-                if (targets.Contains(TurnController.selectedCharacter))
-                    chosen_Targets.Add(TurnController.selectedCharacter.transform);
-            }
-            else if (selection == Selection.Team_Random || selection == Selection.Oppostion_Random || selection == Selection.All_Random)
-            {
-                foreach (Combat_Character c in targets)
-                {
-                    if (targets.Contains(TurnController.hoveringOver))
-                        c.target_Arrow.GetComponent<Image>().color = arrowColor;
-                    else
-                        c.target_Arrow.GetComponent<Image>().color = new Color(arrowColor.r, arrowColor.g, arrowColor.b, 0.5f);
-                }
+            if(chosen_Targets.Count > 0)
+                chosen_Targets = eligible_Targets;
 
-                if (targets.Contains(TurnController.selectedCharacter))
-                    chosen_Targets.Add(targets[Random.Range(0, targets.Count)].transform);
+        }
+        else if (selection == Selection.Team_Random || selection == Selection.Oppostion_Random || selection == Selection.All_Random)
+        {
+            while (TurnController.characterTurn.deck.SelectedSlot != null)
+            {
+                yield return null;
+
+                foreach (Combat_Character c in eligible_Targets)
+                {
+                    if (eligible_Targets.Contains(TurnController.hoveringOver) && c == TurnController.hoveringOver)
+                        continue;
+                    else if (eligible_Targets.Contains(TurnController.hoveringOver))
+                        c.target_Arrow.Highlight(true);
+                    else
+                        c.target_Arrow.Highlight(false);
+                }
             }
 
-            for (int i = 0; i < targets.Count; i++)
-                targets[i].target_Arrow.GetComponent<RectTransform>().anchoredPosition = TurnController.mainCamera.UIPosition(targets[i].outcome_Bubble_Pos.position);
-
-            yield return null;
+            if (chosen_Targets.Count > 0)
+                chosen_Targets.Add(eligible_Targets[Random.Range(0, eligible_Targets.Count)]);
+        }
+        else
+        {
+            while (TurnController.characterTurn.deck.SelectedSlot != null)
+            {
+                yield return null;
+            }
         }
 
-        HideTargets();
+        //Hide Targets
+
+        for (int i = 0; i < TurnController.target_Arrows.childCount; i++)
+        {
+            TurnController.target_Arrows.GetChild(i).gameObject.SetActive(false);
+        }
     }
 
     public abstract IEnumerator Execute();
@@ -231,13 +221,5 @@ public abstract class Skill : MonoBehaviour
         int hitRoll = (Random.Range(0, 100) + Random.Range(0, 100)) / 2;
 
         HitSuccess = hitRoll > target.GetCurrentStats()[Character_Stats.Stat.LCK] ? 1 : 0;
-    }
-
-    public void HideTargets()
-    {
-        for (int i = 0; i < TurnController.target_Arrows.childCount; i++)
-        {
-            TurnController.target_Arrows.GetChild(i).gameObject.SetActive(false);
-        }
     }
 }
