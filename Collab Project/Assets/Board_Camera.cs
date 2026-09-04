@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(Camera))]
-public class MainCamera : MonoBehaviour
+public class Board_Camera : MonoBehaviour
 {
     public Transform target;    // ONLY USED IN BOARD GAME
 

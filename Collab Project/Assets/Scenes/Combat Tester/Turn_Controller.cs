@@ -21,7 +21,7 @@ public class Turn_Controller : MonoBehaviour
 
     public Draw_Selection draw_Selection;
 
-    public Combat_Camera mainCamera;
+    public Main_Camera mainCamera;
 
     public GameObject target_Arrow_Prefab;
     public Transform target_Arrows;
@@ -103,6 +103,9 @@ public class Turn_Controller : MonoBehaviour
 
                 character.InitialHealth = character.character_Stats.max_Health; // remove this line for persistant stats
                 character.Hud.healthBar.Initialize(character.Health(), character.character_Stats.max_Health);
+
+                character.InitialDefense = character.character_Stats.max_Defense;
+                character.Hud.defenseBar.Initialize(character.Defense(), character.character_Stats.max_Defense);
 
                 character.InitialMana = character.character_Stats.max_Mana;
                 character.Hud.manaBar.Initialize(character.Mana(), character.character_Stats.max_Mana);

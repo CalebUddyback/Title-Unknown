@@ -105,6 +105,78 @@ public abstract class Combat_Character : MonoBehaviour
         Hud.healthBar.Adjust(former, health);
     }
 
+    private int defense;
+
+    public int InitialDefense
+    {
+        set
+        {
+            defense = value;
+        }
+    }
+
+    public int Defense()
+    {
+        return defense;
+    }
+
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.S))
+        {
+            AdjustDefense(-2, 1);
+            AdjustHealth(-20, 1);
+            AdjustMana(-20, true);
+        }
+
+        if (Input.GetKeyDown(KeyCode.W))
+        {
+            AdjustDefense(2, 1);
+            AdjustHealth(20, 1);
+            AdjustMana(20, true);
+        }
+    }
+
+    public void AdjustDefense(int change, float mutiplier)
+    {
+        int former = defense;
+
+        defense += change;
+
+        Outcome_Bubble bubble = Instantiate(outcome_Bubble_Prefab, TurnController.damage_Bubbles);
+        bubble.GetComponent<RectTransform>().anchoredPosition = TurnController.mainCamera.UIPosition(outcome_Bubble_Pos.position);
+
+        if (change <= 0)
+        {
+            if (mutiplier > 1)
+            {
+                bubble.Input(change, Color.yellow, "CRITICAL", Color.yellow);
+                TurnController.mainCamera.WhiteOut(this, this, 0.25f * mutiplier);
+            }
+            else
+            {
+                bubble.Input(change, Color.white);
+            }
+        }
+        else
+        {
+            bubble.Input(change, Color.green);
+        }
+
+        if (defense <= 0)
+        {
+            defense = 0;
+        }
+
+
+        //if (defense > character_Stats.max_Defense)
+        //{
+        //    defense = character_Stats.max_Defense;
+        //}
+
+        Hud.defenseBar.Adjust(former, defense);
+    }
+
     private int mana;
 
     public int InitialMana
@@ -135,9 +207,6 @@ public abstract class Combat_Character : MonoBehaviour
                 bubble.Input(change, new Color(0, 0.5019608f, 1));
             else
                 bubble.Input(change, Color.white);
-
-
-
         }
 
         if (mana > character_Stats.max_Mana)

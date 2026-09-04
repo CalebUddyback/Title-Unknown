@@ -17,7 +17,7 @@ public class Character_Hud : MonoBehaviour
     public Animation timer_Animations;
     public GameObject timer_ChargeIndicator;
 
-    public StatBar healthBar, manaBar;
+    public StatBar healthBar, defenseBar, manaBar;
 
     //public Transform skills;
 

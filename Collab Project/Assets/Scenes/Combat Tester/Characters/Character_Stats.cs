@@ -5,7 +5,8 @@ public class Character_Stats : ScriptableObject
 {
     public int
         max_Health = 100,
-        max_Mana = 100;
+        max_Mana = 100,
+        max_Defense = 5;
 
 
     public int
