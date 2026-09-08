@@ -9,7 +9,7 @@ public class Defense_Skill : Skill
         if (Character.currentPhase != Combat_Character.Phase.Main)
             return false;
 
-        if (manaCost > Character.Mana())
+        if (manaCost > Character.Mana)
             return false;
 
         if(discard)
@@ -48,10 +48,12 @@ public class Defense_Skill : Skill
     {
         Character.animationController.Play();
 
-        Character.blocking = true;
+        //Character.blocking = true;
 
 
         // Character deffense up
+
+        Character.AdjustDefense(defense, 1);
 
         //yield return null;
         yield return Character.animationController.coroutine;

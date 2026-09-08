@@ -101,14 +101,14 @@ public class Turn_Controller : MonoBehaviour
                 character.Hud.diplayName.text = character.gameObject.name;
                 character.Hud.TurnController = this;
 
-                character.InitialHealth = character.character_Stats.max_Health; // remove this line for persistant stats
-                character.Hud.healthBar.Initialize(character.Health(), character.character_Stats.max_Health);
+                character.Health = character.character_Stats.max_Health; // remove this line for persistant stats
+                character.Hud.healthBar.Initialize(character.Health, character.character_Stats.max_Health);
 
-                character.InitialDefense = character.character_Stats.max_Defense;
-                character.Hud.defenseBar.Initialize(character.Defense(), character.character_Stats.max_Defense);
+                character.Defense = character.character_Stats.max_Defense;
+                character.Hud.defenseBar.Initialize(character.Defense, character.character_Stats.max_Defense);
 
-                character.InitialMana = character.character_Stats.max_Mana;
-                character.Hud.manaBar.Initialize(character.Mana(), character.character_Stats.max_Mana);
+                character.Mana = character.character_Stats.max_Mana;
+                character.Hud.manaBar.Initialize(character.Mana, character.character_Stats.max_Mana);
 
                 Decks newHand = Instantiate(decks_Prefab, team.decks).GetComponent<Decks>();
 
@@ -278,9 +278,9 @@ public class Turn_Controller : MonoBehaviour
     {
         foreach (Combat_Character target in characterTurn.deck.distinctTargets)
         {
-            if(target.blocking)
-                target.animationController.Clip("Block_Hold");
-            else
+            //if(target.blocking)
+            //    target.animationController.Clip("Block_Hold");
+            //else
                 target.animationController.Clip("Idle");
         }
     }

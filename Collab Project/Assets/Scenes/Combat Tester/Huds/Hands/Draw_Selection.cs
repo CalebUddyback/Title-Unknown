@@ -50,7 +50,7 @@ public class Draw_Selection : MonoBehaviour
 
     private void OnEnable()
     {
-        if (turn_Controller.characterTurn.Mana() < refreshCost)
+        if (turn_Controller.characterTurn.Mana < refreshCost)
             refreshButton.interactable = false;
         else
             refreshButton.interactable = true;
@@ -156,7 +156,7 @@ public class Draw_Selection : MonoBehaviour
 
         turn_Controller.characterTurn.AdjustMana(refreshCost, false);
 
-        if (turn_Controller.characterTurn.Mana() < refreshCost)
+        if (turn_Controller.characterTurn.Mana < refreshCost)
             refreshButton.interactable = false;
 
         for (int i = 0; i < transform.childCount; i++)

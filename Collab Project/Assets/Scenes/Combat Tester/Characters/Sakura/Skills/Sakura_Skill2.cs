@@ -9,7 +9,7 @@ public class Sakura_Skill2 : Skill
         if (Character.currentPhase != Combat_Character.Phase.Main)
             return false;
 
-        if (manaCost > Character.Mana())
+        if (manaCost > Character.Mana)
             return false;
 
         return true;

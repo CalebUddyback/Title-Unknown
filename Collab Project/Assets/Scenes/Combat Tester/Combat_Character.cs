@@ -50,28 +50,13 @@ public abstract class Combat_Character : MonoBehaviour
 
     public Turn_Controller TurnController { get; set; }
 
-    //public string characterName = "No Name";
-
-    private int health;
-
-    public int InitialHealth
-    {
-        set
-        {
-            health = value;  
-        }
-    }
-
-    public int Health()
-    {
-        return health;
-    }
+    public int Health { get; set; }
 
     public void AdjustHealth(int change, float mutiplier)
     {
-        int former = health;
+        int former = Health;
 
-        health += change;
+        Health += change;
 
         Outcome_Bubble bubble = Instantiate(outcome_Bubble_Prefab, TurnController.damage_Bubbles);
         bubble.GetComponent<RectTransform>().anchoredPosition = TurnController.mainCamera.UIPosition(outcome_Bubble_Pos.position);
@@ -93,55 +78,25 @@ public abstract class Combat_Character : MonoBehaviour
             bubble.Input(change, Color.green);
         }
 
-        if (health <= 0)
+        if (Health <= 0)
         {
-            health = 0;
+            Health = 0;
             Defeated = true;
         }
 
-        if (health > character_Stats.max_Health)
-            health = character_Stats.max_Health;
+        if (Health > character_Stats.max_Health)
+            Health = character_Stats.max_Health;
 
-        Hud.healthBar.Adjust(former, health);
+        Hud.healthBar.Adjust(former, Health);
     }
 
-    private int defense;
-
-    public int InitialDefense
-    {
-        set
-        {
-            defense = value;
-        }
-    }
-
-    public int Defense()
-    {
-        return defense;
-    }
-
-    private void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.S))
-        {
-            AdjustDefense(-2, 1);
-            AdjustHealth(-20, 1);
-            AdjustMana(-20, true);
-        }
-
-        if (Input.GetKeyDown(KeyCode.W))
-        {
-            AdjustDefense(2, 1);
-            AdjustHealth(20, 1);
-            AdjustMana(20, true);
-        }
-    }
+    public int Defense { get; set; }
 
     public void AdjustDefense(int change, float mutiplier)
     {
-        int former = defense;
+        int former = Defense;
 
-        defense += change;
+        Defense += change;
 
         Outcome_Bubble bubble = Instantiate(outcome_Bubble_Prefab, TurnController.damage_Bubbles);
         bubble.GetComponent<RectTransform>().anchoredPosition = TurnController.mainCamera.UIPosition(outcome_Bubble_Pos.position);
@@ -163,9 +118,9 @@ public abstract class Combat_Character : MonoBehaviour
             bubble.Input(change, Color.green);
         }
 
-        if (defense <= 0)
+        if (Defense <= 0)
         {
-            defense = 0;
+            Defense = 0;
         }
 
 
@@ -174,29 +129,16 @@ public abstract class Combat_Character : MonoBehaviour
         //    defense = character_Stats.max_Defense;
         //}
 
-        Hud.defenseBar.Adjust(former, defense);
+        Hud.defenseBar.Adjust(former, Defense);
     }
 
-    private int mana;
-
-    public int InitialMana
-    {
-        set
-        {
-            mana = value;
-        }
-    }
-
-    public int Mana()
-    {
-        return mana;
-    }
+    public int Mana { get; set; }
 
     public void AdjustMana(int change, bool show)
     {
-        int former = mana;
+        int former = Mana;
 
-        mana += change;
+        Mana += change;
 
         if (show)
         {
@@ -209,13 +151,28 @@ public abstract class Combat_Character : MonoBehaviour
                 bubble.Input(change, Color.white);
         }
 
-        if (mana > character_Stats.max_Mana)
-            mana = character_Stats.max_Mana;
+        if (Mana > character_Stats.max_Mana)
+            Mana = character_Stats.max_Mana;
 
-        Hud.manaBar.Adjust(former, mana);
+        Hud.manaBar.Adjust(former, Mana);
     }
 
-    public bool blocking = false;
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.S))
+        {
+            AdjustDefense(-2, 1);
+            //AdjustHealth(-20, 1);
+            //AdjustMana(-20, true);
+        }
+
+        if (Input.GetKeyDown(KeyCode.W))
+        {
+            AdjustDefense(2, 1);
+            //AdjustHealth(20, 1);
+            //AdjustMana(20, true);
+        }
+    }
 
     public IEnumerator Charging()
     {
@@ -259,18 +216,6 @@ public abstract class Combat_Character : MonoBehaviour
         }
 
         deck.Locked = false;
-
-        if (blocking)
-        {
-            blocking = false;
-
-            animationController.Clip("Block_Unset");
-
-            yield return animationController.coroutine;
-
-            print("Done");
-        }
-
 
         int startMP = 20;
         AdjustMana(startMP, true);
@@ -556,17 +501,28 @@ public abstract class Combat_Character : MonoBehaviour
 
             case 1:
 
-                if (Enemy.blocking)
+                if (Enemy.Defense > 0)
                 {
-                    if (Enemy.Mana() + damage <= 0)
+                    if (Enemy.Defense + damage <= 0)
                     {
                         Enemy.animationController.Clip("Block_Break");
-                        Enemy.blocking = false;
+                        //Enemy.blocking = false;
                     }
                     else
                         StartCoroutine(Enemy.Block());
 
-                    Enemy.AdjustMana(damage, true);
+                    Enemy.AdjustDefense(damage, skill.CritSuccess);
+
+                    //if (blocking)
+                    //{
+                    //    blocking = false;
+                    //
+                    //    animationController.Clip("Block_Unset");
+                    //
+                    //    yield return animationController.coroutine;
+                    //
+                    //    print("Done");
+                    //}
                 }
                 else
                 {

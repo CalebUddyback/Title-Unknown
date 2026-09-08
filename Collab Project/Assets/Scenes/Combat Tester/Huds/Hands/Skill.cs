@@ -47,6 +47,7 @@ public abstract class Skill : MonoBehaviour
     [Header("Effects")]
 
     public int health;
+    public int defense;
     public int mana;
 
     public int CritSuccess { get; set; }
@@ -60,19 +61,19 @@ public abstract class Skill : MonoBehaviour
             Debug.LogWarning("Positive values are not allowed for 'Mana Cost'");
         }
 
-        if (DamageVariation.x < 0)
+        if (DamageVariation.x > 0)
         {
             DamageVariation.x *= -1;
             Debug.LogWarning("Positive values are not allowed for 'DamageVariation.x'");
         }
 
-        if (DamageVariation.y < 0)
+        if (DamageVariation.y > 0)
         {
             DamageVariation.y *= -1;
             Debug.LogWarning("Positive values are not allowed for 'DamageVariation.y'");
         }
 
-        if (DamageVariation.y < DamageVariation.x)
+        if (DamageVariation.y > DamageVariation.x)
         {
             DamageVariation.x = DamageVariation.y;
             Debug.LogWarning("DamageVariation.y' cannot be lower than 'DamageVariation.x'");

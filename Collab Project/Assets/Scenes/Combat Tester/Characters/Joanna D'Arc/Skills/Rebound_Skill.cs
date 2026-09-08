@@ -9,11 +9,11 @@ public class Rebound_Skill : Skill
         if (Character.currentPhase != Combat_Character.Phase.Main)
             return false;
 
-        if (manaCost > Character.Mana())
+        if (manaCost > Character.Mana)
             return false;
 
-        if (!Character.blocking)
-            return false;
+        //if (!Character.blocking)
+        //    return false;
 
         return true;
     }

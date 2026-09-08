@@ -14,7 +14,8 @@ public class StatBar : MonoBehaviour
 
     public Transform displayBarTransform;
     private List<DisplayBar> displayBar = new List<DisplayBar>();
-    int currentBar = 0;
+
+    public float chaseSpeed = 0.75f;
 
     public Animation flash;
 
@@ -50,87 +51,76 @@ public class StatBar : MonoBehaviour
 
     IEnumerator Adjusting(int former, int current)
     {
-        int difference = current - former;
-
         Image lead, follow;
-
-        if (difference <= 0)
-        {
-            lead = displayBar[currentBar].frontBar;
-            follow = displayBar[currentBar].backBar;
-            displayBar[currentBar].backBar.color = displayBar[currentBar].negChange;
-        }
-        else
-        {
-            lead = displayBar[currentBar].backBar;
-            follow = displayBar[currentBar].frontBar;
-            displayBar[currentBar].backBar.color = displayBar[currentBar].posChange;
-        }
 
         flash.Play();
 
-        if(former <= max && current <= max)
+        if (current <= former)
         {
-            lead.fillAmount = current / (float)max;
-
-            yield return new WaitForSeconds(1);
-        }
-        else if(former <= max && current > max)
-        {
-            currentText.color = displayBar[currentBar + 1].frontBar.color;
-
-            lead.fillAmount = 1;
-            displayBar[currentBar + 1].backBar.fillAmount = (current - max) / (float)max;
-            displayBar[currentBar + 1].backBar.color = displayBar[currentBar + 1].posChange;
-
-            yield return new WaitForSeconds(1);
-
-            while (displayBar[currentBar].backBar.fillAmount > displayBar[currentBar].frontBar.fillAmount)
+            for (int i = displayBar.Count - 1; i >= 0; i--)
             {
-                follow.fillAmount = Mathf.MoveTowards(follow.fillAmount, lead.fillAmount, 0.5f * Time.deltaTime);
+                lead = displayBar[i].frontBar;
+                displayBar[i].backBar.color = displayBar[i].negChange;
+
+                lead.fillAmount = (current - (max * i)) / (float)max;
+
                 yield return null;
             }
-
-            currentBar++;
-
-            lead = displayBar[currentBar].backBar;
-            follow = displayBar[currentBar].frontBar;
         }
-        else if (former >= max && current > max)
+        else
         {
-            lead.fillAmount = (current - max) / (float)max;
-
-            yield return new WaitForSeconds(1);
-        }
-        else if (former > max && current <= max)
-        {
-            currentText.color = Color.white;
-
-            lead.fillAmount = 0;
-            displayBar[currentBar - 1].frontBar.fillAmount = current / (float)max;
-            displayBar[currentBar - 1].backBar.color = displayBar[currentBar - 1].negChange;
-
-            yield return new WaitForSeconds(1);
-
-            while (displayBar[currentBar].backBar.fillAmount > displayBar[currentBar].frontBar.fillAmount)
+            for (int i = 0; i <= displayBar.Count - 1; i++)
             {
-                follow.fillAmount = Mathf.MoveTowards(follow.fillAmount, lead.fillAmount, 0.5f * Time.deltaTime);
+
+                lead = displayBar[i].backBar;
+                displayBar[i].backBar.color = displayBar[i].posChange;
+
+                lead.fillAmount = (current - (max * i)) / (float)max;
+
                 yield return null;
             }
-
-            currentBar--;
-
-            lead = displayBar[currentBar].frontBar;
-            follow = displayBar[currentBar].backBar;
         }
 
-        while (displayBar[currentBar].backBar.fillAmount > displayBar[currentBar].frontBar.fillAmount)
+        yield return new WaitForSeconds(1);
+
+        if (current <= former)
         {
-            follow.fillAmount = Mathf.MoveTowards(follow.fillAmount, lead.fillAmount, 0.5f * Time.deltaTime);
-            yield return null;
-        }
+            for (int i = displayBar.Count - 1; i >= 0; i--)
+            { 
+                lead = displayBar[i].frontBar;
+                follow = displayBar[i].backBar;
+                displayBar[i].backBar.color = displayBar[i].negChange;
 
-        follow.fillAmount = lead.fillAmount;
+                while (displayBar[i].backBar.fillAmount > displayBar[i].frontBar.fillAmount)
+                {
+                    follow.fillAmount = Mathf.MoveTowards(follow.fillAmount, lead.fillAmount, chaseSpeed * Time.deltaTime);
+                    yield return null;
+                }
+
+                follow.fillAmount = lead.fillAmount;
+
+                yield return null;
+            }
+        }
+        else
+        {
+            for (int i = 0; i <= displayBar.Count - 1; i++)
+            {
+                lead = displayBar[i].backBar;
+                follow = displayBar[i].frontBar;
+                displayBar[i].backBar.color = displayBar[i].posChange;
+
+                while (displayBar[i].backBar.fillAmount > displayBar[i].frontBar.fillAmount)
+                {
+                    follow.fillAmount = Mathf.MoveTowards(follow.fillAmount, lead.fillAmount, chaseSpeed * Time.deltaTime);
+                    yield return null;
+                }
+
+                follow.fillAmount = lead.fillAmount;
+
+                yield return null;
+            }
+        }
 
         followBarCO = null;
     }
