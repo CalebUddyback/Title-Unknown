@@ -161,14 +161,14 @@ public abstract class Combat_Character : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.S))
         {
-            AdjustDefense(-2, 1);
+            AdjustDefense(-3, 1);
             //AdjustHealth(-20, 1);
             //AdjustMana(-20, true);
         }
 
         if (Input.GetKeyDown(KeyCode.W))
         {
-            AdjustDefense(2, 1);
+            AdjustDefense(3, 1);
             //AdjustHealth(20, 1);
             //AdjustMana(20, true);
         }

@@ -53,11 +53,14 @@ public class StatBar : MonoBehaviour
     {
         Image lead, follow;
 
+        int currentBar = Mathf.Clamp(Mathf.CeilToInt(current / (float)max) - 1, 0, displayBar.Count - 1); 
+        int formerBar = Mathf.Clamp(Mathf.CeilToInt(former / (float)max) - 1, 0, displayBar.Count - 1);
+
         flash.Play();
 
-        if (current <= former)
+        if (current < former)
         {
-            for (int i = displayBar.Count - 1; i >= 0; i--)
+            for (int i = formerBar; i >= currentBar; i--)
             {
                 lead = displayBar[i].frontBar;
                 displayBar[i].backBar.color = displayBar[i].negChange;
@@ -69,9 +72,8 @@ public class StatBar : MonoBehaviour
         }
         else
         {
-            for (int i = 0; i <= displayBar.Count - 1; i++)
+            for (int i = formerBar; i <= currentBar; i++)
             {
-
                 lead = displayBar[i].backBar;
                 displayBar[i].backBar.color = displayBar[i].posChange;
 
@@ -83,13 +85,15 @@ public class StatBar : MonoBehaviour
 
         yield return new WaitForSeconds(1);
 
-        if (current <= former)
+        if (current < former)
         {
-            for (int i = displayBar.Count - 1; i >= 0; i--)
-            { 
+            for (int i = formerBar; i >= currentBar; i--)
+            {
                 lead = displayBar[i].frontBar;
                 follow = displayBar[i].backBar;
                 displayBar[i].backBar.color = displayBar[i].negChange;
+
+                currentText.color = (i > 0) ? displayBar[i].frontBar.color : Color.white;
 
                 while (displayBar[i].backBar.fillAmount > displayBar[i].frontBar.fillAmount)
                 {
@@ -104,11 +108,13 @@ public class StatBar : MonoBehaviour
         }
         else
         {
-            for (int i = 0; i <= displayBar.Count - 1; i++)
+            for (int i = formerBar; i <= currentBar; i++)
             {
                 lead = displayBar[i].backBar;
                 follow = displayBar[i].frontBar;
                 displayBar[i].backBar.color = displayBar[i].posChange;
+
+                currentText.color = (i > 0) ? displayBar[i].frontBar.color : Color.white;
 
                 while (displayBar[i].backBar.fillAmount > displayBar[i].frontBar.fillAmount)
                 {
