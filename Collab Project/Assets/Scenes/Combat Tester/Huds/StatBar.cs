@@ -11,6 +11,7 @@ public class StatBar : MonoBehaviour
     [HideInInspector]
     public TextMeshProUGUI maxText;
     private int max;
+    public float overflowMax;
 
     public Transform displayBarTransform;
     private List<DisplayBar> displayBar = new List<DisplayBar>();
@@ -28,12 +29,12 @@ public class StatBar : MonoBehaviour
         foreach (Transform b in displayBarTransform)
             displayBar.Add(b.GetComponent<DisplayBar>());
 
+        overflowMax = max;
+
         displayBar[0].frontBar.fillAmount = displayBar[0].backBar.fillAmount = current / (float)max;
 
         for (int i = 1; i < displayBar.Count; i++)
-        {
             displayBar[i].frontBar.fillAmount = displayBar[i].backBar.fillAmount = 0;
-        }
 
         maxText.text = max.ToString();
         currentText.text = current.ToString();
@@ -65,7 +66,13 @@ public class StatBar : MonoBehaviour
                 lead = displayBar[i].frontBar;
                 displayBar[i].backBar.color = displayBar[i].negChange;
 
-                lead.fillAmount = (current - (max * i)) / (float)max;
+                if (current <= max * (displayBar.Count - 1))
+                {
+                    lead.fillAmount = (current - (max * i)) / (float)max;
+                    overflowMax = max;
+                }
+                else
+                    lead.fillAmount = (current - (max * i)) / overflowMax;
 
                 yield return null;
             }
@@ -77,7 +84,18 @@ public class StatBar : MonoBehaviour
                 lead = displayBar[i].backBar;
                 displayBar[i].backBar.color = displayBar[i].posChange;
 
-                lead.fillAmount = (current - (max * i)) / (float)max;
+                if (current <= max * (displayBar.Count - 1))
+                    lead.fillAmount = (current - (max * i)) / (float)max;
+                else
+                {
+                    if (current - (max * (displayBar.Count - 1)) > overflowMax)
+                    {
+                        overflowMax = current - (max * (displayBar.Count - 1));
+                        lead.fillAmount = 1;
+                    }
+                    else
+                        lead.fillAmount = (current - (max * i)) / overflowMax;
+                }
 
                 yield return null;
             }
@@ -129,5 +147,20 @@ public class StatBar : MonoBehaviour
         }
 
         followBarCO = null;
+    }
+
+    public void ClearOverflow()
+    {
+        for (int i = 1; i < displayBar.Count; i++)
+        {
+            displayBar[i].frontBar.fillAmount = 0;
+            displayBar[i].backBar.fillAmount = 0;
+        }
+
+        currentText.text = max.ToString();
+
+        currentText.color = Color.white;
+
+        overflowMax = max;
     }
 }

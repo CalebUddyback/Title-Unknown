@@ -56,7 +56,7 @@ public abstract class Combat_Character : MonoBehaviour
     {
         int former = Health;
 
-        Health += change;
+        Health = Mathf.Clamp(Health + change, 0, character_Stats.max_Health);
 
         Outcome_Bubble bubble = Instantiate(outcome_Bubble_Prefab, TurnController.damage_Bubbles);
         bubble.GetComponent<RectTransform>().anchoredPosition = TurnController.mainCamera.UIPosition(outcome_Bubble_Pos.position);
@@ -78,14 +78,12 @@ public abstract class Combat_Character : MonoBehaviour
             bubble.Input(change, Color.green);
         }
 
-        if (Health <= 0)
+        switch (Health)
         {
-            Health = 0;
-            Defeated = true;
+            case 0:
+                Defeated = true;
+                break;
         }
-
-        if (Health > character_Stats.max_Health)
-            Health = character_Stats.max_Health;
 
         Hud.healthBar.Adjust(former, Health);
     }
@@ -94,9 +92,23 @@ public abstract class Combat_Character : MonoBehaviour
 
     public void AdjustDefense(int change, float mutiplier)
     {
+        bool overflow = true;
+
+        bool capTopBar = true;
+
         int former = Defense;
 
-        Defense += change;
+        if (!overflow)
+            Defense = Mathf.Clamp(Defense + change, 0, character_Stats.max_Defense);
+        else
+        {
+            if (capTopBar)
+                Defense = Mathf.Clamp(Defense + change, 0, character_Stats.max_Defense * Hud.defenseBar.displayBarTransform.childCount);
+            else
+                Defense = Mathf.Clamp(Defense + change, 0, 1000);
+        }
+
+        //change = former - Defense;
 
         Outcome_Bubble bubble = Instantiate(outcome_Bubble_Prefab, TurnController.damage_Bubbles);
         bubble.GetComponent<RectTransform>().anchoredPosition = TurnController.mainCamera.UIPosition(outcome_Bubble_Pos.position);
@@ -118,18 +130,17 @@ public abstract class Combat_Character : MonoBehaviour
             bubble.Input(change, Color.green);
         }
 
-        if (Defense <= 0)
-        {
-            Defense = 0;
-        }
-
-
-        //if (defense > character_Stats.max_Defense)
-        //{
-        //    defense = character_Stats.max_Defense;
-        //}
-
         Hud.defenseBar.Adjust(former, Defense);
+    }
+
+    public void ClearOverflow()
+    {
+        if (Defense > character_Stats.max_Defense)
+        {
+            Defense = character_Stats.max_Defense;
+
+            Hud.defenseBar.ClearOverflow();
+        }
     }
 
     public int Mana { get; set; }
@@ -138,7 +149,7 @@ public abstract class Combat_Character : MonoBehaviour
     {
         int former = Mana;
 
-        Mana += change;
+        Mana = Mathf.Clamp(Mana + change, 0, character_Stats.max_Mana);
 
         if (show)
         {
@@ -151,8 +162,12 @@ public abstract class Combat_Character : MonoBehaviour
                 bubble.Input(change, Color.white);
         }
 
-        if (Mana > character_Stats.max_Mana)
-            Mana = character_Stats.max_Mana;
+        switch (Mana)
+        {
+            case 0:
+                
+                break;
+        }
 
         Hud.manaBar.Adjust(former, Mana);
     }
@@ -161,14 +176,14 @@ public abstract class Combat_Character : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.S))
         {
-            AdjustDefense(-3, 1);
+            AdjustDefense(-5, 1);
             //AdjustHealth(-20, 1);
             //AdjustMana(-20, true);
         }
 
         if (Input.GetKeyDown(KeyCode.W))
         {
-            AdjustDefense(3, 1);
+            AdjustDefense(5, 1);
             //AdjustHealth(20, 1);
             //AdjustMana(20, true);
         }
@@ -219,6 +234,8 @@ public abstract class Combat_Character : MonoBehaviour
 
         int startMP = 20;
         AdjustMana(startMP, true);
+
+        ClearOverflow();
 
         currentPhase = Phase.Draw;
 
