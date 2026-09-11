@@ -108,7 +108,7 @@ public abstract class Combat_Character : MonoBehaviour
                 Defense = Mathf.Clamp(Defense + change, 0, 1000);
         }
 
-        //change = former - Defense;
+        change = Defense - former;
 
         Outcome_Bubble bubble = Instantiate(outcome_Bubble_Prefab, TurnController.damage_Bubbles);
         bubble.GetComponent<RectTransform>().anchoredPosition = TurnController.mainCamera.UIPosition(outcome_Bubble_Pos.position);
@@ -522,13 +522,28 @@ public abstract class Combat_Character : MonoBehaviour
                 {
                     if (Enemy.Defense + damage <= 0)
                     {
-                        Enemy.animationController.Clip("Block_Break");
-                        //Enemy.blocking = false;
+                        StartCoroutine(Enemy.Break());
+
+                        if (Enemy.Defense + damage < 0)
+                        {
+                            damage += Enemy.Defense;
+
+                            skill.Character.Team.combo_Counter.SetComboCount();
+
+                            Enemy.AdjustDefense(damage, skill.CritSuccess);
+
+                            Enemy.AdjustHealth(damage, skill.CritSuccess);
+
+                        }
+
                     }
                     else
+                    {
                         StartCoroutine(Enemy.Block());
+                        Enemy.AdjustDefense(damage, skill.CritSuccess);
+                    }
 
-                    Enemy.AdjustDefense(damage, skill.CritSuccess);
+                    
 
                     //if (blocking)
                     //{
@@ -546,7 +561,6 @@ public abstract class Combat_Character : MonoBehaviour
                     skill.Character.Team.combo_Counter.SetComboCount();
 
                     StartCoroutine(Enemy.Damage());
-                    yield return null;
 
                     Enemy.AdjustHealth(damage, skill.CritSuccess);
                 }
@@ -587,10 +601,16 @@ public abstract class Combat_Character : MonoBehaviour
         yield return animationController.coroutine;
     }
 
+    public virtual IEnumerator Break()
+    {
+        Debug.Log("Block_Break");
+        animationController.Clip("Block_Break");
+        yield return animationController.coroutine;
+    }
+
     public virtual IEnumerator Dodge()
     {
         animationController.Clip("Move_BackDash");
-
 
         yield return MoveAmount(new Vector3(0.3f * -Facing, 0, 0));
 

@@ -104,7 +104,8 @@ public class Turn_Controller : MonoBehaviour
                 character.Health = character.character_Stats.max_Health; // remove this line for persistant stats
                 character.Hud.healthBar.Initialize(character.Health, character.character_Stats.max_Health);
 
-                character.Defense = character.character_Stats.max_Defense;
+                //character.Defense = character.character_Stats.max_Defense;
+                character.Defense = 1;
                 character.Hud.defenseBar.Initialize(character.Defense, character.character_Stats.max_Defense);
 
                 character.Mana = character.character_Stats.max_Mana;

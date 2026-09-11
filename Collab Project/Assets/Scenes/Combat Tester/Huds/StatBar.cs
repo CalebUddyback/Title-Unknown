@@ -13,6 +13,8 @@ public class StatBar : MonoBehaviour
     private int max;
     public float overflowMax;
 
+    //Duplicate Overflow bar in prefab for additional layers
+
     public Transform displayBarTransform;
     private List<DisplayBar> displayBar = new List<DisplayBar>();
 

@@ -38,10 +38,10 @@ AnimatorStateMachine:
     m_Position: {x: 570, y: 100, z: 0}
   - serializedVersion: 1
     m_State: {fileID: -1435363841386992892}
-    m_Position: {x: 1300, y: 100, z: 0}
+    m_Position: {x: 1300, y: 50, z: 0}
   - serializedVersion: 1
     m_State: {fileID: 2734238789962969933}
-    m_Position: {x: 1310, y: 180, z: 0}
+    m_Position: {x: 1300, y: 110, z: 0}
   - serializedVersion: 1
     m_State: {fileID: 8659553833210161304}
     m_Position: {x: 1310, y: 260, z: 0}
@@ -57,6 +57,9 @@ AnimatorStateMachine:
   - serializedVersion: 1
     m_State: {fileID: 417685304663348629}
     m_Position: {x: 1580, y: 100, z: 0}
+  - serializedVersion: 1
+    m_State: {fileID: -2370417070208555902}
+    m_Position: {x: 1300, y: 170, z: 0}
   m_ChildStateMachines: []
   m_AnyStateTransitions:
   - {fileID: 6005053097857497903}
@@ -138,6 +141,32 @@ AnimatorStateTransition:
   m_InterruptionSource: 0
   m_OrderedInterruption: 1
   m_CanTransitionToSelf: 1
+--- !u!1102 &-2370417070208555902
+AnimatorState:
+  serializedVersion: 5
+  m_ObjectHideFlags: 3
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Block_Break
+  m_Speed: 1
+  m_CycleOffset: 0
+  m_Transitions: []
+  m_StateMachineBehaviours: []
+  m_Position: {x: 50, y: 50, z: 0}
+  m_IKOnFeet: 0
+  m_WriteDefaultValues: 1
+  m_Mirror: 0
+  m_SpeedParameterActive: 0
+  m_MirrorParameterActive: 0
+  m_CycleOffsetParameterActive: 0
+  m_TimeParameterActive: 0
+  m_Motion: {fileID: 7400000, guid: 2b858692cbac10146a4c000ff1a22131, type: 2}
+  m_Tag: 
+  m_SpeedParameter: 
+  m_MirrorParameter: 
+  m_CycleOffsetParameter: 
+  m_TimeParameter: 
 --- !u!1102 &-2238567398939083856
 AnimatorState:
   serializedVersion: 5
@@ -388,7 +417,7 @@ AnimatorState:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Block
+  m_Name: Block_Impact
   m_Speed: 1
   m_CycleOffset: 0
   m_Transitions: []

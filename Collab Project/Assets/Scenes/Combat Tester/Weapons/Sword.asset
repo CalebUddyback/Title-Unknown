@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   weapon_Type: 0
   title: Basic Sword
-  attack: 5
+  attack: 2
   defense: 2
   accuracy: 70
   critical: 2
