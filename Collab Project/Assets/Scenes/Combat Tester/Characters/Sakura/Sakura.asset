@@ -17,6 +17,6 @@ MonoBehaviour:
   max_Defense: 5
   initiative: 0
   speed: 20
-  strength: 2
+  strength: 3
   critical: 0
   luck: 10

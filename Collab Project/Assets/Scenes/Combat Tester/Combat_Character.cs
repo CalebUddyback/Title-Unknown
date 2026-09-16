@@ -522,17 +522,19 @@ public abstract class Combat_Character : MonoBehaviour
                 {
                     if (Enemy.Defense + damage <= 0)
                     {
+                        int excess = damage + Enemy.Defense;
+
+                        Enemy.AdjustDefense(damage, skill.CritSuccess);
+
                         StartCoroutine(Enemy.Break());
 
-                        if (Enemy.Defense + damage < 0)
+                        if (excess < 0)
                         {
-                            damage += Enemy.Defense;
+                            yield return new WaitForSeconds(0.1f);
 
                             skill.Character.Team.combo_Counter.SetComboCount();
 
-                            Enemy.AdjustDefense(damage, skill.CritSuccess);
-
-                            Enemy.AdjustHealth(damage, skill.CritSuccess);
+                            Enemy.AdjustHealth(excess, skill.CritSuccess);
 
                         }
 

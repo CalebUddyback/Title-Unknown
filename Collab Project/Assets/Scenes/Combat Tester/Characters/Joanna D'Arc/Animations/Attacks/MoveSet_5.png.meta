@@ -1,0 +1,548 @@
+fileFormatVersion: 2
+guid: f5206f797813c8049b2ab7a8a4fdfc9f
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -63874640104131844
+    second: MoveSet_5_0
+  - first:
+      213: 8435014249156823674
+    second: MoveSet_5_1
+  - first:
+      213: -5640896129536002329
+    second: MoveSet_5_2
+  - first:
+      213: -7854066305632763423
+    second: MoveSet_5_3
+  - first:
+      213: 3077608310670482389
+    second: MoveSet_5_4
+  - first:
+      213: 2061730283431827322
+    second: MoveSet_5_5
+  - first:
+      213: -2548878047425746326
+    second: MoveSet_5_6
+  - first:
+      213: 1003836462527455503
+    second: MoveSet_5_7
+  - first:
+      213: 4228392725865593942
+    second: MoveSet_5_8
+  - first:
+      213: -235124066386563098
+    second: MoveSet_5_9
+  - first:
+      213: 7723920590257938647
+    second: MoveSet_5_10
+  - first:
+      213: 2934407735023373122
+    second: MoveSet_5_11
+  - first:
+      213: -6737089779738796114
+    second: MoveSet_5_12
+  - first:
+      213: 4945739976181793503
+    second: MoveSet_5_13
+  - first:
+      213: -2772652167814968651
+    second: MoveSet_5_14
+  - first:
+      213: 218696973901312908
+    second: MoveSet_5_15
+  - first:
+      213: 5508707291785413948
+    second: MoveSet_5_16
+  - first:
+      213: 7319448625143556002
+    second: MoveSet_5_17
+  - first:
+      213: 5240626433461803128
+    second: MoveSet_5_18
+  - first:
+      213: 8191205036049951290
+    second: MoveSet_5_19
+  - first:
+      213: -7113449696990080026
+    second: MoveSet_5_0
+  - first:
+      213: -4742748047919494752
+    second: MoveSet_5_1
+  - first:
+      213: 9093957276403298113
+    second: MoveSet_5_2
+  - first:
+      213: 5888212064403766491
+    second: MoveSet_5_3
+  - first:
+      213: 864642712955617207
+    second: MoveSet_5_4
+  - first:
+      213: -8707497393420015687
+    second: MoveSet_5_5
+  - first:
+      213: 7001376392500130866
+    second: MoveSet_5_6
+  - first:
+      213: 1290493180779388905
+    second: MoveSet_5_7
+  - first:
+      213: 6748212643382603106
+    second: MoveSet_5_9
+  - first:
+      213: 7709418389283275698
+    second: MoveSet_5_10
+  - first:
+      213: -3562912023955420185
+    second: MoveSet_5_11
+  - first:
+      213: 6586433179356466428
+    second: MoveSet_5_12
+  - first:
+      213: -3594248920059105701
+    second: MoveSet_5_13
+  - first:
+      213: -379059768743606136
+    second: MoveSet_5_14
+  - first:
+      213: -8513813627357092117
+    second: MoveSet_5_15
+  - first:
+      213: 4580695753011841889
+    second: MoveSet_5_8
+  externalObjects: {}
+  serializedVersion: 11
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 0
+    aniso: -1
+    mipBias: -100
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  applyGammaDecoding: 0
+  platformSettings:
+  - serializedVersion: 3
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 8192
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: Standalone
+    maxTextureSize: 8192
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: MoveSet_5_0
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 192
+        height: 128
+      alignment: 9
+      pivot: {x: 0.4635417, y: 0.3125}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 6e3db437033f74d90800000000000000
+      internalID: -7113449696990080026
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: MoveSet_5_1
+      rect:
+        serializedVersion: 2
+        x: 192
+        y: 0
+        width: 192
+        height: 128
+      alignment: 9
+      pivot: {x: 0.4635417, y: 0.3125}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 0a9c49057cf5e2eb0800000000000000
+      internalID: -4742748047919494752
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: MoveSet_5_2
+      rect:
+        serializedVersion: 2
+        x: 384
+        y: 0
+        width: 192
+        height: 128
+      alignment: 9
+      pivot: {x: 0.4635417, y: 0.3125}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 14fe89606f9343e70800000000000000
+      internalID: 9093957276403298113
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: MoveSet_5_3
+      rect:
+        serializedVersion: 2
+        x: 576
+        y: 0
+        width: 192
+        height: 128
+      alignment: 9
+      pivot: {x: 0.4635417, y: 0.3125}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: bdcb4fceca127b150800000000000000
+      internalID: 5888212064403766491
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: MoveSet_5_4
+      rect:
+        serializedVersion: 2
+        x: 768
+        y: 0
+        width: 192
+        height: 128
+      alignment: 9
+      pivot: {x: 0.4635417, y: 0.3125}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 7bf795367f3dffb00800000000000000
+      internalID: 864642712955617207
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: MoveSet_5_5
+      rect:
+        serializedVersion: 2
+        x: 960
+        y: 0
+        width: 192
+        height: 128
+      alignment: 9
+      pivot: {x: 0.4635417, y: 0.3125}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 9b76f864141c82780800000000000000
+      internalID: -8707497393420015687
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: MoveSet_5_6
+      rect:
+        serializedVersion: 2
+        x: 1152
+        y: 0
+        width: 192
+        height: 128
+      alignment: 9
+      pivot: {x: 0.4635417, y: 0.3125}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 234b6cdebb2e92160800000000000000
+      internalID: 7001376392500130866
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: MoveSet_5_7
+      rect:
+        serializedVersion: 2
+        x: 1344
+        y: 0
+        width: 192
+        height: 128
+      alignment: 9
+      pivot: {x: 0.4635417, y: 0.3125}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 9ef5b69e5b0c8e110800000000000000
+      internalID: 1290493180779388905
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: MoveSet_5_9
+      rect:
+        serializedVersion: 2
+        x: 1728
+        y: 0
+        width: 192
+        height: 128
+      alignment: 9
+      pivot: {x: 0.4635417, y: 0.3125}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 26dae9545a776ad50800000000000000
+      internalID: 6748212643382603106
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: MoveSet_5_10
+      rect:
+        serializedVersion: 2
+        x: 1920
+        y: 0
+        width: 192
+        height: 128
+      alignment: 9
+      pivot: {x: 0.4635417, y: 0.3125}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 2b30816cd2b5dfa60800000000000000
+      internalID: 7709418389283275698
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: MoveSet_5_11
+      rect:
+        serializedVersion: 2
+        x: 2112
+        y: 0
+        width: 192
+        height: 128
+      alignment: 9
+      pivot: {x: 0.4635417, y: 0.3125}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 7eb4b2e246efd8ec0800000000000000
+      internalID: -3562912023955420185
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: MoveSet_5_12
+      rect:
+        serializedVersion: 2
+        x: 2304
+        y: 0
+        width: 192
+        height: 128
+      alignment: 9
+      pivot: {x: 0.4635417, y: 0.3125}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: cfc83688416b76b50800000000000000
+      internalID: 6586433179356466428
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: MoveSet_5_13
+      rect:
+        serializedVersion: 2
+        x: 2496
+        y: 0
+        width: 192
+        height: 128
+      alignment: 9
+      pivot: {x: 0.4635417, y: 0.3125}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b5eab8d76a9ae1ec0800000000000000
+      internalID: -3594248920059105701
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: MoveSet_5_14
+      rect:
+        serializedVersion: 2
+        x: 2688
+        y: 0
+        width: 192
+        height: 128
+      alignment: 9
+      pivot: {x: 0.4635417, y: 0.3125}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 888456f062f4dbaf0800000000000000
+      internalID: -379059768743606136
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: MoveSet_5_15
+      rect:
+        serializedVersion: 2
+        x: 2880
+        y: 0
+        width: 192
+        height: 128
+      alignment: 9
+      pivot: {x: 0.4635417, y: 0.3125}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: be620813d9bd8d980800000000000000
+      internalID: -8513813627357092117
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: MoveSet_5_8
+      rect:
+        serializedVersion: 2
+        x: 1536
+        y: 0
+        width: 192
+        height: 128
+      alignment: 9
+      pivot: {x: 0.4635417, y: 0.3125}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 16b496e8486e19f30800000000000000
+      internalID: 4580695753011841889
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+  spritePackingTag: 
+  pSDRemoveMatte: 0
+  pSDShowRemoveMatteOption: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
