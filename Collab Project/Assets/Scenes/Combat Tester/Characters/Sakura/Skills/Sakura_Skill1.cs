@@ -46,7 +46,7 @@ public class Sakura_Skill1: Skill
 
         stage = Stage.Moving;
 
-        yield return Character.MoveInRange(new Vector3(-(intervals.distance), 0, 0));
+        yield return Character.MoveInRange(-(intervals.distance));
 
         Character.animationController.Clip(animationName);
 

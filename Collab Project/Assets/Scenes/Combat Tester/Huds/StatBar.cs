@@ -113,7 +113,7 @@ public class StatBar : MonoBehaviour
                 follow = displayBar[i].backBar;
                 displayBar[i].backBar.color = displayBar[i].negChange;
 
-                currentText.color = (i > 0) ? displayBar[i].frontBar.color : Color.white;
+                currentText.color = (i > 0) ? displayBar[i].posChange : Color.white;
 
                 while (displayBar[i].backBar.fillAmount > displayBar[i].frontBar.fillAmount)
                 {
@@ -134,7 +134,7 @@ public class StatBar : MonoBehaviour
                 follow = displayBar[i].frontBar;
                 displayBar[i].backBar.color = displayBar[i].posChange;
 
-                currentText.color = (i > 0) ? displayBar[i].frontBar.color : Color.white;
+                currentText.color = (i > 0) ? displayBar[i].posChange : Color.white;
 
                 while (displayBar[i].backBar.fillAmount > displayBar[i].frontBar.fillAmount)
                 {

@@ -40,7 +40,7 @@ public abstract class Skill : MonoBehaviour
     [System.Serializable]
     public class Intervals
     {
-        public float distance = 0.35f;
+        public Vector2 distance = new Vector2(0.35f, 0.35f);
         public Vector3 knockBack;
     }
     public Intervals intervals;

@@ -284,11 +284,26 @@ public abstract class Combat_Character : MonoBehaviour
     public abstract IEnumerator CpuDecisionMaking();
 
 
-    public IEnumerator MoveInRange(Vector3 range)
+    public IEnumerator MoveInRange(Vector2 range)
     {
         Vector3 startPos = transform.position;
 
-        Vector3 targetPos = new Vector3(enemyTransform.position.x + (range.x * Facing), transform.position.y , enemyTransform.position.z);
+        float min, max;
+
+        if (enemyTransform.position.x + (range.x * Facing) < enemyTransform.position.x + (range.y * Facing))
+        {
+            min = enemyTransform.position.x + (range.x * Facing);
+            max = enemyTransform.position.x + (range.y * Facing);
+        }
+        else
+        {
+            min = enemyTransform.position.x + (range.y * Facing);
+            max = enemyTransform.position.x + (range.x * Facing);
+        }
+
+        float targetRange = Mathf.Clamp(transform.position.x, min, max);
+
+        Vector3 targetPos = new Vector3(targetRange, transform.position.y , enemyTransform.position.z);
 
         if (startPos == targetPos)
             yield break;

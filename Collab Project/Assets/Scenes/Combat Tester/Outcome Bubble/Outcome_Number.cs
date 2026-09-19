@@ -21,22 +21,20 @@ public class Outcome_Number : MonoBehaviour
 
     public IEnumerator Display(Sprite spr, int n, Color clr)
     {
-        element.GetChild(0).GetComponent<Image>().sprite = spr;
-
         string num = Mathf.Abs(n).ToString();
 
-        foreach (Transform child in digits)
+        if(spr != null)
         {
-            child.GetComponent<TextMeshProUGUI>().color = clr;
+            element.GetChild(0).GetComponent<Image>().sprite = spr;
+            element.gameObject.SetActive(true);
         }
 
-        //gameObject.SetActive(true);
-
-        if(element.GetChild(0).GetComponent<Image>().sprite != null)
-            element.gameObject.SetActive(true);
+        float size = digits.GetComponent<GridLayoutGroup>().cellSize.x * num.Length;
+        digits.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, size);
 
         for (int i = 0; i < num.Length; i++)
         {
+            digits.GetChild(i).GetComponent<TextMeshProUGUI>().color = clr;
             digits.GetChild(i).GetComponent<TextMeshProUGUI>().text = num[i].ToString();
             digits.GetChild(i).gameObject.SetActive(true);
         }
@@ -45,17 +43,19 @@ public class Outcome_Number : MonoBehaviour
 
         yield return new WaitForSeconds(0.5f);  // view window
 
+        if (spr != null)
+        {
+            element.GetChild(0).GetComponent<Animation>().Play("Wiggle Sprite");
+            yield return new WaitForSeconds(0.125f);
+        }
+
         for (int i = 0; i < num.Length; i++)
         {
             digits.GetChild(i).GetComponent<Animation>().Play("Wiggle");
             yield return new WaitForSeconds(0.125f);
         }
 
-        if (element.GetChild(0).GetComponent<Image>().sprite != null)
-        {
-            element.GetChild(0).GetComponent<Animation>().Play("Wiggle Sprite");
-            yield return new WaitForSeconds(0.250f);
-        }
+        yield return new WaitForSeconds(0.125f);
 
         Destroy(gameObject);
     }
