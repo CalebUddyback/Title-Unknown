@@ -62,9 +62,11 @@ MonoBehaviour:
   manaCost: 0
   DamageVariation: {x: 0, y: 0}
   critical: 0
+  element: 4
   intervals:
     distance: 0.35
     knockBack: {x: 0, y: 0, z: 0}
   health: 0
+  defense: 0
   mana: 0
   chosen_Targets: []

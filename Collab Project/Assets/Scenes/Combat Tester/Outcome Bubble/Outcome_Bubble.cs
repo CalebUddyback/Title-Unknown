@@ -1,106 +1,45 @@
 ﻿using System.Collections;
 using UnityEngine;
 using TMPro;
+using System.Collections.Generic;
 
 public class Outcome_Bubble : MonoBehaviour
 {
-    public Canvas STRING_canvas;
-    public Canvas INT_canvas;
 
-    string numText, stringText;
+    public Transform container;
+    public Outcome_String outcome_String;
+    public Outcome_Number outcome_Number;
 
     public TMP_ColorGradient heal_Color;
 
-    private Color invisible = new Color(0, 0, 0, 0);
+    public List<Coroutine> coroutine = new List<Coroutine>();
 
-    public Coroutine coroutine;
-
-    private void Awake()
+    public void Input(Sprite spr, int num, Color clr)
     {
-        foreach (Transform child in INT_canvas.transform)
-            child.gameObject.SetActive(false);
-        
-        INT_canvas.gameObject.SetActive(false);
-        
-        foreach (Transform child in STRING_canvas.transform)
-            child.gameObject.SetActive(false);
-        
-        STRING_canvas.gameObject.SetActive(false);
-    }
+        Outcome_Number outcome =  Instantiate(outcome_Number.gameObject, container).GetComponent<Outcome_Number>();
 
-    private void Start()
-    {
-        // For Testing
-
-        //Input(100);
-    }
-
-    public void Input(int num, Color clr)
-    {
-        Input(num, clr, "", invisible);
+        coroutine.Add(StartCoroutine(outcome.Display(spr, num, clr)));
     }
 
     public void Input(string str, Color clr)
     {
-        Input(0, invisible, str, clr);
+        Outcome_String outcome = Instantiate(outcome_String.gameObject, container).GetComponent<Outcome_String>();
+
+        coroutine.Add(StartCoroutine(outcome.Display(str, clr)));
     }
 
-    public void Input(int num, Color numClr, string str, Color strClr)
+    private void Start()
     {
-    
-        foreach (Transform digit in INT_canvas.transform)
-        {
-            digit.GetComponent<TextMeshProUGUI>().color = numClr;
-        }
-
-        STRING_canvas.transform.GetChild(0).GetComponent<TextMeshProUGUI>().color = strClr;
-
-        numText = Mathf.Abs(num).ToString();
-
-        stringText = str;
-
-        coroutine = StartCoroutine(Playing(numText, str));
+        StartCoroutine(Delete());
     }
 
-    IEnumerator Playing(string num, string str)
+    IEnumerator Delete()
     {
-        if (num != "0" && str != "" || str == "")
+        yield return null;
+
+        for (int i = 0; i < coroutine.Count; i++)
         {
-            INT_canvas.gameObject.SetActive(true);
-
-            for (int i = 0; i < num.Length; i++)
-            {
-                INT_canvas.transform.GetChild(i).GetComponent<TextMeshProUGUI>().text = num[i].ToString();
-                INT_canvas.transform.GetChild(i).gameObject.SetActive(true);
-            }
-        }
-
-        if (str != "")
-        {
-            STRING_canvas.gameObject.SetActive(true);
-
-            STRING_canvas.transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = str;
-            STRING_canvas.transform.GetChild(0).gameObject.SetActive(true);
-        }
-
-        yield return new WaitForSeconds(0.167f); // Grow length
-
-        yield return new WaitForSeconds(0.5f);
-
-        if (num != "0" && str != "" || str == "")
-        {
-            for (int i = 0; i < num.Length; i++)
-            {
-                INT_canvas.transform.GetChild(i).GetComponent<Animation>().Play("Wiggle");
-                yield return new WaitForSeconds(0.125f);
-            }
-            yield return new WaitWhile(() => INT_canvas.transform.GetChild(num.Length - 1).GetComponent<Animation>().isPlaying);
-        }
-
-        if (str != "")
-        {
-            STRING_canvas.transform.GetChild(0).GetComponent<Animation>().Play("Fade");
-            yield return new WaitWhile(() => STRING_canvas.transform.GetChild(0).GetComponent<Animation>().isPlaying);
+            yield return coroutine[i];
         }
 
         Destroy(gameObject);

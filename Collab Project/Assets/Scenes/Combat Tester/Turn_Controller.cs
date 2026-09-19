@@ -45,6 +45,10 @@ public class Turn_Controller : MonoBehaviour
 
     public GameObject raycastBlocker;
 
+    public enum Element { Sharp, Blunt, Fire, Water, Block }
+
+    public Sprite sharp, blunt, fire, water, block;
+
     [System.Serializable]
     public class Team
     {
@@ -66,6 +70,30 @@ public class Turn_Controller : MonoBehaviour
         endTurnButton.onClick.AddListener(() => endTurn = true);
 
         StartCoroutine(InitializeCharacters());
+    }
+
+   public Sprite GetSprite(Element element)
+    {
+        switch (element)
+        {
+            case Element.Sharp:
+                return sharp;
+
+            case Element.Blunt:
+                return blunt;
+
+            case Element.Fire:
+                return fire;
+
+            case Element.Water:
+                return water;
+
+            case Element.Block:
+                return block;
+
+            default:
+                return fire;
+        }
     }
 
     IEnumerator InitializeCharacters()
@@ -179,22 +207,19 @@ public class Turn_Controller : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.UpArrow))
+        if (Input.GetKeyDown(KeyCode.W))
         {
-            print("Time Affected By Host");
-            foreach (Combat_Character character in all_Players)
-            {
-                StartCoroutine(character.Hud.AffectTimerProgress(1));
-            }
+            characterTurn.OutcomeBubble("Test", Color.white);
+            //characterTurn.AdjustDefense(null, 5, 1);
+            //AdjustHealth(20, 1);
+            //AdjustMana(20, true);
         }
 
-        if (Input.GetKeyDown(KeyCode.DownArrow))
+        if (Input.GetKeyDown(KeyCode.S))
         {
-            print("Time Affected By Host");
-            foreach (Combat_Character character in all_Players)
-            {
-                StartCoroutine(character.Hud.AffectTimerProgress(-1));
-            }
+            characterTurn.AdjustDefense(null, -5, 1);
+            //AdjustHealth(-20, 1);
+            //AdjustMana(-20, true);
         }
 
         if (Input.GetKeyDown(KeyCode.Space))

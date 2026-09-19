@@ -52,15 +52,16 @@ MonoBehaviour:
   animationController: {fileID: 1769910012499963784}
   outcome_Bubble_Prefab: {fileID: 5699773286052231236, guid: b1ad6643c96800942ac08ebd7b84bafe,
     type: 3}
+  current_Outcome_Bubble: {fileID: 0}
   outcome_Bubble_Pos: {fileID: 4517758417001648345}
-  target_Arrow: {fileID: 3479251503719224591, guid: 5e7d6650add859c41b207e135668d55c,
-    type: 3}
+  target_Arrow: {fileID: 0}
+  reaction_Arrow: {fileID: 0}
   currentPhase: 0
   skills: {fileID: 2109902659542500775}
-  hand: {fileID: 0}
+  deck: {fileID: 0}
+  reacting: 0
   doneTurn: 0
   Hud: {fileID: 0}
-  blocking: 0
   reaction: 0
   character_Stats: {fileID: 11400000, guid: 8486ad48d5234f94e9f9ac0344985a4e, type: 2}
   weapon: {fileID: 11400000, guid: 8036eb8e8a6f4904fb130ffa837c3c18, type: 2}
@@ -109,7 +110,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1769910012499963785}
-  m_RootOrder: 1
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1769910012499963787
 GameObject:
@@ -143,8 +144,8 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 7926037421926544895}
-  - {fileID: 1769910012157439512}
   - {fileID: 4517758417001648345}
+  - {fileID: 1769910012157439512}
   m_Father: {fileID: 1769910010724119530}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -403,11 +404,11 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8437881621601753149}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.128, y: 0.551, z: 0}
+  m_LocalPosition: {x: 0.12799998, y: 0.55100006, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1769910012499963785}
-  m_RootOrder: 2
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1713715081792248534
 PrefabInstance:

@@ -367,43 +367,48 @@ public class Decks : MonoBehaviour
 
         Locked = true;
 
-        float time = slotsToRemove[0].GetComponent<Animation>().clip.length;
-
-        for (int i = 0; i < slotsToRemove.Count; i++)
+        if (slotsToRemove.Count > 0)
         {
-            slotsToRemove[i].GetComponent<Animation>().Play();
-            slotsToRemove[i].card.gameObject.SetActive(false);
 
-            slotsToRemove[i].card.transform.SetParent(discardDeck);
+            float time = slotsToRemove[0].GetComponent<Animation>().clip.length;
 
-            slotsToRemove[i].card.GetComponent<RectTransform>().anchoredPosition = Vector2.zero;
+            for (int i = 0; i < slotsToRemove.Count; i++)
+            {
+                slotsToRemove[i].GetComponent<Animation>().Play();
+                slotsToRemove[i].card.gameObject.SetActive(false);
 
-            discardDeckQuantity.text = (discardDeck.childCount).ToString();
+                slotsToRemove[i].card.transform.SetParent(discardDeck);
 
-            hand.Remove(slotsToRemove[i].card);
+                slotsToRemove[i].card.GetComponent<RectTransform>().anchoredPosition = Vector2.zero;
 
-            slotsToRemove[i].card.skill.set = false;
+                discardDeckQuantity.text = (discardDeck.childCount).ToString();
 
-            slotsToRemove[i].card = null;
+                hand.Remove(slotsToRemove[i].card);
 
-            yield return new WaitForSeconds(time/2);
-        }
+                slotsToRemove[i].card.skill.set = false;
 
-        yield return new WaitForSeconds(time / 2);
+                slotsToRemove[i].card = null;
 
-        foreach (Transform slot in hand_Pos.transform)
-        {
-            if (slot.GetComponent<Card_Slot>().card != null)
-                slot.GetComponent<Card_Slot>().card.transform.SetParent(transform.parent);
-        }
+                yield return new WaitForSeconds(time / 2);
+            }
 
-        yield return null;
+            yield return new WaitForSeconds(time / 2);
 
-        for (int i = 0; i < slotsToRemove.Count; i++)
-        {
-            Destroy(slotsToRemove[i].gameObject);
+            foreach (Transform slot in hand_Pos.transform)
+            {
+                if (slot.GetComponent<Card_Slot>().card != null)
+                    slot.GetComponent<Card_Slot>().card.transform.SetParent(transform.parent);
+            }
 
             yield return null;
+
+            for (int i = 0; i < slotsToRemove.Count; i++)
+            {
+                Destroy(slotsToRemove[i].gameObject);
+
+                yield return null;
+            }
+
         }
 
         cardRemoved = true;

@@ -44,7 +44,7 @@ public class Sakura_Skill2 : Skill
         {
             var currentTarget = target;
 
-            currentTarget.AdjustHealth(totalHeal, CritSuccess);
+            currentTarget.AdjustHealth(null, totalHeal, CritSuccess);
         }
 
         yield return Character.animationController.coroutine;

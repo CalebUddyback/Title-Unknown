@@ -35,6 +35,7 @@ public abstract class Skill : MonoBehaviour
     public int manaCost;
     public Vector2Int DamageVariation;
     public int critical;
+    public Turn_Controller.Element element;
 
     [System.Serializable]
     public class Intervals

@@ -72,7 +72,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 8942367125096931486}
-  m_RootOrder: 2
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &6058613479605374833
 GameObject:
@@ -106,8 +106,8 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 2406485783361901829}
-  - {fileID: 6058613479806275298}
   - {fileID: 8226161459497283619}
+  - {fileID: 6058613479806275298}
   m_Father: {fileID: 6058613481054950160}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -237,7 +237,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 8942367125096931486}
-  m_RootOrder: 1
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &6058613481054950157
 GameObject:
@@ -291,6 +291,7 @@ MonoBehaviour:
   animationController: {fileID: 6058613479605374834}
   outcome_Bubble_Prefab: {fileID: 5699773286052231236, guid: b1ad6643c96800942ac08ebd7b84bafe,
     type: 3}
+  current_Outcome_Bubble: {fileID: 0}
   outcome_Bubble_Pos: {fileID: 8226161459497283619}
   target_Arrow: {fileID: 0}
   reaction_Arrow: {fileID: 0}

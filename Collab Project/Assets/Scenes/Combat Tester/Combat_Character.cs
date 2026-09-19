@@ -18,7 +18,7 @@ public abstract class Combat_Character : MonoBehaviour
     public AnimationController animationController;
 
     public Outcome_Bubble outcome_Bubble_Prefab;
-
+    public Outcome_Bubble current_Outcome_Bubble;
     public Transform outcome_Bubble_Pos;
 
     [HideInInspector]
@@ -52,30 +52,28 @@ public abstract class Combat_Character : MonoBehaviour
 
     public int Health { get; set; }
 
-    public void AdjustHealth(int change, float mutiplier)
+    public void AdjustHealth(Sprite spr, int change, float mutiplier)
     {
         int former = Health;
 
         Health = Mathf.Clamp(Health + change, 0, character_Stats.max_Health);
 
-        Outcome_Bubble bubble = Instantiate(outcome_Bubble_Prefab, TurnController.damage_Bubbles);
-        bubble.GetComponent<RectTransform>().anchoredPosition = TurnController.mainCamera.UIPosition(outcome_Bubble_Pos.position);
-
         if(change <= 0)
         {
             if (mutiplier > 1)
             {
-                bubble.Input(change, Color.yellow, "CRITICAL", Color.yellow);
+                OutcomeBubble("CRITICAL", Color.yellow);
+                OutcomeBubble(spr, change, Color.yellow);
                 TurnController.mainCamera.WhiteOut(this, this, 0.25f * mutiplier);
             }
             else
             {
-                bubble.Input(change, Color.red);
+                OutcomeBubble(spr, change, Color.red);
             }
         }
         else
         {
-            bubble.Input(change, Color.green);
+            OutcomeBubble(spr, change, Color.green);
         }
 
         switch (Health)
@@ -90,7 +88,7 @@ public abstract class Combat_Character : MonoBehaviour
 
     public int Defense { get; set; }
 
-    public void AdjustDefense(int change, float mutiplier)
+    public void AdjustDefense(Sprite spr, int change, float mutiplier)
     {
         bool overflow = true;
 
@@ -110,24 +108,21 @@ public abstract class Combat_Character : MonoBehaviour
 
         change = Defense - former;
 
-        Outcome_Bubble bubble = Instantiate(outcome_Bubble_Prefab, TurnController.damage_Bubbles);
-        bubble.GetComponent<RectTransform>().anchoredPosition = TurnController.mainCamera.UIPosition(outcome_Bubble_Pos.position);
-
         if (change <= 0)
         {
             if (mutiplier > 1)
             {
-                bubble.Input(change, Color.yellow, "CRITICAL", Color.yellow);
-                TurnController.mainCamera.WhiteOut(this, this, 0.25f * mutiplier);
+                OutcomeBubble("CRITICAL", Color.yellow);
+                OutcomeBubble(spr, change, Color.yellow);
             }
             else
             {
-                bubble.Input(change, Color.white);
+                OutcomeBubble(spr, change, Color.white);
             }
         }
         else
         {
-            bubble.Input(change, Color.green);
+            OutcomeBubble(spr, change, Color.green);
         }
 
         Hud.defenseBar.Adjust(former, Defense);
@@ -153,13 +148,7 @@ public abstract class Combat_Character : MonoBehaviour
 
         if (show)
         {
-            Outcome_Bubble bubble = Instantiate(outcome_Bubble_Prefab, TurnController.damage_Bubbles);
-            bubble.GetComponent<RectTransform>().anchoredPosition = TurnController.mainCamera.UIPosition(outcome_Bubble_Pos.position);
-
-            if (change > 0)
-                bubble.Input(change, new Color(0, 0.5019608f, 1));
-            else
-                bubble.Input(change, Color.white);
+            OutcomeBubble(null, change, new Color(0, 0.5019608f, 1));
         }
 
         switch (Mana)
@@ -170,23 +159,6 @@ public abstract class Combat_Character : MonoBehaviour
         }
 
         Hud.manaBar.Adjust(former, Mana);
-    }
-
-    private void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.S))
-        {
-            AdjustDefense(-5, 1);
-            //AdjustHealth(-20, 1);
-            //AdjustMana(-20, true);
-        }
-
-        if (Input.GetKeyDown(KeyCode.W))
-        {
-            AdjustDefense(5, 1);
-            //AdjustHealth(20, 1);
-            //AdjustMana(20, true);
-        }
     }
 
     public IEnumerator Charging()
@@ -487,6 +459,28 @@ public abstract class Combat_Character : MonoBehaviour
         animationController.eventFrame = false;
     }
 
+    public void OutcomeBubble(Sprite spr, int num, Color col1)
+    {
+        if (current_Outcome_Bubble == null || current_Outcome_Bubble.GetComponent<RectTransform>().anchoredPosition != TurnController.mainCamera.UIPosition(outcome_Bubble_Pos.position))
+        {
+            current_Outcome_Bubble = Instantiate(outcome_Bubble_Prefab, TurnController.damage_Bubbles);
+            current_Outcome_Bubble.GetComponent<RectTransform>().anchoredPosition = TurnController.mainCamera.UIPosition(outcome_Bubble_Pos.position);
+        }
+
+            current_Outcome_Bubble.Input(spr, num, col1);
+    }
+
+    public void OutcomeBubble(string str, Color col1)
+    {
+        if (current_Outcome_Bubble == null || current_Outcome_Bubble.GetComponent<RectTransform>().anchoredPosition != TurnController.mainCamera.UIPosition(outcome_Bubble_Pos.position))
+        {
+            current_Outcome_Bubble = Instantiate(outcome_Bubble_Prefab, TurnController.damage_Bubbles);
+            current_Outcome_Bubble.GetComponent<RectTransform>().anchoredPosition = TurnController.mainCamera.UIPosition(outcome_Bubble_Pos.position);
+        }
+
+        current_Outcome_Bubble.Input(str, col1);
+    }
+
     public IEnumerator ApplyOutcome(Skill skill)
     {
 
@@ -506,9 +500,7 @@ public abstract class Combat_Character : MonoBehaviour
         switch (skill.HitSuccess)
         {
             case 0:
-                Outcome_Bubble bubble = Instantiate(outcome_Bubble_Prefab, TurnController.damage_Bubbles);
-                bubble.GetComponent<RectTransform>().anchoredPosition = TurnController.mainCamera.UIPosition(Enemy.outcome_Bubble_Pos.position);
-                bubble.Input("MISS", Color.white);
+                Enemy.OutcomeBubble("MISS", Color.white);
 
                 animationController.Play();
                 Enemy.animationController.Play();
@@ -524,17 +516,15 @@ public abstract class Combat_Character : MonoBehaviour
                     {
                         int excess = damage + Enemy.Defense;
 
-                        Enemy.AdjustDefense(damage, skill.CritSuccess);
+                        Enemy.AdjustDefense(TurnController.GetSprite(Turn_Controller.Element.Block), damage, skill.CritSuccess);
 
                         StartCoroutine(Enemy.Break());
 
                         if (excess < 0)
                         {
-                            yield return new WaitForSeconds(0.1f);
-
                             skill.Character.Team.combo_Counter.SetComboCount();
 
-                            Enemy.AdjustHealth(excess, skill.CritSuccess);
+                            Enemy.AdjustHealth(TurnController.GetSprite(skill.element), excess, skill.CritSuccess);
 
                         }
 
@@ -542,7 +532,7 @@ public abstract class Combat_Character : MonoBehaviour
                     else
                     {
                         StartCoroutine(Enemy.Block());
-                        Enemy.AdjustDefense(damage, skill.CritSuccess);
+                        Enemy.AdjustDefense(TurnController.GetSprite(Turn_Controller.Element.Block), damage, skill.CritSuccess);
                     }
 
                     
@@ -564,7 +554,7 @@ public abstract class Combat_Character : MonoBehaviour
 
                     StartCoroutine(Enemy.Damage());
 
-                    Enemy.AdjustHealth(damage, skill.CritSuccess);
+                    Enemy.AdjustHealth(TurnController.GetSprite(skill.element), damage, skill.CritSuccess);
                 }
 
                 yield return new WaitForSeconds(0.25f * skill.CritSuccess); // Impact Delay

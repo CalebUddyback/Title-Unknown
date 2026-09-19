@@ -53,7 +53,7 @@ public class Defense_Skill : Skill
 
         // Character deffense up
 
-        Character.AdjustDefense(defense, 1);
+        Character.AdjustDefense(null, defense, 1);
 
         //yield return null;
         yield return Character.animationController.coroutine;
