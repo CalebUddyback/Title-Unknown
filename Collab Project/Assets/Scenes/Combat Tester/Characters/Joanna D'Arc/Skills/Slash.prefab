@@ -48,7 +48,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c8f2b80f1e4f1ad4f8be4b1942747ebe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  displayName: Slash
+  displayName: Down Slash
   animationName: Attack_Light
   effect: 0
   description: 
@@ -56,13 +56,13 @@ MonoBehaviour:
   type: 0
   range: 0
   stage: 0
+  phase: 0
   discard: 0
   chargeTime: 0
   set: 0
   manaCost: 0
   DamageVariation: {x: 0, y: 0}
   critical: 0
-  element: 0
   intervals:
     distance: {x: 0.4, y: 0.4}
     knockBack: {x: 0, y: 0, z: 0}

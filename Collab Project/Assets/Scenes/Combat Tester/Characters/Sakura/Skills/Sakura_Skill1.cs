@@ -6,13 +6,7 @@ public class Sakura_Skill1: Skill
 {
     public override bool UseCondition()
     {
-        if (Character.currentPhase != Combat_Character.Phase.Main)
-            return false;
-
-        if (manaCost > Character.Mana)
-            return false;
-
-        return true;
+        return base.UseCondition();
     }
 
     public override IEnumerator SetUp()   // parameter can be changed to submenu_controller_2

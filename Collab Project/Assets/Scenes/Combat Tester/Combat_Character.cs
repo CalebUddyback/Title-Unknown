@@ -27,7 +27,7 @@ public abstract class Combat_Character : MonoBehaviour
     [HideInInspector]
     public GameObject reaction_Arrow;
 
-    public enum Phase {Waiting, Draw, Main, Action, End, Reacting}
+    public enum Phase {Main, Action, End, Waiting, Reacting}
     public Phase currentPhase = Phase.Waiting;
 
     public Transform skills;
@@ -52,7 +52,7 @@ public abstract class Combat_Character : MonoBehaviour
 
     public int Health { get; set; }
 
-    public void AdjustHealth(Sprite spr, int change, float mutiplier)
+    public void AdjustHealth(Sprite spr, int change, string type, float mutiplier)
     {
         int former = Health;
 
@@ -63,17 +63,17 @@ public abstract class Combat_Character : MonoBehaviour
             if (mutiplier > 1)
             {
                 OutcomeBubble("CRITICAL", Color.yellow);
-                OutcomeBubble(spr, change, Color.yellow);
+                OutcomeBubble(spr, change, type, Color.yellow);
                 TurnController.mainCamera.WhiteOut(this, this, 0.25f * mutiplier);
             }
             else
             {
-                OutcomeBubble(spr, change, Color.red);
+                OutcomeBubble(spr, change, type, Color.red);
             }
         }
         else
         {
-            OutcomeBubble(spr, change, Color.green);
+            OutcomeBubble(spr, change, "+HP", Color.green);
         }
 
         switch (Health)
@@ -109,21 +109,9 @@ public abstract class Combat_Character : MonoBehaviour
         change = Defense - former;
 
         if (change <= 0)
-        {
-            if (mutiplier > 1)
-            {
-                OutcomeBubble("CRITICAL", Color.yellow);
-                OutcomeBubble(spr, change, Color.yellow);
-            }
-            else
-            {
-                OutcomeBubble(spr, change, Color.white);
-            }
-        }
+            OutcomeBubble(spr, change, "Block", Color.white);
         else
-        {
-            OutcomeBubble(spr, change, Color.green);
-        }
+            OutcomeBubble(spr, change, "+DF", Color.white);
 
         Hud.defenseBar.Adjust(former, Defense);
     }
@@ -148,7 +136,7 @@ public abstract class Combat_Character : MonoBehaviour
 
         if (show)
         {
-            OutcomeBubble(null, change, new Color(0, 0.5019608f, 1));
+            OutcomeBubble(null, change, "+MP", new Color(0, 0.5019608f, 1));
         }
 
         switch (Mana)
@@ -202,14 +190,10 @@ public abstract class Combat_Character : MonoBehaviour
                 yield return StartCoroutine(TurnController.draw_Selection.ChooseCard());
         }
 
-        deck.Locked = false;
-
         int startMP = 20;
         AdjustMana(startMP, true);
 
         ClearOverflow();
-
-        currentPhase = Phase.Draw;
 
         TurnController.CheckAllCards();
 
@@ -231,7 +215,6 @@ public abstract class Combat_Character : MonoBehaviour
 
         if (deck.cardsPlayed.Count == 0)
         {
-
             int restMP = 20;
             AdjustMana(restMP, true);
         }
@@ -474,20 +457,39 @@ public abstract class Combat_Character : MonoBehaviour
         animationController.eventFrame = false;
     }
 
-    public void OutcomeBubble(Sprite spr, int num, Color col1)
+    public void OutcomeBubble(Sprite spr, int num, string type, Color col1)
     {
-        if (current_Outcome_Bubble == null || current_Outcome_Bubble.GetComponent<RectTransform>().anchoredPosition != TurnController.mainCamera.UIPosition(outcome_Bubble_Pos.position))
+        float distance = 0;
+
+        if (type == Turn_Controller.Effect.None.ToString())
+            type = "";
+
+        if (current_Outcome_Bubble != null)
+        {
+            distance = Vector3.Distance(current_Outcome_Bubble.GetComponent<RectTransform>().anchoredPosition, TurnController.mainCamera.UIPosition(outcome_Bubble_Pos.position));
+        }
+
+        if (current_Outcome_Bubble == null || distance > 30f)
         {
             current_Outcome_Bubble = Instantiate(outcome_Bubble_Prefab, TurnController.damage_Bubbles);
             current_Outcome_Bubble.GetComponent<RectTransform>().anchoredPosition = TurnController.mainCamera.UIPosition(outcome_Bubble_Pos.position);
         }
 
-            current_Outcome_Bubble.Input(spr, num, col1);
+        current_Outcome_Bubble.Input(spr, num, type, col1);
     }
 
     public void OutcomeBubble(string str, Color col1)
     {
-        if (current_Outcome_Bubble == null || current_Outcome_Bubble.GetComponent<RectTransform>().anchoredPosition != TurnController.mainCamera.UIPosition(outcome_Bubble_Pos.position))
+        float distance = 0;
+
+        if (current_Outcome_Bubble != null)
+        {
+            distance = Vector3.Distance(current_Outcome_Bubble.GetComponent<RectTransform>().anchoredPosition, TurnController.mainCamera.UIPosition(outcome_Bubble_Pos.position));
+
+            Debug.Log(distance + " " + current_Outcome_Bubble.GetComponent<RectTransform>().anchoredPosition + " " + TurnController.mainCamera.UIPosition(outcome_Bubble_Pos.position));
+        }
+
+        if (current_Outcome_Bubble == null || distance > 30f)
         {
             current_Outcome_Bubble = Instantiate(outcome_Bubble_Prefab, TurnController.damage_Bubbles);
             current_Outcome_Bubble.GetComponent<RectTransform>().anchoredPosition = TurnController.mainCamera.UIPosition(outcome_Bubble_Pos.position);
@@ -515,7 +517,7 @@ public abstract class Combat_Character : MonoBehaviour
         switch (skill.HitSuccess)
         {
             case 0:
-                Enemy.OutcomeBubble("MISS", Color.white);
+                Enemy.OutcomeBubble("MISS!", Color.white);
 
                 animationController.Play();
                 Enemy.animationController.Play();
@@ -531,15 +533,27 @@ public abstract class Combat_Character : MonoBehaviour
                     {
                         int excess = damage + Enemy.Defense;
 
-                        Enemy.AdjustDefense(TurnController.GetSprite(Turn_Controller.Element.Block), damage, skill.CritSuccess);
+                        Enemy.AdjustDefense(TurnController.GetSprite(Turn_Controller.Effect.Block), damage, skill.CritSuccess);
 
                         StartCoroutine(Enemy.Break());
+
+                        yield return new WaitForSeconds(0.25f); // Grow length
+
+                        Enemy.animationController.Play();
+
+                        yield return Enemy.WaitForKeyFrame();
+
+                        Enemy.OutcomeBubble("BREAK!", Color.white);
+
+                        //Enemy.animationController.Pause();
+
+                        //yield return new WaitForSeconds(0.25f); // Grow length
 
                         if (excess < 0)
                         {
                             skill.Character.Team.combo_Counter.SetComboCount();
 
-                            Enemy.AdjustHealth(TurnController.GetSprite(skill.element), excess, skill.CritSuccess);
+                            Enemy.AdjustHealth(TurnController.GetSprite(skill.effect), excess, skill.effect.ToString(), skill.CritSuccess);
 
                         }
 
@@ -547,7 +561,7 @@ public abstract class Combat_Character : MonoBehaviour
                     else
                     {
                         StartCoroutine(Enemy.Block());
-                        Enemy.AdjustDefense(TurnController.GetSprite(Turn_Controller.Element.Block), damage, skill.CritSuccess);
+                        Enemy.AdjustDefense(TurnController.GetSprite(Turn_Controller.Effect.Block), damage, skill.CritSuccess);
                     }
 
                     
@@ -569,7 +583,7 @@ public abstract class Combat_Character : MonoBehaviour
 
                     StartCoroutine(Enemy.Damage());
 
-                    Enemy.AdjustHealth(TurnController.GetSprite(skill.element), damage, skill.CritSuccess);
+                    Enemy.AdjustHealth(TurnController.GetSprite(skill.effect), damage, skill.effect.ToString(), skill.CritSuccess);
                 }
 
                 yield return new WaitForSeconds(0.25f * skill.CritSuccess); // Impact Delay

@@ -12,7 +12,7 @@ public abstract class Skill : MonoBehaviour
 
     public string displayName;
     public string animationName;
-    public bool effect = false;
+    public Turn_Controller.Effect effect;
     public string description = "";
 
     public enum Selection { Oppostion_Target, Oppostion, Oppostion_Random, Self, Team_Target, Team, Team_Random, Targeter, All_Target, All, All_Random };
@@ -23,6 +23,7 @@ public abstract class Skill : MonoBehaviour
     public Range range;
     public enum Stage { Moving,  Impact};
     public Stage stage;
+    public Combat_Character.Phase phase;
 
     [Header("Requirements")]
 
@@ -35,7 +36,6 @@ public abstract class Skill : MonoBehaviour
     public int manaCost;
     public Vector2Int DamageVariation;
     public int critical;
-    public Turn_Controller.Element element;
 
     [System.Serializable]
     public class Intervals
@@ -92,7 +92,17 @@ public abstract class Skill : MonoBehaviour
 
     public virtual bool UseCondition()
     {
-        return false;
+        if (Character.currentPhase != phase)
+            return false;
+
+        if (manaCost + Character.Mana <= 0)
+            return false;
+
+        if (discard)
+            if (Character.deck.hand.Count < 1)
+                return false;
+
+        return true;
     }
 
     public abstract IEnumerator SetUp();

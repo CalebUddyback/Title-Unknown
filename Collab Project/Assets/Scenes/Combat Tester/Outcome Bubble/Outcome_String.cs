@@ -20,6 +20,8 @@ public class Outcome_String : MonoBehaviour
         text.GetComponent<Animation>().Play("Fade");
         yield return new WaitWhile(() => text.GetComponent<Animation>().isPlaying);
 
-        Destroy(gameObject);
+        yield return new WaitForSeconds(0.125f);
+
+        //Destroy(gameObject);
     }
 }

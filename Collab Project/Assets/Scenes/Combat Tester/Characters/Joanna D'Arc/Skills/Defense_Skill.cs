@@ -6,20 +6,7 @@ public class Defense_Skill : Skill
 {
     public override bool UseCondition()
     {
-        if (Character.currentPhase != Combat_Character.Phase.Main)
-            return false;
-
-        if (manaCost > Character.Mana)
-            return false;
-
-        if(discard)
-            if (Character.deck.hand.Count < 1)
-                return false;
-
-        //if (Character.blocking)
-        //    return false;
-
-        return true;
+        return base.UseCondition();
     }
 
     public override IEnumerator SetUp()

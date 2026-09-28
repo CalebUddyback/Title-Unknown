@@ -59,7 +59,7 @@ public class DescriptionBox : MonoBehaviour
     
         string typeText = "[" + card.type.ToString().ToUpper();
     
-        if (card.effect)
+        if (card.effect != Turn_Controller.Effect.None)
             typeText += " / EFFECT";
     
         typeText += "]";
@@ -70,7 +70,7 @@ public class DescriptionBox : MonoBehaviour
     
         string output = "";
     
-        if (card.effect)
+        if (card.effect != Turn_Controller.Effect.None)
         {
             if (card.description != "")
             {

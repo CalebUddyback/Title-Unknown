@@ -17,8 +17,13 @@ public class Decks : MonoBehaviour
         }
         set
         {
+            //Debug.Log("Locked:" + value);
+
             locked = value;
             owner.TurnController.endTurnButton.interactable = !value;
+
+            if(HoverSlot != null)
+                hoverSlot.ResetCard();
 
             foreach (Card card in hand)
             {
@@ -70,6 +75,12 @@ public class Decks : MonoBehaviour
         }
         set
         {
+            if (Locked)
+                return;
+
+            if (SelectedSlot != null)
+                return;
+
             if(hoverSlot != null && hoverSlot != SelectedSlot)
                 hoverSlot.ResetCard();
             
@@ -98,6 +109,12 @@ public class Decks : MonoBehaviour
         }
         set
         {
+            if (Locked)
+                return;
+
+            if (selectedSlot == value)
+                return;
+
             if (value != null)
             {
                 selectedSlot = value;
@@ -105,7 +122,8 @@ public class Decks : MonoBehaviour
                 if (selectedSlot != executedSlot)
                     selectedSlot.card.GetComponent<RectTransform>().anchoredPosition = Vector2.up * 12;
 
-                StartCoroutine(selectedSlot.card.skill.CharacterTargeting());
+                if(selectedSlot.card.Usable)
+                    StartCoroutine(selectedSlot.card.skill.CharacterTargeting());
             }
             else
             {
@@ -189,7 +207,7 @@ public class Decks : MonoBehaviour
 
             cardsToRemove.Add(executedSlot);
 
-            StartCoroutine(RemoveSlots(cardsToRemove, true));
+            StartCoroutine(RemoveSlots(cardsToRemove, true, false));
 
             executedSlot = null;
 
@@ -362,7 +380,7 @@ public class Decks : MonoBehaviour
         return newSlots;
     }
 
-    public IEnumerator RemoveSlots(List<Card_Slot> slotsToRemove, bool autoShift)
+    public IEnumerator RemoveSlots(List<Card_Slot> slotsToRemove, bool autoShift, bool autoUnlock)
     {
 
         Locked = true;
@@ -418,7 +436,8 @@ public class Decks : MonoBehaviour
         if(autoShift)
             yield return ShiftCards();
 
-        Locked = false;
+        if (autoUnlock)
+            Locked = false;
     }
 
     public IEnumerator Clear()
@@ -435,7 +454,7 @@ public class Decks : MonoBehaviour
             slots.Add(slot.GetComponent<Card_Slot>());
         }
 
-        yield return RemoveSlots(slots, true);
+        yield return RemoveSlots(slots, true, false);
     }
 
     [HideInInspector]
@@ -443,8 +462,6 @@ public class Decks : MonoBehaviour
 
     public IEnumerator ShiftCards()
     {
-        Locked = true;
-
         Coroutine retrieval = null;
 
         for (int r = 0; r < hand_Pos.childCount; r++)
@@ -453,11 +470,9 @@ public class Decks : MonoBehaviour
         }
 
         yield return retrieval;
-
-        Locked = false;
     }
 
-    public IEnumerator Raise( bool autoLock)
+    public IEnumerator Raise( bool autoUnlock)
     {
         //gameObject.SetActive(true);
 
@@ -491,7 +506,8 @@ public class Decks : MonoBehaviour
 
         }
 
-        Locked = autoLock;
+        if(autoUnlock)
+            Locked = false;
     }
 
     public IEnumerator Lower(bool autoNull)

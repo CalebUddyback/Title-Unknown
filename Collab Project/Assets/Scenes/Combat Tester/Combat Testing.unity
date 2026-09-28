@@ -1829,7 +1829,7 @@ MonoBehaviour:
   endTurnButton: {fileID: 1772853691}
   turn_Timeline: {fileID: 2119010443}
   raycastBlocker: {fileID: 1392805883}
-  sharp: {fileID: 1911623497472492325, guid: c6b6ca350962e22478504626394c0bcf, type: 3}
+  bleed: {fileID: 0}
   blunt: {fileID: 6898071557335679850, guid: c6b6ca350962e22478504626394c0bcf, type: 3}
   fire: {fileID: 8600823734317723969, guid: c6b6ca350962e22478504626394c0bcf, type: 3}
   water: {fileID: 5451797455560910174, guid: c6b6ca350962e22478504626394c0bcf, type: 3}
@@ -9749,17 +9749,12 @@ PrefabInstance:
     - target: {fileID: 505606794766547922, guid: 38adef3845f84744980883672f18e7d4,
         type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 539566137379213409, guid: 38adef3845f84744980883672f18e7d4,
         type: 3}
       propertyPath: m_IsActive
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1033707695807335346, guid: 38adef3845f84744980883672f18e7d4,
-        type: 3}
-      propertyPath: manaCost
-      value: -25
       objectReference: {fileID: 0}
     - target: {fileID: 1033707695807335346, guid: 38adef3845f84744980883672f18e7d4,
         type: 3}
@@ -9789,7 +9784,7 @@ PrefabInstance:
     - target: {fileID: 4762083352504553524, guid: 38adef3845f84744980883672f18e7d4,
         type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5293405148965663735, guid: 38adef3845f84744980883672f18e7d4,
         type: 3}

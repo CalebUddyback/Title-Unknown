@@ -14,11 +14,11 @@ public class Outcome_Bubble : MonoBehaviour
 
     public List<Coroutine> coroutine = new List<Coroutine>();
 
-    public void Input(Sprite spr, int num, Color clr)
+    public void Input(Sprite spr, int num, string type, Color clr)
     {
         Outcome_Number outcome =  Instantiate(outcome_Number.gameObject, container).GetComponent<Outcome_Number>();
 
-        coroutine.Add(StartCoroutine(outcome.Display(spr, num, clr)));
+        coroutine.Add(StartCoroutine(outcome.Display(spr, num, type, clr)));
     }
 
     public void Input(string str, Color clr)

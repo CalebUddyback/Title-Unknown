@@ -45,9 +45,9 @@ public class Turn_Controller : MonoBehaviour
 
     public GameObject raycastBlocker;
 
-    public enum Element { Sharp, Blunt, Fire, Water, Block }
+    public enum Effect { None, Bleed, Daze, Pierce, Water, Block }
 
-    public Sprite sharp, blunt, fire, water, block;
+    public Sprite bleed, blunt, fire, water, block;
 
     [System.Serializable]
     public class Team
@@ -72,23 +72,26 @@ public class Turn_Controller : MonoBehaviour
         StartCoroutine(InitializeCharacters());
     }
 
-   public Sprite GetSprite(Element element)
+   public Sprite GetSprite(Effect element)
     {
         switch (element)
         {
-            case Element.Sharp:
-                return sharp;
+            case Effect.None:
+                return null;
 
-            case Element.Blunt:
+            case Effect.Bleed:
+                return bleed;
+
+            case Effect.Daze:
                 return blunt;
 
-            case Element.Fire:
+            case Effect.Pierce:
                 return fire;
 
-            case Element.Water:
+            case Effect.Water:
                 return water;
 
-            case Element.Block:
+            case Effect.Block:
                 return block;
 
             default:
@@ -136,7 +139,8 @@ public class Turn_Controller : MonoBehaviour
                 character.Defense = 1;
                 character.Hud.defenseBar.Initialize(character.Defense, character.character_Stats.max_Defense);
 
-                character.Mana = character.character_Stats.max_Mana;
+                //character.Mana = character.character_Stats.max_Mana;
+                character.Mana = 1;
                 character.Hud.manaBar.Initialize(character.Mana, character.character_Stats.max_Mana);
 
                 Decks newHand = Instantiate(decks_Prefab, team.decks).GetComponent<Decks>();
@@ -222,9 +226,16 @@ public class Turn_Controller : MonoBehaviour
             //AdjustMana(-20, true);
         }
 
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (Input.GetKeyDown(KeyCode.KeypadPlus))
         {
             StartCoroutine(characterTurn.deck.DrawCards(1, true, true));
+        }
+
+        if (Input.GetKeyDown(KeyCode.KeypadMinus))
+        {
+            characterTurn.deck.cardsToRemove.Add(characterTurn.deck.hand_Pos.GetChild(0).GetComponent<Card_Slot>());
+
+            StartCoroutine(characterTurn.deck.RemoveSlots(characterTurn.deck.cardsToRemove, true, true));
         }
     }
 

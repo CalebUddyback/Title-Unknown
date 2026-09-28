@@ -13,31 +13,22 @@ public class Card_Slot : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
 
     public void OnPointerEnter(PointerEventData eventData)
     {
-        if (!deck.Locked)
-        {
-            deck.HoverSlot = this;
-        }
+        deck.HoverSlot = this;
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
-        if (!deck.Locked)
-        {
-            if (deck.HoverSlot != this)
-                return;
-            else
-                deck.HoverSlot = null;
-        }
+        if (deck.HoverSlot != this)
+            return;
+        else
+            deck.HoverSlot = null;
     }
 
     public void OnPointerDown(PointerEventData eventData)
     {
         if (eventData.button == PointerEventData.InputButton.Left)
         {
-            if (deck.SelectedSlot != this && !deck.Locked)
-            {
-                deck.SelectedSlot = this;
-            }
+            deck.SelectedSlot = this;
         }
     }
 

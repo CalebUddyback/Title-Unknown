@@ -50,19 +50,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   displayName: Heavy Jab
   animationName: Attack_Heavy
-  effect: 0
+  effect: 3
   description: 
   selection: 0
   type: 0
   range: 0
   stage: 0
+  phase: 0
   discard: 0
   chargeTime: 0
   set: 0
   manaCost: 0
   DamageVariation: {x: 0, y: 0}
   critical: 0
-  element: 2
   intervals:
     distance: {x: 0.4, y: 0.45}
     knockBack: {x: 0.1, y: 0, z: 0}
