@@ -78,15 +78,15 @@ public class Decks : MonoBehaviour
             if (Locked)
                 return;
 
-            if (SelectedSlot != null)
-                return;
-
             if(hoverSlot != null && hoverSlot != SelectedSlot)
                 hoverSlot.ResetCard();
             
             hoverSlot = value;
 
-            if (hoverSlot == null)
+            //if (SelectedSlot != null)
+            //    return;
+
+            if (value == null)
                 return;
 
             hoverSlot.transform.localScale = Vector3.one * 2f;
@@ -122,7 +122,7 @@ public class Decks : MonoBehaviour
                 if (selectedSlot != executedSlot)
                     selectedSlot.card.GetComponent<RectTransform>().anchoredPosition = Vector2.up * 12;
 
-                if(selectedSlot.card.Usable)
+                if (selectedSlot.card.Usable)
                     StartCoroutine(selectedSlot.card.skill.CharacterTargeting());
             }
             else
@@ -324,6 +324,8 @@ public class Decks : MonoBehaviour
 
         hand = hand.OrderBy(o => o.transform.parent.GetSiblingIndex()).ToList();
 
+        owner.TurnController.CheckAllCards();
+
         if (autoUnlock)
             Locked = false;
 
@@ -339,7 +341,7 @@ public class Decks : MonoBehaviour
 
             drawnCard.transform.localScale = new Vector3(displayScale, displayScale, 1);
 
-            drawnCard.GetComponent<RectTransform>().localRotation *= Quaternion.Euler(0, -1, 0);
+            drawnCard.GetComponent<RectTransform>().localRotation *= Quaternion.Euler(0, 0, 0);
 
             drawnCard.locked.gameObject.SetActive(true);
 

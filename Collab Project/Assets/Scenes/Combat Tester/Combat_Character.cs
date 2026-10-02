@@ -116,7 +116,7 @@ public abstract class Combat_Character : MonoBehaviour
         Hud.defenseBar.Adjust(former, Defense);
     }
 
-    public void ClearOverflow()
+    public void ClearDefenseOverflow()
     {
         if (Defense > character_Stats.max_Defense)
         {
@@ -158,8 +158,6 @@ public abstract class Combat_Character : MonoBehaviour
 
     public IEnumerator StartTurn()
     {
-        TurnController.CheckAllCards();
-
         yield return deck.Raise(false);
 
         yield return new WaitForSeconds(0.5f);
@@ -193,9 +191,7 @@ public abstract class Combat_Character : MonoBehaviour
         int startMP = 20;
         AdjustMana(startMP, true);
 
-        ClearOverflow();
-
-        TurnController.CheckAllCards();
+        ClearDefenseOverflow();
 
         // Main
 

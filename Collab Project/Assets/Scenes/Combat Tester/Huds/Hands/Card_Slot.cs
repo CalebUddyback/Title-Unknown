@@ -18,10 +18,7 @@ public class Card_Slot : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
 
     public void OnPointerExit(PointerEventData eventData)
     {
-        if (deck.HoverSlot != this)
-            return;
-        else
-            deck.HoverSlot = null;
+        deck.HoverSlot = null;
     }
 
     public void OnPointerDown(PointerEventData eventData)

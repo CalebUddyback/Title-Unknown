@@ -6,13 +6,7 @@ public class Sakura_Skill2 : Skill
 {
     public override bool UseCondition()
     {
-        if (Character.currentPhase != Combat_Character.Phase.Main)
-            return false;
-
-        if (manaCost > Character.Mana)
-            return false;
-
-        return true;
+        return base.UseCondition();
     }
 
     public override IEnumerator SetUp()
@@ -38,7 +32,7 @@ public class Sakura_Skill2 : Skill
     {
         Character.animationController.Play();
 
-        int totalHeal = Random.Range(DamageVariation.x, DamageVariation.y + 1) * CritSuccess;
+        int totalHeal = health * CritSuccess;
 
         foreach (Combat_Character target in chosen_Targets)
         {

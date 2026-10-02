@@ -22,7 +22,7 @@ public class Card: MonoBehaviour
 
     public bool negated = false;
 
-    private bool usable;
+    public bool usable;
     public bool Usable
     {
         get
