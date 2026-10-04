@@ -9,6 +9,8 @@ public abstract class Combat_Character : MonoBehaviour
 
     public string characterName = "";
 
+    public Sprite portrait;
+
     public Transform enemyTransform;
 
     public Combat_Character Enemy => enemyTransform.GetComponent<Combat_Character>();
@@ -20,6 +22,8 @@ public abstract class Combat_Character : MonoBehaviour
     public Outcome_Bubble outcome_Bubble_Prefab;
     public Outcome_Bubble current_Outcome_Bubble;
     public Transform outcome_Bubble_Pos;
+
+    public ParticleSystem blood;
 
     [HideInInspector]
     public Target_Arrow target_Arrow;
@@ -551,6 +555,7 @@ public abstract class Combat_Character : MonoBehaviour
 
                             Enemy.AdjustHealth(TurnController.GetSprite(skill.effect), excess, skill.effect.ToString(), skill.CritSuccess);
 
+                            Enemy.blood.Play();
                         }
 
                     }
@@ -580,6 +585,8 @@ public abstract class Combat_Character : MonoBehaviour
                     StartCoroutine(Enemy.Damage());
 
                     Enemy.AdjustHealth(TurnController.GetSprite(skill.effect), damage, skill.effect.ToString(), skill.CritSuccess);
+
+                    Enemy.blood.Play();
                 }
 
                 yield return new WaitForSeconds(0.25f * skill.CritSuccess); // Impact Delay
@@ -634,22 +641,12 @@ public abstract class Combat_Character : MonoBehaviour
         yield return animationController.coroutine;
     }
 
+    public int Reaction { get; set; }
 
-    public int reaction;
-
-    public int Reaction
+    public int React()
     {
-        get
-        {
-            return reaction = Random.Range(0, character_Stats.initiative);
-        }
-
-        set
-        {
-            reaction = value;
-        }
+        return Reaction = Random.Range(0, character_Stats.initiative);
     }
-
 
 
     /****STATS ****/

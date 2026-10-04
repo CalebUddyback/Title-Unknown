@@ -11,6 +11,8 @@ public class Character_Hud : MonoBehaviour
 
     public TextMeshProUGUI diplayName;
 
+    public Image portarit;
+
     public TextMeshProUGUI charge_Timer;
     public int timer_Progress = 0;
     private Color timer_BaseColor = new Color(1,1,1,0.5f);

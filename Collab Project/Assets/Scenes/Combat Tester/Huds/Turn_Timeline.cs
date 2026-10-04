@@ -4,9 +4,11 @@ using UnityEngine;
 
 public class Turn_Timeline : MonoBehaviour
 {
+    public GameObject slot;
+
     public Transform content;
 
-    private float shiftDuration = 0.35f;
+    public float shiftDuration = 0.35f;
 
     // Update is called once per frame
     void Update()
@@ -25,6 +27,9 @@ public class Turn_Timeline : MonoBehaviour
         yield return null;
         swap.GetComponent<RectTransform>().offsetMin = Vector2.zero;
         swap.GetComponent<RectTransform>().offsetMax = Vector2.zero;
+
+        swap.GetComponent<TurnTile>().portarit.sprite = null;
+        swap.GetComponent<TurnTile>().roundIndictor.SetActive(false);
 
         for (int i = 0; i < content.childCount - 1; i++)
         {
@@ -46,7 +51,7 @@ public class Turn_Timeline : MonoBehaviour
 
         yield return new WaitForSeconds(shiftDuration);
 
-        StartCoroutine(TurnIndicate(content.GetChild(content.childCount-1).GetChild(0).GetComponent<RectTransform>()));
+        StartCoroutine(TurnIndicate());
     }
 
     public IEnumerator Shifting(RectTransform r)
@@ -79,8 +84,10 @@ public class Turn_Timeline : MonoBehaviour
         r.offsetMax = targetOffsetMax;
     }
 
-    public IEnumerator TurnIndicate(RectTransform r)
+    public IEnumerator TurnIndicate()
     {
+        RectTransform r = content.GetChild(content.childCount - 1).GetChild(0).GetComponent<RectTransform>();
+
         Vector2 startOffsetMin = r.offsetMin;
         Vector2 startOffsetMax = r.offsetMax;
 

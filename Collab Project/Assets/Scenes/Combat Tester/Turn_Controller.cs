@@ -17,6 +17,8 @@ public class Turn_Controller : MonoBehaviour
 
     public TextMeshProUGUI instructions;
 
+    public int round_Num = 0;
+
     public GameObject decks_Prefab;
 
     public Draw_Selection draw_Selection;
@@ -130,6 +132,7 @@ public class Turn_Controller : MonoBehaviour
                 character.Hud.gameObject.SetActive(true);
 
                 character.Hud.diplayName.text = character.gameObject.name;
+                character.Hud.portarit.sprite = character.portrait;
                 character.Hud.TurnController = this;
 
                 character.Health = character.character_Stats.max_Health; // remove this line for persistant stats
@@ -206,7 +209,63 @@ public class Turn_Controller : MonoBehaviour
         teams[0].Opposition = teams[1];
         teams[1].Opposition = teams[0];
 
+        float size =  (turn_Timeline.slot.GetComponent<RectTransform>().rect.height + turn_Timeline.content.GetComponent<VerticalLayoutGroup>().spacing)  * (all_Players.Count + 1) + 10f;
+        turn_Timeline.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, size);
+
+        Transform ind = Instantiate(turn_Timeline.slot.gameObject, turn_Timeline.content).transform;
+
+        ind.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 150f);
+        ind.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 60f);
+
+        ind.GetChild(0).gameObject.SetActive(false);
+
+        currentTurnOrder = all_Players.OrderByDescending(o => o.React()).ToList();
+
+        for (int i = 0; i < currentTurnOrder.Count; i++)
+        {
+            Transform slot = Instantiate(turn_Timeline.slot.gameObject, turn_Timeline.content).transform;
+            slot.SetSiblingIndex(0);
+            slot.GetChild(0).GetComponent<TurnTile>().portarit.sprite = currentTurnOrder[i].portrait;
+            slot.GetChild(0).GetComponent<TurnTile>().reaction = currentTurnOrder[i].Reaction;
+
+            yield return null;
+        }
+
+        turn_Timeline.content.GetChild(turn_Timeline.content.childCount - 2).GetChild(0).GetComponent<TurnTile>().roundIndictor.SetActive(true);
+        turn_Timeline.content.GetChild(turn_Timeline.content.childCount - 2).GetChild(0).GetComponent<TurnTile>().roundText.text = round_Num.ToString();
+
+        round_Num++;
+        
+        var nextTurnOrder = all_Players.OrderByDescending(o => o.React()).ToList();
+        
+        while (currentTurnOrder[currentTurnOrder.Count - 1] == nextTurnOrder[0])
+        {
+            nextTurnOrder = all_Players.OrderByDescending(o => o.React()).ToList();
+            Debug.Log("Re-roll");
+        }
+        
+        for (int i = 0; i < nextTurnOrder.Count; i++)
+        {
+            Transform slot = Instantiate(turn_Timeline.slot.gameObject, turn_Timeline.content).transform;
+            slot.SetSiblingIndex(0);
+            slot.GetChild(0).GetComponent<TurnTile>().portarit.sprite = nextTurnOrder[i].portrait;
+            slot.GetChild(0).GetComponent<TurnTile>().reaction = nextTurnOrder[i].Reaction;
+
+            yield return null;
+        }
+        
+        turn_Timeline.content.GetChild(nextTurnOrder.Count - 1).GetChild(0).GetComponent<TurnTile>().roundIndictor.SetActive(true);
+        turn_Timeline.content.GetChild(nextTurnOrder.Count - 1).GetChild(0).GetComponent<TurnTile>().roundText.text = round_Num.ToString();
+
+        currentTurnOrder.AddRange(nextTurnOrder);
+
+        yield return new WaitForSeconds(1);
+
         StartCoroutine(RotateTurns());
+
+        yield return new WaitForSeconds(1);
+
+        turn_Timeline.content.GetChild(0).GetChild(0).gameObject.SetActive(true);
     }
 
     private void Update()
@@ -242,24 +301,9 @@ public class Turn_Controller : MonoBehaviour
 
     IEnumerator RotateTurns()
     {
-
-        currentTurnOrder = all_Players.OrderByDescending(o => o.Reaction).ToList();
-
         while (true)
         {
-            while (currentTurnOrder.Count < 7)
-            {
-                var nextTurnOrder = all_Players.OrderByDescending(o => o.Reaction).ToList();
-
-                while (currentTurnOrder[currentTurnOrder.Count - 1] == nextTurnOrder[0])
-                {
-                    nextTurnOrder = all_Players.OrderByDescending(o => o.Reaction).ToList();
-                    Debug.Log("Re-roll");
-                }
-
-                currentTurnOrder.AddRange(nextTurnOrder);
-            }
-
+            yield return turn_Timeline.Shift();
 
             characterTurn = currentTurnOrder[0];
 
@@ -268,8 +312,6 @@ public class Turn_Controller : MonoBehaviour
             // Move Camera 
 
             //yield return characterTurn.TurnController.mainCamera.Reset(0.2f);
-
-            yield return turn_Timeline.Shift();
 
             //characterTurn.Hud.timer_Animations.Play("Pulser_Burst");
 
@@ -306,6 +348,31 @@ public class Turn_Controller : MonoBehaviour
             // remove start of list 
 
             currentTurnOrder.RemoveAt(0);
+
+            if (currentTurnOrder.Count == all_Players.Count)
+            {
+                round_Num++;
+
+                var nextTurnOrder = all_Players.OrderByDescending(o => o.React()).ToList();
+
+                while (currentTurnOrder[currentTurnOrder.Count - 1] == nextTurnOrder[0])
+                {
+                    nextTurnOrder = all_Players.OrderByDescending(o => o.React()).ToList();
+                    Debug.Log("Re-roll");
+                }
+
+                for (int i = 0; i < nextTurnOrder.Count; i++)
+                {
+                    turn_Timeline.content.GetChild(i).GetChild(0).GetComponent<TurnTile>().portarit.sprite = nextTurnOrder[nextTurnOrder.Count - i - 1].portrait;
+                    turn_Timeline.content.GetChild(i).GetChild(0).GetComponent<TurnTile>().reaction = nextTurnOrder[nextTurnOrder.Count - i - 1].Reaction;
+                }
+
+                turn_Timeline.content.GetChild(nextTurnOrder.Count - 1).GetChild(0).GetComponent<TurnTile>().roundIndictor.SetActive(true);
+                turn_Timeline.content.GetChild(nextTurnOrder.Count - 1).GetChild(0).GetComponent<TurnTile>().roundText.text = round_Num.ToString();
+
+                currentTurnOrder.AddRange(nextTurnOrder);
+
+            }
 
             yield return null;
         }
