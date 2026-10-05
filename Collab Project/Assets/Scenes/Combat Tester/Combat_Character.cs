@@ -486,7 +486,7 @@ public abstract class Combat_Character : MonoBehaviour
         {
             distance = Vector3.Distance(current_Outcome_Bubble.GetComponent<RectTransform>().anchoredPosition, TurnController.mainCamera.UIPosition(outcome_Bubble_Pos.position));
 
-            Debug.Log(distance + " " + current_Outcome_Bubble.GetComponent<RectTransform>().anchoredPosition + " " + TurnController.mainCamera.UIPosition(outcome_Bubble_Pos.position));
+            //Debug.Log(distance + " " + current_Outcome_Bubble.GetComponent<RectTransform>().anchoredPosition + " " + TurnController.mainCamera.UIPosition(outcome_Bubble_Pos.position));
         }
 
         if (current_Outcome_Bubble == null || distance > 30f)

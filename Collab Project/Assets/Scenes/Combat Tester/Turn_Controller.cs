@@ -33,7 +33,7 @@ public class Turn_Controller : MonoBehaviour
 
     public Transform damage_Bubbles;
 
-    public Combat_Character hoveringOver;
+    public Combat_Character CharacterHoveringOver;
 
     public Combat_Character selectedCharacter;
 
@@ -142,8 +142,7 @@ public class Turn_Controller : MonoBehaviour
                 character.Defense = 1;
                 character.Hud.defenseBar.Initialize(character.Defense, character.character_Stats.max_Defense);
 
-                //character.Mana = character.character_Stats.max_Mana;
-                character.Mana = 1;
+                character.Mana = character.character_Stats.max_Mana;
                 character.Hud.manaBar.Initialize(character.Mana, character.character_Stats.max_Mana);
 
                 Decks newHand = Instantiate(decks_Prefab, team.decks).GetComponent<Decks>();
@@ -295,6 +294,11 @@ public class Turn_Controller : MonoBehaviour
             characterTurn.deck.cardsToRemove.Add(characterTurn.deck.hand_Pos.GetChild(0).GetComponent<Card_Slot>());
 
             StartCoroutine(characterTurn.deck.RemoveSlots(characterTurn.deck.cardsToRemove, true, true));
+        }
+
+        if (Input.GetKeyDown(KeyCode.X))
+        {
+            endTurn = true;
         }
     }
 
@@ -516,7 +520,7 @@ public class Turn_Controller : MonoBehaviour
             {
                 character.reaction_Arrow.transform.GetChild(0).GetComponent<TextMeshProUGUI>().color = Color.white;
             }
-            else if (character == hoveringOver)
+            else if (character == CharacterHoveringOver)
             {
                 character.reaction_Arrow.transform.GetChild(0).GetComponent<TextMeshProUGUI>().color = Color.yellow;
             }

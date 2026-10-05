@@ -128,7 +128,7 @@ public abstract class Skill : MonoBehaviour
 
             case Selection.Team_Target:
                 eligible_Targets = Character.Team.members;
-                //yield return Character.TurnController.mainCamera.Reset(0.2f);
+                yield return Character.TurnController.mainCamera.Reset(0.2f);
                 break;
 
             case Selection.Team_Random:
@@ -171,9 +171,9 @@ public abstract class Skill : MonoBehaviour
 
                 foreach (Combat_Character c in eligible_Targets)
                 {
-                    if (eligible_Targets.Contains(TurnController.hoveringOver) && c == TurnController.hoveringOver)
+                    if (eligible_Targets.Contains(TurnController.CharacterHoveringOver) && c == TurnController.CharacterHoveringOver)
                         continue;
-                    else if (eligible_Targets.Contains(TurnController.hoveringOver))
+                    else if (eligible_Targets.Contains(TurnController.CharacterHoveringOver))
                         c.target_Arrow.Highlight(true);
                     else
                         c.target_Arrow.Highlight(false);
@@ -192,9 +192,9 @@ public abstract class Skill : MonoBehaviour
 
                 foreach (Combat_Character c in eligible_Targets)
                 {
-                    if (eligible_Targets.Contains(TurnController.hoveringOver) && c == TurnController.hoveringOver)
+                    if (eligible_Targets.Contains(TurnController.CharacterHoveringOver) && c == TurnController.CharacterHoveringOver)
                         continue;
-                    else if (eligible_Targets.Contains(TurnController.hoveringOver))
+                    else if (eligible_Targets.Contains(TurnController.CharacterHoveringOver))
                         c.target_Arrow.Highlight(true);
                     else
                         c.target_Arrow.Highlight(false);

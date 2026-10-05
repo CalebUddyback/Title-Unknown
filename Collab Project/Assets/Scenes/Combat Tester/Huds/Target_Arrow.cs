@@ -30,9 +30,15 @@ public class Target_Arrow : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
     {
 
         if (x)
-            owner.TurnController.hoveringOver = owner;
+        {
+            owner.TurnController.CharacterHoveringOver = owner;
+            owner.animationController.GetComponent<SpriteRenderer>().material.SetFloat("Outline_Thickness", 1f);
+        }
         else
-            owner.TurnController.hoveringOver = null;
+        {
+            owner.TurnController.CharacterHoveringOver = null;
+            owner.animationController.GetComponent<SpriteRenderer>().material.SetFloat("Outline_Thickness", 0f);
+        }
 
         Highlight(x);
     }

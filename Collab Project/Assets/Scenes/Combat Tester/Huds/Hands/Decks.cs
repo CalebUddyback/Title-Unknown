@@ -127,17 +127,22 @@ public class Decks : MonoBehaviour
             }
             else
             {
-                if(owner.TurnController.hoveringOver != null)
+                if(owner.TurnController.CharacterHoveringOver != null)
                 {
-                    SelectedSlot.card.skill.chosen_Targets.Add(owner.TurnController.hoveringOver);
+                    SelectedSlot.card.skill.chosen_Targets.Add(owner.TurnController.CharacterHoveringOver);
 
                     ExecutedSlot = selectedSlot;
 
-                    owner.TurnController.hoveringOver = null;
+                    owner.TurnController.CharacterHoveringOver = null;
                 }
 
                 if (selectedSlot != null)
-                    SelectedSlot.ResetCard();
+                {
+                    if(HoverSlot == SelectedSlot)
+                        selectedSlot.card.GetComponent<RectTransform>().anchoredPosition = Vector2.zero;
+                    else
+                        SelectedSlot.ResetCard();
+                }
 
                 selectedSlot = value;
             }
