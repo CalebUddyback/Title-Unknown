@@ -156,12 +156,12 @@ public abstract class Skill : MonoBehaviour
                 break;
         }
 
+        Debug.Log(Character.Team.Opposition.members.Count);
+
         for (int i = 0; i < eligible_Targets.Count; i++)
         {
             eligible_Targets[i].target_Arrow.gameObject.SetActive(true);
         }
-
-        Color arrowColor = Color.black;
 
         if (selection == Selection.Team || selection == Selection.Oppostion || selection == Selection.All)
         {
@@ -180,8 +180,7 @@ public abstract class Skill : MonoBehaviour
                 }
             }
 
-            if(chosen_Targets.Count > 0)
-                chosen_Targets = eligible_Targets;
+            chosen_Targets = new List<Combat_Character>(eligible_Targets);
 
         }
         else if (selection == Selection.Team_Random || selection == Selection.Oppostion_Random || selection == Selection.All_Random)
@@ -201,8 +200,7 @@ public abstract class Skill : MonoBehaviour
                 }
             }
 
-            if (chosen_Targets.Count > 0)
-                chosen_Targets.Add(eligible_Targets[Random.Range(0, eligible_Targets.Count)]);
+            chosen_Targets[0] = eligible_Targets[Random.Range(0, eligible_Targets.Count)];
         }
         else
         {

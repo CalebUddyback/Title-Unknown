@@ -8,10 +8,10 @@ public class Target_Arrow : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
 {
     public Combat_Character owner;
 
-    Color arrowColor = Color.black;
+    public Color hoverColor = Color.white;
+    public Color unHoverColor = new Color(0, 0, 0, 0.5f);
 
-
-    private void OnEnable()
+    private void OnDisable()
     {
         Hovering(false);
     }
@@ -30,15 +30,9 @@ public class Target_Arrow : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
     {
 
         if (x)
-        {
             owner.TurnController.CharacterHoveringOver = owner;
-            owner.animationController.GetComponent<SpriteRenderer>().material.SetFloat("Outline_Thickness", 1f);
-        }
         else
-        {
             owner.TurnController.CharacterHoveringOver = null;
-            owner.animationController.GetComponent<SpriteRenderer>().material.SetFloat("Outline_Thickness", 0f);
-        }
 
         Highlight(x);
     }
@@ -46,10 +40,16 @@ public class Target_Arrow : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
     public void Highlight(bool x)
     {
 
-        if(x)
-            GetComponent<Image>().color = arrowColor;
+        if (x)
+        {
+            GetComponent<Image>().color = hoverColor;
+            owner.animationController.GetComponent<SpriteRenderer>().material.SetFloat("Outline_Thickness", 1f);
+        }
         else
-            GetComponent<Image>().color = new Color(arrowColor.r, arrowColor.g, arrowColor.b, 0.5f);
+        {
+            GetComponent<Image>().color = unHoverColor;
+            owner.animationController.GetComponent<SpriteRenderer>().material.SetFloat("Outline_Thickness", 0f);
+        }
 
     }
 

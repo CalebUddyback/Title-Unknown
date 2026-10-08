@@ -49,7 +49,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   displayName: Guard
-  animationName: Block_Set
+  animationName: Cast_ShieldBuff
   effect: 0
   description: Damage reduces MP instead of HP
   selection: 3

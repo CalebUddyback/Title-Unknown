@@ -245,7 +245,7 @@ Animator:
   m_GameObject: {fileID: 6058613479605374833}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: aad9f9938da2ae94596571ccb420350d, type: 2}
+  m_Controller: {fileID: 9100000, guid: b5839404760a2e64398538079a2af6fc, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -362,7 +362,6 @@ MonoBehaviour:
   reacting: 0
   doneTurn: 0
   Hud: {fileID: 0}
-  reaction: 0
   character_Stats: {fileID: 11400000, guid: 045550b69d0686a4783c912e96925add, type: 2}
   weapon: {fileID: 11400000, guid: 8036eb8e8a6f4904fb130ffa837c3c18, type: 2}
   statChangers: []

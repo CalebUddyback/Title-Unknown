@@ -15,7 +15,7 @@ MonoBehaviour:
   max_Health: 110
   max_Mana: 100
   max_Defense: 5
-  initiative: 10
+  initiative: 0
   speed: 20
   strength: 3
   critical: 0

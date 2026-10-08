@@ -138,8 +138,7 @@ public class Turn_Controller : MonoBehaviour
                 character.Health = character.character_Stats.max_Health; // remove this line for persistant stats
                 character.Hud.healthBar.Initialize(character.Health, character.character_Stats.max_Health);
 
-                //character.Defense = character.character_Stats.max_Defense;
-                character.Defense = 1;
+                character.Defense = character.character_Stats.max_Defense;
                 character.Hud.defenseBar.Initialize(character.Defense, character.character_Stats.max_Defense);
 
                 character.Mana = character.character_Stats.max_Mana;
@@ -382,16 +381,6 @@ public class Turn_Controller : MonoBehaviour
         }
     }
 
-    public void ResetAnimations()
-    {
-        foreach (Combat_Character target in characterTurn.deck.distinctTargets)
-        {
-            //if(target.blocking)
-            //    target.animationController.Clip("Block_Hold");
-            //else
-                target.animationController.Clip("Idle");
-        }
-    }
 
     public IEnumerator ResetPositions()
     {
@@ -441,39 +430,39 @@ public class Turn_Controller : MonoBehaviour
     public IEnumerator Reactions()
     {
         Skill skill = resolveStack.ElementAt(resolveStack.Count - 1).skill;
-
+    
         selectedCharacter = null;
-
+    
         List<Combat_Character> reactors = new List<Combat_Character>();
-
+    
         skill.Character.Team.visibleDeck.Locked = true;
-
+    
         if (skill.Character.Team.Opposition.visibleDeck != null)
             skill.Character.Team.Opposition.visibleDeck.Locked = false;
-
+    
         skill.Character.Team.Opposition.reacting = true;
-
-
+    
+    
         foreach (Combat_Character character in skill.Character.Team.Opposition.members)
         {
             foreach (Transform child in character.deck.hand_Pos)
             {
                 Card_Slot slot = child.GetComponent<Card_Slot>();
-
+    
                 if (!resolveStack.Contains(slot.card) && slot.card.skill.ReactCondition())
                 {
                     reactors.Add(character);
                     StartCoroutine(Mark(character));
                     break;
                 }
-
+    
             }
         }
-
+    
         // yield return new WaitUntil(() => slot.decks.cardCoroutine != null);
         // yield return slot.decks.cardCoroutine;
-
-
+    
+    
         if (reactors.Count <= 0)
         {
             skill.Character.Team.Opposition.reacting = false;
@@ -481,22 +470,22 @@ public class Turn_Controller : MonoBehaviour
         else
         {
             endTurnButton.transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = "Skip";
-
+    
             endTurnButton.onClick.RemoveAllListeners();
-
+    
             endTurnButton.onClick.AddListener(() => skill.Character.Team.Opposition.reacting = false);
-
+    
             yield return new WaitWhile(() => skill.Character.Team.Opposition.reacting == true && skill.Character.Team.Opposition.visibleDeck.cardCoroutine == null);
-
+    
             skill.Character.Team.Opposition.reacting = false;
-
+    
             yield return skill.Character.Team.Opposition.visibleDeck.cardCoroutine;
-
+    
             endTurnButton.onClick.RemoveAllListeners();
-
+    
             endTurnButton.onClick.AddListener(() => endTurn = true);
         }
-
+    
         yield return 0;
     }
 

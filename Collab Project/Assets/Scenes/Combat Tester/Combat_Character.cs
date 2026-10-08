@@ -245,7 +245,13 @@ public abstract class Combat_Character : MonoBehaviour
 
         TurnController.instructions.text = "";
 
-        TurnController.ResetAnimations();
+        List<Coroutine> anims = new List<Coroutine>();
+
+        foreach (Combat_Character target in deck.distinctTargets)
+            anims.Add(StartCoroutine(target.ResetAnimation()));
+
+        foreach (Coroutine co in anims)
+            yield return co;
 
         yield return null;
 
@@ -600,13 +606,29 @@ public abstract class Combat_Character : MonoBehaviour
 
         yield return dodge;
 
-        yield return animationController.coroutine;
+        yield return WaitForKeyFrame();
+
+        animationController.Pause();
+        Enemy.animationController.Pause();
+
+        //yield return animationController.coroutine;
 
         if (Enemy.Defeated)
         {
             Enemy.animationController.Clip("Defeated");
             yield return Enemy.animationController.coroutine;
         }
+    }
+
+    public IEnumerator ResetAnimation()
+    {
+        animationController.Play();
+
+        yield return animationController.coroutine;
+
+        Debug.Log(characterName + " done");
+
+        animationController.Clip("Idle");
     }
 
 
@@ -622,7 +644,8 @@ public abstract class Combat_Character : MonoBehaviour
     public virtual IEnumerator Block()
     {
         animationController.Clip("Block_Impact");
-        yield return animationController.coroutine;
+        //yield return animationController.coroutine;
+        yield return null;
     }
 
     public virtual IEnumerator Break()

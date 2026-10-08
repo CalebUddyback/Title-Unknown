@@ -194,6 +194,8 @@ public class Decks : MonoBehaviour
 
         owner.TurnController.endTurnButton.transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = "End Turn";
 
+        owner.TurnController.instructions.text = "";
+
         cardCoroutine = StartCoroutine(CardSetUp());
 
         IEnumerator CardSetUp()
@@ -217,6 +219,8 @@ public class Decks : MonoBehaviour
             executedSlot = null;
 
             cardCoroutine = null;
+
+            owner.animationController.Play();
 
             yield return card.skill.Execute();
 

@@ -8,6 +8,7 @@ public class AnimationController : MonoBehaviour
     public Coroutine coroutine;
 
     public bool eventFrame = false;
+    public bool endFrame = false;
 
     public Transform instatiatePoint;
 
@@ -34,13 +35,21 @@ public class AnimationController : MonoBehaviour
 
         //yield return new WaitWhile(() => GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).normalizedTime <= 1);
 
-        yield return new WaitForSeconds(GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).length);
+        yield return new WaitUntil(() => endFrame == true);
 
-        eventFrame = false;
+        yield return null;
+
+        //eventFrame = false;
+        endFrame = false;
     }
 
     public void EventFrame()
     {
         eventFrame = true;
+    }
+
+    public void EndFrame()
+    {
+        endFrame = true;
     }
 }
