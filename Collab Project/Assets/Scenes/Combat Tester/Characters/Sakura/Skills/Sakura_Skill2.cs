@@ -21,16 +21,14 @@ public class Sakura_Skill2 : Skill
 
         GetOutcome(chosen_Targets[0].GetComponent<Combat_Character>());
 
-        Character.animationController.Clip("Buff");
+        Character.animationController.Clip("Buff", 1);
 
-        yield return Character.WaitForKeyFrame();
-
-        Character.animationController.Pause();
+        yield return Character.WaitForKeyFrame(0);
     }
 
     public override IEnumerator Resolve()
     {
-        Character.animationController.Play();
+        Character.animationController.PlaySpeed(1);
 
         int totalHeal = health * CritSuccess;
 

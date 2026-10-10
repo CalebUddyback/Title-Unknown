@@ -45,15 +45,13 @@ public class Parry_Skill : Skill
 
         Character.TurnController.resolveStack[Character.TurnController.resolveStack.Count - 2].negated = true;
 
-        Character.animationController.Play();
+        Character.animationController.PlaySpeed(1f);
 
-        Character.animationController.Clip(animationName);
+        Character.animationController.Clip(animationName, 1);
 
         GetOutcome(Character.TurnController.characterTurn);
 
-        yield return Character.WaitForKeyFrame();
-
-        Character.animationController.Pause();
+        yield return Character.WaitForKeyFrame(0);
 
         stage = Stage.Impact;
 

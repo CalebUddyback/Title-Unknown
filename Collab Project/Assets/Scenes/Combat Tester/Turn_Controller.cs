@@ -4,6 +4,7 @@ using UnityEngine;
 using System.Linq;
 using UnityEngine.UI;
 using TMPro;
+using System;
 
 public class Turn_Controller : MonoBehaviour
 {
@@ -51,7 +52,7 @@ public class Turn_Controller : MonoBehaviour
 
     public Sprite bleed, blunt, fire, water, block;
 
-    [System.Serializable]
+    [Serializable]
     public class Team
     {
         public string name;
@@ -66,6 +67,8 @@ public class Turn_Controller : MonoBehaviour
         public int facing;
     }
     public Team[] teams = new Team[2];
+
+    public static event Action<float> Time;
 
     private void Start()
     {
@@ -181,6 +184,8 @@ public class Turn_Controller : MonoBehaviour
                 character.target_Arrow.owner = character;
 
                 character.reaction_Arrow = Instantiate(reaction_Mark_Prefab, reaction_Marks);
+
+                Time += character.animationController.PlaySpeed;
 
                 character.Team = team;
             }
@@ -299,8 +304,22 @@ public class Turn_Controller : MonoBehaviour
         {
             endTurn = true;
         }
+
+        if (Input.GetKeyDown(KeyCode.O))
+        {
+            AnimationSpeed(0f);
+        }
+
+        if (Input.GetKeyDown(KeyCode.P))
+        {
+            AnimationSpeed(1f);
+        }
     }
 
+    public void AnimationSpeed(float s)
+    {
+        Time?.Invoke(s);
+    }
 
     IEnumerator RotateTurns()
     {

@@ -7,24 +7,20 @@ public class AnimationController : MonoBehaviour
 {
     public Coroutine coroutine;
 
-    public bool eventFrame = false;
+    public bool keyFrame = false;
     public bool endFrame = false;
 
     public Transform instatiatePoint;
 
-    public void Clip(string trigger)
+    public void Clip(string trigger, float playSpeed)
     {
         coroutine = StartCoroutine(Playing(trigger));
+        PlaySpeed(playSpeed);
     }
 
-    public void Pause()
+    public void PlaySpeed(float s)
     {
-        GetComponent<Animator>().speed = 0;
-    }
-
-    public void Play()
-    {
-        GetComponent<Animator>().speed = 1;
+        GetComponent<Animator>().speed = s;
     }
 
     IEnumerator Playing(string trigger)
@@ -33,19 +29,16 @@ public class AnimationController : MonoBehaviour
 
         yield return null;
 
-        //yield return new WaitWhile(() => GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).normalizedTime <= 1);
-
         yield return new WaitUntil(() => endFrame == true);
 
         yield return null;
 
-        //eventFrame = false;
         endFrame = false;
     }
 
-    public void EventFrame()
+    public void KeyFrame()
     {
-        eventFrame = true;
+        keyFrame = true;
     }
 
     public void EndFrame()

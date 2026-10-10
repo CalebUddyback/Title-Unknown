@@ -220,8 +220,6 @@ public class Decks : MonoBehaviour
 
             cardCoroutine = null;
 
-            owner.animationController.Play();
-
             yield return card.skill.Execute();
 
             owner.TurnController.CheckAllCards();

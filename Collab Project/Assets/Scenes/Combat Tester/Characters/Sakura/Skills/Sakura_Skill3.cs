@@ -26,18 +26,16 @@ public class Sakura_Skill3 : Skill
     {
         GetOutcome(chosen_Targets[0].GetComponent<Combat_Character>());
 
-        Character.animationController.Clip("Buff");
+        Character.animationController.Clip("Buff", 1);
 
-        yield return Character.WaitForKeyFrame();
-
-        Character.animationController.Pause();
+        yield return Character.WaitForKeyFrame(0);
     }
 
     public override IEnumerator Resolve()
     {
         yield return new WaitUntil(() => Character.deck.cardRemoved == true);
 
-        Character.animationController.Play();
+        Character.animationController.PlaySpeed(1);
 
         yield return Character.deck.DrawCards(2, true, true);
 

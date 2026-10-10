@@ -52,6 +52,21 @@ AnimationClip:
     - time: 0.6666667
       value: {fileID: 7723920590257938647, guid: f5206f797813c8049b2ab7a8a4fdfc9f,
         type: 3}
+    - time: 0.73333335
+      value: {fileID: 2934407735023373122, guid: f5206f797813c8049b2ab7a8a4fdfc9f,
+        type: 3}
+    - time: 0.8
+      value: {fileID: -6737089779738796114, guid: f5206f797813c8049b2ab7a8a4fdfc9f,
+        type: 3}
+    - time: 0.8666667
+      value: {fileID: 4945739976181793503, guid: f5206f797813c8049b2ab7a8a4fdfc9f,
+        type: 3}
+    - time: 0.93333334
+      value: {fileID: -2772652167814968651, guid: f5206f797813c8049b2ab7a8a4fdfc9f,
+        type: 3}
+    - time: 1
+      value: {fileID: 218696973901312908, guid: f5206f797813c8049b2ab7a8a4fdfc9f,
+        type: 3}
     attribute: m_Sprite
     path: 
     classID: 212
@@ -82,12 +97,17 @@ AnimationClip:
     - {fileID: 4228392725865593942, guid: f5206f797813c8049b2ab7a8a4fdfc9f, type: 3}
     - {fileID: -235124066386563098, guid: f5206f797813c8049b2ab7a8a4fdfc9f, type: 3}
     - {fileID: 7723920590257938647, guid: f5206f797813c8049b2ab7a8a4fdfc9f, type: 3}
+    - {fileID: 2934407735023373122, guid: f5206f797813c8049b2ab7a8a4fdfc9f, type: 3}
+    - {fileID: -6737089779738796114, guid: f5206f797813c8049b2ab7a8a4fdfc9f, type: 3}
+    - {fileID: 4945739976181793503, guid: f5206f797813c8049b2ab7a8a4fdfc9f, type: 3}
+    - {fileID: -2772652167814968651, guid: f5206f797813c8049b2ab7a8a4fdfc9f, type: 3}
+    - {fileID: 218696973901312908, guid: f5206f797813c8049b2ab7a8a4fdfc9f, type: 3}
   m_AnimationClipSettings:
     serializedVersion: 2
     m_AdditiveReferencePoseClip: {fileID: 0}
     m_AdditiveReferencePoseTime: 0
     m_StartTime: 0
-    m_StopTime: 0.73333335
+    m_StopTime: 1.0666667
     m_OrientationOffsetY: 0
     m_Level: 0
     m_CycleOffset: 0
@@ -108,13 +128,20 @@ AnimationClip:
   m_HasMotionFloatCurves: 0
   m_Events:
   - time: 0.4
-    functionName: EventFrame
+    functionName: KeyFrame
     data: 
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0
     intParameter: 0
     messageOptions: 0
   - time: 0.6666667
+    functionName: KeyFrame
+    data: 
+    objectReferenceParameter: {fileID: 0}
+    floatParameter: 0
+    intParameter: 0
+    messageOptions: 0
+  - time: 1
     functionName: EndFrame
     data: 
     objectReferenceParameter: {fileID: 0}

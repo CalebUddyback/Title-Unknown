@@ -27,24 +27,22 @@ public class Rebound_Skill : Skill
 
     public override IEnumerator Execute()
     {
-        Character.animationController.Clip(animationName);
+        Character.animationController.Clip(animationName, 1);
 
         GetOutcome(chosen_Targets[0].GetComponent<Combat_Character>());
 
-        yield return Character.WaitForKeyFrame();
-
-        Character.animationController.Pause();
+        yield return Character.WaitForKeyFrame(0);
     }
 
     public override IEnumerator Resolve()
     {
-        Character.animationController.Play();
+        Character.animationController.PlaySpeed(1);
 
         Character.AdjustMana(mana, true);
 
         yield return Character.animationController.coroutine;
 
-        Character.animationController.Clip("Block_Set");
+        Character.animationController.Clip("Block_Set", 1);
 
         yield return Character.animationController.coroutine;
     }

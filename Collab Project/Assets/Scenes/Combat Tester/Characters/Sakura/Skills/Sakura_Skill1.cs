@@ -42,13 +42,9 @@ public class Sakura_Skill1: Skill
 
         yield return Character.MoveInRange(-(intervals.distance));
 
-        Character.animationController.Clip(animationName);
+        Character.animationController.Clip(animationName, 1f);
 
-        yield return Character.WaitForKeyFrame();
-
-        Character.animationController.Pause();
-
-        Character.Enemy.animationController.Pause();
+        yield return Character.WaitForKeyFrame(0);
 
         stage = Stage.Impact;
 

@@ -297,7 +297,7 @@ public abstract class Combat_Character : MonoBehaviour
         if (startPos == targetPos)
             yield break;
 
-        animationController.Clip("Idle");
+        animationController.Clip("Idle", 1);
 
         float timer = 0;
         float maxTime = 0.3f;
@@ -456,11 +456,15 @@ public abstract class Combat_Character : MonoBehaviour
     }
 
 
-    public IEnumerator WaitForKeyFrame()
+    public IEnumerator WaitForKeyFrame(int playSpeed)
     {
-        yield return new WaitUntil(() => animationController.eventFrame == true);
+        yield return new WaitUntil(() => animationController.keyFrame == true);
 
-        animationController.eventFrame = false;
+        animationController.keyFrame = false;
+
+        animationController.PlaySpeed(0);
+
+        //TurnController.AnimationSpeed(playSpeed);
     }
 
     public void OutcomeBubble(Sprite spr, int num, string type, Color col1)
@@ -525,10 +529,10 @@ public abstract class Combat_Character : MonoBehaviour
             case 0:
                 Enemy.OutcomeBubble("MISS!", Color.white);
 
-                animationController.Play();
-                Enemy.animationController.Play();
-
                 dodge = StartCoroutine(Enemy.Dodge());
+
+                TurnController.AnimationSpeed(1);
+
                 break;
 
             case 1:
@@ -545,15 +549,11 @@ public abstract class Combat_Character : MonoBehaviour
 
                         yield return new WaitForSeconds(0.25f); // Grow length
 
-                        Enemy.animationController.Play();
+                        Enemy.animationController.PlaySpeed(1);
 
-                        yield return Enemy.WaitForKeyFrame();
+                        yield return Enemy.WaitForKeyFrame(0);
 
                         Enemy.OutcomeBubble("BREAK!", Color.white);
-
-                        //Enemy.animationController.Pause();
-
-                        //yield return new WaitForSeconds(0.25f); // Grow length
 
                         if (excess < 0)
                         {
@@ -570,19 +570,6 @@ public abstract class Combat_Character : MonoBehaviour
                         StartCoroutine(Enemy.Block());
                         Enemy.AdjustDefense(TurnController.GetSprite(Turn_Controller.Effect.Block), damage, skill.CritSuccess);
                     }
-
-                    
-
-                    //if (blocking)
-                    //{
-                    //    blocking = false;
-                    //
-                    //    animationController.Clip("Block_Unset");
-                    //
-                    //    yield return animationController.coroutine;
-                    //
-                    //    print("Done");
-                    //}
                 }
                 else
                 {
@@ -597,8 +584,7 @@ public abstract class Combat_Character : MonoBehaviour
 
                 yield return new WaitForSeconds(0.25f * skill.CritSuccess); // Impact Delay
 
-                animationController.Play();
-                Enemy.animationController.Play();
+                TurnController.AnimationSpeed(1);
 
                 yield return Enemy.MoveAmount(new Vector3(skill.intervals.knockBack.x * Facing, skill.intervals.knockBack.y, skill.intervals.knockBack.z), 0.1f); ;
                 break;
@@ -606,29 +592,25 @@ public abstract class Combat_Character : MonoBehaviour
 
         yield return dodge;
 
-        yield return WaitForKeyFrame();
-
-        animationController.Pause();
-        Enemy.animationController.Pause();
-
-        //yield return animationController.coroutine;
+        yield return WaitForKeyFrame(0);
 
         if (Enemy.Defeated)
         {
-            Enemy.animationController.Clip("Defeated");
+            Enemy.animationController.Clip("Defeated", 1);
             yield return Enemy.animationController.coroutine;
         }
     }
 
     public IEnumerator ResetAnimation()
     {
-        animationController.Play();
+        if(animationController.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("Idle"))
+            yield break;
+
+        animationController.PlaySpeed(1f);
 
         yield return animationController.coroutine;
 
-        Debug.Log(characterName + " done");
-
-        animationController.Clip("Idle");
+        animationController.Clip("Idle", 1);
     }
 
 
@@ -637,27 +619,26 @@ public abstract class Combat_Character : MonoBehaviour
 
     public virtual IEnumerator Damage()
     {
-        animationController.Clip("Move_Hurt");
+        animationController.Clip("Move_Hurt", 0);
         yield return null;
     }
 
     public virtual IEnumerator Block()
     {
-        animationController.Clip("Block_Impact");
+        animationController.Clip("Block_Impact", 0);
         //yield return animationController.coroutine;
         yield return null;
     }
 
     public virtual IEnumerator Break()
     {
-        Debug.Log("Block_Break");
-        animationController.Clip("Block_Break");
+        animationController.Clip("Block_Break", 0);
         yield return animationController.coroutine;
     }
 
     public virtual IEnumerator Dodge()
     {
-        animationController.Clip("Move_BackDash");
+        animationController.Clip("Move_BackDash", 1);
 
         yield return MoveAmount(new Vector3(0.3f * -Facing, 0, 0));
 

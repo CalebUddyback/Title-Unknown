@@ -20,20 +20,18 @@ public class Defense_Skill : Skill
 
     public override IEnumerator Execute()
     {
-        Character.animationController.Clip(animationName);
+        Character.animationController.Clip(animationName, 1);
 
         GetOutcome(chosen_Targets[0].GetComponent<Combat_Character>());
 
-        yield return Character.WaitForKeyFrame();
+        yield return Character.WaitForKeyFrame(0);
 
         yield return new WaitUntil(() => Character.deck.cardRemoved == true);
-
-        Character.animationController.Pause();
     }
 
     public override IEnumerator Resolve()
     {
-        Character.animationController.Play();
+        Character.animationController.PlaySpeed(1);
 
         //Character.blocking = true;
 
