@@ -8,7 +8,7 @@ using System;
 
 public class Turn_Controller : MonoBehaviour
 {
-    private List<Combat_Character> all_Players;
+    public List<Combat_Character> all_Players;
 
     public enum Stage { TURN_START, TURN_END, ACTION_START, IMPACT, ACTION_END}
 
@@ -67,8 +67,6 @@ public class Turn_Controller : MonoBehaviour
         public int facing;
     }
     public Team[] teams = new Team[2];
-
-    public static event Action<float> Time;
 
     private void Start()
     {
@@ -185,8 +183,6 @@ public class Turn_Controller : MonoBehaviour
 
                 character.reaction_Arrow = Instantiate(reaction_Mark_Prefab, reaction_Marks);
 
-                Time += character.animationController.PlaySpeed;
-
                 character.Team = team;
             }
 
@@ -222,14 +218,14 @@ public class Turn_Controller : MonoBehaviour
 
         ind.GetChild(0).gameObject.SetActive(false);
 
-        currentTurnOrder = all_Players.OrderByDescending(o => o.React()).ToList();
+        currentTurnOrder = all_Players.OrderByDescending(o => o.Initiate()).ToList();
 
         for (int i = 0; i < currentTurnOrder.Count; i++)
         {
             Transform slot = Instantiate(turn_Timeline.slot.gameObject, turn_Timeline.content).transform;
             slot.SetSiblingIndex(0);
             slot.GetChild(0).GetComponent<TurnTile>().portarit.sprite = currentTurnOrder[i].portrait;
-            slot.GetChild(0).GetComponent<TurnTile>().reaction = currentTurnOrder[i].Reaction;
+            slot.GetChild(0).GetComponent<TurnTile>().reaction = currentTurnOrder[i].Initiation;
 
             yield return null;
         }
@@ -239,11 +235,11 @@ public class Turn_Controller : MonoBehaviour
 
         round_Num++;
         
-        var nextTurnOrder = all_Players.OrderByDescending(o => o.React()).ToList();
+        var nextTurnOrder = all_Players.OrderByDescending(o => o.Initiate()).ToList();
         
         while (currentTurnOrder[currentTurnOrder.Count - 1] == nextTurnOrder[0])
         {
-            nextTurnOrder = all_Players.OrderByDescending(o => o.React()).ToList();
+            nextTurnOrder = all_Players.OrderByDescending(o => o.Initiate()).ToList();
             Debug.Log("Re-roll");
         }
         
@@ -252,7 +248,7 @@ public class Turn_Controller : MonoBehaviour
             Transform slot = Instantiate(turn_Timeline.slot.gameObject, turn_Timeline.content).transform;
             slot.SetSiblingIndex(0);
             slot.GetChild(0).GetComponent<TurnTile>().portarit.sprite = nextTurnOrder[i].portrait;
-            slot.GetChild(0).GetComponent<TurnTile>().reaction = nextTurnOrder[i].Reaction;
+            slot.GetChild(0).GetComponent<TurnTile>().reaction = nextTurnOrder[i].Initiation;
 
             yield return null;
         }
@@ -318,7 +314,10 @@ public class Turn_Controller : MonoBehaviour
 
     public void AnimationSpeed(float s)
     {
-        Time?.Invoke(s);
+        for (int i = 0; i < all_Players.Count; i++)
+        {
+            all_Players[i].animationController.PlaySpeed(s);
+        }
     }
 
     IEnumerator RotateTurns()
@@ -375,18 +374,18 @@ public class Turn_Controller : MonoBehaviour
             {
                 round_Num++;
 
-                var nextTurnOrder = all_Players.OrderByDescending(o => o.React()).ToList();
+                var nextTurnOrder = all_Players.OrderByDescending(o => o.Initiate()).ToList();
 
                 while (currentTurnOrder[currentTurnOrder.Count - 1] == nextTurnOrder[0])
                 {
-                    nextTurnOrder = all_Players.OrderByDescending(o => o.React()).ToList();
+                    nextTurnOrder = all_Players.OrderByDescending(o => o.Initiate()).ToList();
                     Debug.Log("Re-roll");
                 }
 
                 for (int i = 0; i < nextTurnOrder.Count; i++)
                 {
                     turn_Timeline.content.GetChild(i).GetChild(0).GetComponent<TurnTile>().portarit.sprite = nextTurnOrder[nextTurnOrder.Count - i - 1].portrait;
-                    turn_Timeline.content.GetChild(i).GetChild(0).GetComponent<TurnTile>().reaction = nextTurnOrder[nextTurnOrder.Count - i - 1].Reaction;
+                    turn_Timeline.content.GetChild(i).GetChild(0).GetComponent<TurnTile>().reaction = nextTurnOrder[nextTurnOrder.Count - i - 1].Initiation;
                 }
 
                 turn_Timeline.content.GetChild(nextTurnOrder.Count - 1).GetChild(0).GetComponent<TurnTile>().roundIndictor.SetActive(true);

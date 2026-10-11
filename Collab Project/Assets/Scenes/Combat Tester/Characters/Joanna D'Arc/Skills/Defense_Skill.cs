@@ -42,5 +42,7 @@ public class Defense_Skill : Skill
 
         //yield return null;
         yield return Character.animationController.coroutine;
+
+        Character.animationController.Clip("Idle", 1);
     }
 }

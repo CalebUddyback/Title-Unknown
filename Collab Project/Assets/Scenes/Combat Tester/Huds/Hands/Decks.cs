@@ -196,6 +196,25 @@ public class Decks : MonoBehaviour
 
         owner.TurnController.instructions.text = "";
 
+        foreach (Combat_Character c in owner.TurnController.all_Players)
+        {
+            if (c == owner)
+                continue;
+
+            if (card.skill.chosen_Targets.Contains(c))
+            {
+                c.animationController.GetComponent<SpriteRenderer>().material.SetFloat("Alpha", 1f);
+                c.animationController.PlaySpeed(1f);
+            }
+            else
+            {
+                c.animationController.GetComponent<SpriteRenderer>().material.SetFloat("Alpha", 0.5f);
+                //StartCoroutine(c.ResetAnimation(0.5f, 0.5f));
+                c.animationController.PlaySpeed(0f);
+            }
+        }
+
+
         cardCoroutine = StartCoroutine(CardSetUp());
 
         IEnumerator CardSetUp()

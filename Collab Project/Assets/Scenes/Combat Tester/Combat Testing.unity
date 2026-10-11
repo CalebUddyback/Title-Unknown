@@ -1639,6 +1639,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a4286aaa9cb935b40b46f64379c1bbc7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  all_Players: []
   characterTurn: {fileID: 0}
   descriptionBox: {fileID: 616426757}
   instructions: {fileID: 918197541}
@@ -8539,6 +8540,11 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6058613479605374838, guid: 38adef3845f84744980883672f18e7d4,
+        type: 3}
+      propertyPath: m_Color.a
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 6058613481054950157, guid: 38adef3845f84744980883672f18e7d4,
         type: 3}
       propertyPath: m_Name
@@ -8791,6 +8797,11 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6058613479605374838, guid: 38adef3845f84744980883672f18e7d4,
+        type: 3}
+      propertyPath: m_Color.a
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 6058613481054950157, guid: 38adef3845f84744980883672f18e7d4,
         type: 3}
       propertyPath: m_Name
@@ -8804,7 +8815,7 @@ PrefabInstance:
     - target: {fileID: 6058613481054950160, guid: 38adef3845f84744980883672f18e7d4,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: 2.2
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6058613481054950160, guid: 38adef3845f84744980883672f18e7d4,
         type: 3}
@@ -8814,7 +8825,7 @@ PrefabInstance:
     - target: {fileID: 6058613481054950160, guid: 38adef3845f84744980883672f18e7d4,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0.35
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6058613481054950160, guid: 38adef3845f84744980883672f18e7d4,
         type: 3}
@@ -8860,6 +8871,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalScale.x
       value: 0.6
+      objectReference: {fileID: 0}
+    - target: {fileID: 6426467256832015887, guid: 38adef3845f84744980883672f18e7d4,
+        type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6646629956993558200, guid: 38adef3845f84744980883672f18e7d4,
         type: 3}

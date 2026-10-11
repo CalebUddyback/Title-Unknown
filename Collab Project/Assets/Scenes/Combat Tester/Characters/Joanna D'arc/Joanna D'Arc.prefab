@@ -233,7 +233,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 49d12336e8b7b0745b0243cc1b911926, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  eventFrame: 0
+  keyFrame: 0
+  endFrame: 0
   instatiatePoint: {fileID: 6058613479806275298}
 --- !u!95 &6058613479605374836
 Animator:
@@ -307,7 +308,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6058613481054950160}
-  - component: {fileID: 6058613481054950159}
+  - component: {fileID: 2630577753076161351}
   - component: {fileID: 6058613481054950158}
   m_Layer: 8
   m_Name: Joanna D'Arc
@@ -332,7 +333,7 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &6058613481054950159
+--- !u!114 &2630577753076161351
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -341,7 +342,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 6058613481054950157}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 067cf574894d1f4489134fc84c4b62d7, type: 3}
+  m_Script: {fileID: 11500000, guid: 57564508881d96e44b78bd2e80396bb9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   cpu: 0

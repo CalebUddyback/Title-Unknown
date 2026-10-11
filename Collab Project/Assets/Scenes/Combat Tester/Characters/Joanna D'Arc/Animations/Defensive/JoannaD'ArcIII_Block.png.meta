@@ -1,0 +1,617 @@
+fileFormatVersion: 2
+guid: 1f7543edb56606741b8aa64dd8dc964a
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -6395714856414545768
+    second: JoannaD'ArcIII_Block_0
+  - first:
+      213: -2234197982053861841
+    second: JoannaD'ArcIII_Block_1
+  - first:
+      213: 4748354865873060918
+    second: JoannaD'ArcIII_Block_2
+  - first:
+      213: 7923107152043004908
+    second: JoannaD'ArcIII_Block_3
+  - first:
+      213: 7155850169609888054
+    second: JoannaD'ArcIII_Block_4
+  - first:
+      213: -3058510059308447020
+    second: JoannaD'ArcIII_Block_5
+  - first:
+      213: -7713635016740385694
+    second: JoannaD'ArcIII_Block_6
+  - first:
+      213: 2836646167430686710
+    second: JoannaD'ArcIII_Block_7
+  - first:
+      213: 7919065796272472881
+    second: JoannaD'ArcIII_Block_8
+  - first:
+      213: 5784931433796136178
+    second: JoannaD'ArcIII_Block_9
+  - first:
+      213: 8824589333501963136
+    second: JoannaD'ArcIII_Block_10
+  - first:
+      213: -3101896359536759188
+    second: JoannaD'ArcIII_Block_11
+  - first:
+      213: 2902490770209193676
+    second: JoannaD'ArcIII_Block_12
+  - first:
+      213: 4558983231433301617
+    second: JoannaD'ArcIII_Block_13
+  - first:
+      213: 5055640691115109334
+    second: JoannaD'ArcIII_Block_14
+  - first:
+      213: -7250840659094429638
+    second: JoannaD'ArcIII_Block_15
+  - first:
+      213: 3878151999140772310
+    second: JoannaD'ArcIII_Block_16
+  - first:
+      213: 7044384354200506873
+    second: JoannaD'ArcIII_Block_17
+  - first:
+      213: 4075702545244913070
+    second: JoannaD'ArcIII_Block_18
+  - first:
+      213: 1412212162197560085
+    second: JoannaD'ArcIII_Block_0
+  - first:
+      213: 514125910463051509
+    second: JoannaD'ArcIII_Block_1
+  - first:
+      213: -3659079947791912382
+    second: JoannaD'ArcIII_Block_2
+  - first:
+      213: -8923820096451042899
+    second: JoannaD'ArcIII_Block_3
+  - first:
+      213: 6616597012505883906
+    second: JoannaD'ArcIII_Block_4
+  - first:
+      213: 1443711352575565744
+    second: JoannaD'ArcIII_Block_5
+  - first:
+      213: 4302309151425369711
+    second: JoannaD'ArcIII_Block_6
+  - first:
+      213: -45056847247170769
+    second: JoannaD'ArcIII_Block_7
+  - first:
+      213: 3071175327035647981
+    second: JoannaD'ArcIII_Block_8
+  - first:
+      213: -2552945665267799343
+    second: JoannaD'ArcIII_Block_9
+  - first:
+      213: 4735915029041994947
+    second: JoannaD'ArcIII_Block_10
+  - first:
+      213: 6745647957299573017
+    second: JoannaD'ArcIII_Block_11
+  - first:
+      213: 4899961417591206732
+    second: JoannaD'ArcIII_Block_12
+  - first:
+      213: -3762023133088545753
+    second: JoannaD'ArcIII_Block_13
+  - first:
+      213: -7322128554056679131
+    second: JoannaD'ArcIII_Block_14
+  - first:
+      213: -951689876576219455
+    second: JoannaD'ArcIII_Block_15
+  - first:
+      213: 6021223010019990235
+    second: JoannaD'ArcIII_Block_16
+  - first:
+      213: -215631830754331479
+    second: JoannaD'ArcIII_Block_17
+  - first:
+      213: -917790716360284242
+    second: JoannaD'ArcIII_Block_18
+  externalObjects: {}
+  serializedVersion: 11
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 0
+    aniso: -1
+    mipBias: -100
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  applyGammaDecoding: 0
+  platformSettings:
+  - serializedVersion: 3
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 8192
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: Standalone
+    maxTextureSize: 8192
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: JoannaD'ArcIII_Block_0
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 128
+        height: 144
+      alignment: 9
+      pivot: {x: 0.4609375, y: 0.3333333}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 51b9543ba7f299310800000000000000
+      internalID: 1412212162197560085
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: JoannaD'ArcIII_Block_1
+      rect:
+        serializedVersion: 2
+        x: 128
+        y: 0
+        width: 128
+        height: 144
+      alignment: 9
+      pivot: {x: 0.4609375, y: 0.3333333}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 5f679f6aaca822700800000000000000
+      internalID: 514125910463051509
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: JoannaD'ArcIII_Block_2
+      rect:
+        serializedVersion: 2
+        x: 256
+        y: 0
+        width: 128
+        height: 144
+      alignment: 9
+      pivot: {x: 0.4609375, y: 0.3333333}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 242bb139c26583dc0800000000000000
+      internalID: -3659079947791912382
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: JoannaD'ArcIII_Block_3
+      rect:
+        serializedVersion: 2
+        x: 384
+        y: 0
+        width: 128
+        height: 144
+      alignment: 9
+      pivot: {x: 0.4609375, y: 0.3333333}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: da12b8717e8382480800000000000000
+      internalID: -8923820096451042899
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: JoannaD'ArcIII_Block_4
+      rect:
+        serializedVersion: 2
+        x: 512
+        y: 0
+        width: 128
+        height: 144
+      alignment: 9
+      pivot: {x: 0.4609375, y: 0.3333333}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 205f2583defd2db50800000000000000
+      internalID: 6616597012505883906
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: JoannaD'ArcIII_Block_5
+      rect:
+        serializedVersion: 2
+        x: 640
+        y: 0
+        width: 128
+        height: 144
+      alignment: 9
+      pivot: {x: 0.4609375, y: 0.3333333}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 0bf177873d7190410800000000000000
+      internalID: 1443711352575565744
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: JoannaD'ArcIII_Block_6
+      rect:
+        serializedVersion: 2
+        x: 768
+        y: 0
+        width: 128
+        height: 144
+      alignment: 9
+      pivot: {x: 0.4609375, y: 0.3333333}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: f661f9ce06fd4bb30800000000000000
+      internalID: 4302309151425369711
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: JoannaD'ArcIII_Block_7
+      rect:
+        serializedVersion: 2
+        x: 896
+        y: 0
+        width: 128
+        height: 144
+      alignment: 9
+      pivot: {x: 0.4609375, y: 0.3333333}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: f232221490def5ff0800000000000000
+      internalID: -45056847247170769
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: JoannaD'ArcIII_Block_8
+      rect:
+        serializedVersion: 2
+        x: 1024
+        y: 0
+        width: 128
+        height: 144
+      alignment: 9
+      pivot: {x: 0.4609375, y: 0.3333333}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: de767ea20b10f9a20800000000000000
+      internalID: 3071175327035647981
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: JoannaD'ArcIII_Block_9
+      rect:
+        serializedVersion: 2
+        x: 1152
+        y: 0
+        width: 128
+        height: 144
+      alignment: 9
+      pivot: {x: 0.4609375, y: 0.3333333}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 1dae6da817d129cd0800000000000000
+      internalID: -2552945665267799343
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: JoannaD'ArcIII_Block_10
+      rect:
+        serializedVersion: 2
+        x: 1280
+        y: 0
+        width: 128
+        height: 144
+      alignment: 9
+      pivot: {x: 0.4609375, y: 0.3333333}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 3cc5b7080a959b140800000000000000
+      internalID: 4735915029041994947
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: JoannaD'ArcIII_Block_11
+      rect:
+        serializedVersion: 2
+        x: 1408
+        y: 0
+        width: 128
+        height: 144
+      alignment: 9
+      pivot: {x: 0.4609375, y: 0.3333333}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 9113ea2c31b5d9d50800000000000000
+      internalID: 6745647957299573017
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: JoannaD'ArcIII_Block_12
+      rect:
+        serializedVersion: 2
+        x: 1536
+        y: 0
+        width: 128
+        height: 144
+      alignment: 9
+      pivot: {x: 0.4609375, y: 0.3333333}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: c43b4acb2f8200440800000000000000
+      internalID: 4899961417591206732
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: JoannaD'ArcIII_Block_13
+      rect:
+        serializedVersion: 2
+        x: 1664
+        y: 0
+        width: 128
+        height: 144
+      alignment: 9
+      pivot: {x: 0.4609375, y: 0.3333333}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 724847b74eb9acbc0800000000000000
+      internalID: -3762023133088545753
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: JoannaD'ArcIII_Block_14
+      rect:
+        serializedVersion: 2
+        x: 1792
+        y: 0
+        width: 128
+        height: 144
+      alignment: 9
+      pivot: {x: 0.4609375, y: 0.3333333}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 52105b7dfd2926a90800000000000000
+      internalID: -7322128554056679131
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: JoannaD'ArcIII_Block_15
+      rect:
+        serializedVersion: 2
+        x: 1920
+        y: 0
+        width: 128
+        height: 144
+      alignment: 9
+      pivot: {x: 0.4609375, y: 0.3333333}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 1cec65a791beac2f0800000000000000
+      internalID: -951689876576219455
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: JoannaD'ArcIII_Block_16
+      rect:
+        serializedVersion: 2
+        x: 2048
+        y: 0
+        width: 128
+        height: 144
+      alignment: 9
+      pivot: {x: 0.4609375, y: 0.3333333}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: bda56a10d6eaf8350800000000000000
+      internalID: 6021223010019990235
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: JoannaD'ArcIII_Block_17
+      rect:
+        serializedVersion: 2
+        x: 2176
+        y: 0
+        width: 128
+        height: 144
+      alignment: 9
+      pivot: {x: 0.4609375, y: 0.3333333}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 9a4fe9d0efbe10df0800000000000000
+      internalID: -215631830754331479
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: JoannaD'ArcIII_Block_18
+      rect:
+        serializedVersion: 2
+        x: 2304
+        y: 0
+        width: 128
+        height: 144
+      alignment: 9
+      pivot: {x: 0.4609375, y: 0.3333333}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: ea7a135c43a5343f0800000000000000
+      internalID: -917790716360284242
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+  spritePackingTag: 
+  pSDRemoveMatte: 0
+  pSDShowRemoveMatteOption: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

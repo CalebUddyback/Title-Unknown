@@ -156,8 +156,6 @@ public abstract class Skill : MonoBehaviour
                 break;
         }
 
-        Debug.Log(Character.Team.Opposition.members.Count);
-
         for (int i = 0; i < eligible_Targets.Count; i++)
         {
             eligible_Targets[i].target_Arrow.gameObject.SetActive(true);

@@ -160,6 +160,13 @@ public abstract class Combat_Character : MonoBehaviour
         yield return Hud.ScrollTimerTo(deck.SelectedSlot.card.skill.chargeTime);
     }
 
+    public int Initiation { get; set; }
+
+    public int Initiate()
+    {
+        return Initiation = Random.Range(0, character_Stats.initiative);
+    }
+
     public IEnumerator StartTurn()
     {
         yield return deck.Raise(false);
@@ -247,9 +254,9 @@ public abstract class Combat_Character : MonoBehaviour
 
         List<Coroutine> anims = new List<Coroutine>();
 
-        foreach (Combat_Character target in deck.distinctTargets)
-            anims.Add(StartCoroutine(target.ResetAnimation()));
-
+        foreach (Combat_Character c in deck.distinctTargets)
+            anims.Add(StartCoroutine(c.ResetAnimation(1f, 1f)));
+        
         foreach (Coroutine co in anims)
             yield return co;
 
@@ -262,6 +269,20 @@ public abstract class Combat_Character : MonoBehaviour
         // Done
 
         currentPhase = Phase.Waiting;
+    }
+
+    public IEnumerator ResetAnimation(float playSpeed, float opacity)
+    {
+        animationController.GetComponent<SpriteRenderer>().material.SetFloat("Alpha", opacity);
+
+        animationController.PlaySpeed(playSpeed);
+
+        if (animationController.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("Idle"))
+            yield break;
+
+        yield return animationController.coroutine;
+
+        animationController.Clip("Idle", playSpeed);
     }
 
     public IEnumerator Interuption()
@@ -455,18 +476,6 @@ public abstract class Combat_Character : MonoBehaviour
 
     }
 
-
-    public IEnumerator WaitForKeyFrame(int playSpeed)
-    {
-        yield return new WaitUntil(() => animationController.keyFrame == true);
-
-        animationController.keyFrame = false;
-
-        animationController.PlaySpeed(0);
-
-        //TurnController.AnimationSpeed(playSpeed);
-    }
-
     public void OutcomeBubble(Sprite spr, int num, string type, Color col1)
     {
         float distance = 0;
@@ -508,6 +517,17 @@ public abstract class Combat_Character : MonoBehaviour
         current_Outcome_Bubble.Input(str, col1);
     }
 
+    public IEnumerator WaitForKeyFrame(int playSpeed)
+    {
+        yield return new WaitUntil(() => animationController.keyFrame == true);
+
+        yield return null;
+
+        animationController.keyFrame = false;
+
+        animationController.PlaySpeed(playSpeed);
+    }
+
     public IEnumerator ApplyOutcome(Skill skill)
     {
 
@@ -527,11 +547,10 @@ public abstract class Combat_Character : MonoBehaviour
         switch (skill.HitSuccess)
         {
             case 0:
-                Enemy.OutcomeBubble("MISS!", Color.white);
 
                 dodge = StartCoroutine(Enemy.Dodge());
-
-                TurnController.AnimationSpeed(1);
+                Enemy.OutcomeBubble("MISS!", Color.white);
+                animationController.PlaySpeed(1);
 
                 break;
 
@@ -541,99 +560,40 @@ public abstract class Combat_Character : MonoBehaviour
                 {
                     if (Enemy.Defense + damage <= 0)
                     {
-                        int excess = damage + Enemy.Defense;
-
-                        Enemy.AdjustDefense(TurnController.GetSprite(Turn_Controller.Effect.Block), damage, skill.CritSuccess);
-
-                        StartCoroutine(Enemy.Break());
-
-                        yield return new WaitForSeconds(0.25f); // Grow length
-
-                        Enemy.animationController.PlaySpeed(1);
-
-                        yield return Enemy.WaitForKeyFrame(0);
-
-                        Enemy.OutcomeBubble("BREAK!", Color.white);
-
-                        if (excess < 0)
-                        {
-                            skill.Character.Team.combo_Counter.SetComboCount();
-
-                            Enemy.AdjustHealth(TurnController.GetSprite(skill.effect), excess, skill.effect.ToString(), skill.CritSuccess);
-
-                            Enemy.blood.Play();
-                        }
-
+                        Enemy.AdjustDefense(TurnController.GetSprite(Turn_Controller.Effect.Block), -Defense, skill.CritSuccess);
+                        StartCoroutine(Enemy.Break(damage + Enemy.Defense, skill));
                     }
                     else
                     {
-                        StartCoroutine(Enemy.Block());
                         Enemy.AdjustDefense(TurnController.GetSprite(Turn_Controller.Effect.Block), damage, skill.CritSuccess);
+                        StartCoroutine(Enemy.Block(damage, skill));
                     }
                 }
                 else
                 {
-                    skill.Character.Team.combo_Counter.SetComboCount();
-
-                    StartCoroutine(Enemy.Damage());
-
                     Enemy.AdjustHealth(TurnController.GetSprite(skill.effect), damage, skill.effect.ToString(), skill.CritSuccess);
-
-                    Enemy.blood.Play();
+                    skill.Character.Team.combo_Counter.SetComboCount();
+                    StartCoroutine(Enemy.Damage(damage, skill));
                 }
 
                 yield return new WaitForSeconds(0.25f * skill.CritSuccess); // Impact Delay
 
-                TurnController.AnimationSpeed(1);
+                animationController.PlaySpeed(1);
+                Enemy.animationController.PlaySpeed(1);
 
                 yield return Enemy.MoveAmount(new Vector3(skill.intervals.knockBack.x * Facing, skill.intervals.knockBack.y, skill.intervals.knockBack.z), 0.1f); ;
                 break;
         }
 
-        yield return dodge;
-
         yield return WaitForKeyFrame(0);
+
+        yield return dodge;
 
         if (Enemy.Defeated)
         {
             Enemy.animationController.Clip("Defeated", 1);
             yield return Enemy.animationController.coroutine;
         }
-    }
-
-    public IEnumerator ResetAnimation()
-    {
-        if(animationController.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("Idle"))
-            yield break;
-
-        animationController.PlaySpeed(1f);
-
-        yield return animationController.coroutine;
-
-        animationController.Clip("Idle", 1);
-    }
-
-
-    public bool Defeated{ get; private set; }
-
-
-    public virtual IEnumerator Damage()
-    {
-        animationController.Clip("Move_Hurt", 0);
-        yield return null;
-    }
-
-    public virtual IEnumerator Block()
-    {
-        animationController.Clip("Block_Impact", 0);
-        //yield return animationController.coroutine;
-        yield return null;
-    }
-
-    public virtual IEnumerator Break()
-    {
-        animationController.Clip("Block_Break", 0);
-        yield return animationController.coroutine;
     }
 
     public virtual IEnumerator Dodge()
@@ -645,12 +605,41 @@ public abstract class Combat_Character : MonoBehaviour
         yield return animationController.coroutine;
     }
 
-    public int Reaction { get; set; }
-
-    public int React()
+    public virtual IEnumerator Block(int damage, Skill skill)
     {
-        return Reaction = Random.Range(0, character_Stats.initiative);
+        animationController.Clip("Block_Impact", 0);
+
+        yield return null;
     }
+
+    public virtual IEnumerator Break(int damage, Skill skill)
+    {
+        animationController.Clip("Block_Break", 0);
+
+        yield return new WaitForSeconds(0.25f); // Grow length
+
+        animationController.PlaySpeed(1);
+
+        if (damage < 0)
+        {
+            OutcomeBubble("BREAK!", Color.white);
+
+            AdjustHealth(TurnController.GetSprite(skill.effect), damage, skill.effect.ToString(), skill.CritSuccess);
+
+            skill.Character.Team.combo_Counter.SetComboCount();
+        }
+
+        yield return null;
+    }
+
+    public virtual IEnumerator Damage(int damage, Skill skill)
+    {
+        animationController.Clip("Move_Hurt", 0);
+
+        yield return null;
+    }
+
+    public bool Defeated { get; private set; }
 
 
     /****STATS ****/
