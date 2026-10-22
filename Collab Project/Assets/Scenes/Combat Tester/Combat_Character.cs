@@ -250,18 +250,6 @@ public abstract class Combat_Character : MonoBehaviour
         //    yield return hand.DiscardCards(hand.cards.Count - hand.maxCardsInHand);
         //}
 
-        TurnController.instructions.text = "";
-
-        List<Coroutine> anims = new List<Coroutine>();
-
-        foreach (Combat_Character c in deck.distinctTargets)
-            anims.Add(StartCoroutine(c.ResetAnimation(1f, 1f)));
-        
-        foreach (Coroutine co in anims)
-            yield return co;
-
-        yield return null;
-
         //yield return cards.Lower();
 
         firstTurn = false;
@@ -271,10 +259,8 @@ public abstract class Combat_Character : MonoBehaviour
         currentPhase = Phase.Waiting;
     }
 
-    public IEnumerator ResetAnimation(float playSpeed, float opacity)
+    public IEnumerator ResetAnimation(float playSpeed)
     {
-        animationController.GetComponent<SpriteRenderer>().material.SetFloat("Alpha", opacity);
-
         animationController.PlaySpeed(playSpeed);
 
         if (animationController.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("Idle"))

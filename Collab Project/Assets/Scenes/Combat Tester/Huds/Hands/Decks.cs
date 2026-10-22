@@ -203,14 +203,15 @@ public class Decks : MonoBehaviour
 
             if (card.skill.chosen_Targets.Contains(c))
             {
-                c.animationController.GetComponent<SpriteRenderer>().material.SetFloat("Alpha", 1f);
-                c.animationController.PlaySpeed(1f);
+                c.animationController.Opacity(1f);
+                c.animationController.ColorFill(0, Color.white);
             }
             else
             {
-                c.animationController.GetComponent<SpriteRenderer>().material.SetFloat("Alpha", 0.5f);
-                //StartCoroutine(c.ResetAnimation(0.5f, 0.5f));
-                c.animationController.PlaySpeed(0f);
+                c.animationController.Opacity(0.5f);
+                c.animationController.ColorFill(1, Color.black);
+                StartCoroutine(c.ResetAnimation(1));
+
             }
         }
 

@@ -170,7 +170,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: e8cbc84179561ab4e85d207359d7cc03, type: 2}
+  - {fileID: 2100000, guid: d5fe893b4ef98a44ab97a870f09e97b2, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -215,7 +215,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 49d12336e8b7b0745b0243cc1b911926, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  eventFrame: 0
+  keyFrame: 0
+  endFrame: 0
   instatiatePoint: {fileID: 1769910012157439512}
 --- !u!95 &1769910012499963790
 Animator:

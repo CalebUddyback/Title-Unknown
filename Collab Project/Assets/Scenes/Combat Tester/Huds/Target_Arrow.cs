@@ -43,12 +43,12 @@ public class Target_Arrow : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
         if (x)
         {
             GetComponent<Image>().color = hoverColor;
-            owner.animationController.GetComponent<SpriteRenderer>().material.SetFloat("Outline_Alpha", 1f);
+            owner.animationController.Outline(1, Color.white);
         }
         else
         {
             GetComponent<Image>().color = unHoverColor;
-            owner.animationController.GetComponent<SpriteRenderer>().material.SetFloat("Outline_Alpha", 0f);
+            owner.animationController.Outline(0, Color.white);
         }
 
     }

@@ -402,16 +402,32 @@ public class Turn_Controller : MonoBehaviour
 
     public IEnumerator ResetPositions()
     {
-        yield return new WaitForSeconds(0.4f);
-
         //descriptionBox.container.SetActive(false);
 
-        foreach(Team team in teams)
+        foreach (Team team in teams)
             team.combo_Counter.ResetComboCount();
 
         characterTurn.Hud.GetComponent<Animator>().Play("Turn_Indicate_End");
 
         yield return new WaitUntil(() => damage_Bubbles.childCount == 0);
+
+        instructions.text = "";
+
+        List<Coroutine> anims = new List<Coroutine>();
+
+        foreach (Combat_Character c in all_Players)
+        {
+            c.animationController.Opacity(1f);
+            c.animationController.ColorFill(0f, Color.white);
+
+            if(characterTurn.deck.distinctTargets.Contains(c))
+                anims.Add(StartCoroutine(c.ResetAnimation(1f)));
+        }
+
+        foreach (Coroutine co in anims)
+            yield return co;
+
+        yield return new WaitForSeconds(0.4f);
 
         // Reset Camera
 
