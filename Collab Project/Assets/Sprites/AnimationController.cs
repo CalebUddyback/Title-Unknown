@@ -27,13 +27,21 @@ public class AnimationController : MonoBehaviour
     {
         GetComponent<Animator>().Play(clipName, -1, 0);
 
-        yield return null;
+        while(endFrame != true)
+        {
+            yield return null;
 
-        yield return new WaitUntil(() => endFrame == true);
+            if (keyFrame)
+            {
+                yield return null;
+                keyFrame = false;
+            }
+        }
 
         yield return null;
 
         endFrame = false;
+
     }
 
     public void KeyFrame()
@@ -48,7 +56,7 @@ public class AnimationController : MonoBehaviour
 
     public IEnumerator Flash()
     {
-        ColorFill(1, Color.white);
+        ColorFill(Color.white);
 
         float timer = 0;
         float maxTime = 2f / 12f; // target frame / frame rate
@@ -57,19 +65,18 @@ public class AnimationController : MonoBehaviour
         {
             float i = Mathf.Lerp(1f, 0f, timer / maxTime);
 
-            ColorFill(i, Color.white);
+            ColorFill(new Color(1f,1f,1f,i));
 
             timer += Time.deltaTime * GetComponent<Animator>().speed;
 
             yield return null;
         }
 
-        ColorFill(0, Color.white);
+        ColorFill(Color.clear);
     }
 
-    public void ColorFill(float amount, Color color)
+    public void ColorFill(Color color)
     {
-        GetComponent<SpriteRenderer>().material.SetFloat("Fill_Amount", amount);
         GetComponent<SpriteRenderer>().material.SetColor("Fill_Color", color);
     }
 
@@ -80,9 +87,52 @@ public class AnimationController : MonoBehaviour
         GetComponent<SpriteRenderer>().color = new Color(col.r, col.g, col.b, amount);
     }
 
-    public void Outline(float opacity, Color color)
+    public void Outline(Color color)
     {
-        GetComponent<SpriteRenderer>().material.SetFloat("Outline_Opacity", opacity);
         GetComponent<SpriteRenderer>().material.SetColor("Outline_Color", color);
+    }
+
+    public IEnumerator OutlineAppear(Color color)
+    {
+        Outline(color);
+
+        GetComponent<SpriteRenderer>().material.SetFloat("Outline_Thickness", 2);
+
+        float timer = 0;
+        float maxTime = 0.2f;
+
+        while (timer <= maxTime)
+        {
+            float i = Mathf.Lerp(2, 1, timer / maxTime);
+
+            GetComponent<SpriteRenderer>().material.SetFloat("Outline_Thickness", i);
+
+            timer += Time.deltaTime;
+
+            yield return null;
+        }
+
+        GetComponent<SpriteRenderer>().material.SetFloat("Outline_Thickness", 1);
+    }
+
+    public IEnumerator OutlineDisappear(Color color)
+    {
+        Outline(color);
+
+        float timer = 0;
+        float maxTime = 0.2f;
+
+        while (timer <= maxTime)
+        {
+            float i = Mathf.Lerp(1, 0, timer / maxTime);
+
+            Outline(new Color(color.r, color.g, color.b ,i));
+
+            timer += Time.deltaTime;
+
+            yield return null;
+        }
+
+        Outline(Color.clear);
     }
 }

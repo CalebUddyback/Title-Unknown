@@ -310,6 +310,12 @@ public class Turn_Controller : MonoBehaviour
         {
             AnimationSpeed(1f);
         }
+
+        if (Input.GetKeyDown(KeyCode.H))
+        {
+            mainCamera.Shake();
+        }
+
     }
 
     public void AnimationSpeed(float s)
@@ -418,7 +424,7 @@ public class Turn_Controller : MonoBehaviour
         foreach (Combat_Character c in all_Players)
         {
             c.animationController.Opacity(1f);
-            c.animationController.ColorFill(0f, Color.white);
+            c.animationController.ColorFill(Color.clear);
 
             if(characterTurn.deck.distinctTargets.Contains(c))
                 anims.Add(StartCoroutine(c.ResetAnimation(1f)));

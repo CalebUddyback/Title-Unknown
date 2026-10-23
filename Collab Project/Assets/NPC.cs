@@ -45,8 +45,6 @@ public class NPC : MonoBehaviour
 
             float dir = animationController.transform.position.x - targetPos.x < 0 ? -1 : 1;
 
-            Debug.Log(dir);
-
             animationController.transform.localScale = new Vector3(dir,1,1);
 
             while (animationController.transform.position != targetPos)

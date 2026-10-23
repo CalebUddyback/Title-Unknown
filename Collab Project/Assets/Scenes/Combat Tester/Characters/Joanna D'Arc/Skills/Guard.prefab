@@ -67,6 +67,6 @@ MonoBehaviour:
     distance: {x: 0.35, y: 0.35}
     knockBack: {x: 0, y: 0, z: 0}
   health: 0
-  defense: 0
+  defense: 1
   mana: 0
   chosen_Targets: []

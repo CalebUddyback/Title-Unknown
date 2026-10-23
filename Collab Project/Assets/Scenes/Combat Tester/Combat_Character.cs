@@ -90,7 +90,7 @@ public abstract class Combat_Character : MonoBehaviour
         Hud.healthBar.Adjust(former, Health);
     }
 
-    public int Defense { get; set; }
+    public int Defense;
 
     public void AdjustDefense(Sprite spr, int change, float mutiplier)
     {
@@ -509,8 +509,6 @@ public abstract class Combat_Character : MonoBehaviour
 
         yield return null;
 
-        animationController.keyFrame = false;
-
         animationController.PlaySpeed(playSpeed);
     }
 
@@ -546,23 +544,24 @@ public abstract class Combat_Character : MonoBehaviour
                 {
                     if (Enemy.Defense + damage <= 0)
                     {
-                        Enemy.AdjustDefense(TurnController.GetSprite(Turn_Controller.Effect.Block), -Defense, skill.CritSuccess);
-                        StartCoroutine(Enemy.Break(damage + Enemy.Defense, skill));
+                        StartCoroutine(Enemy.Break(Enemy.Defense + damage, skill));
+                        Enemy.AdjustDefense(TurnController.GetSprite(Turn_Controller.Effect.Block), -Enemy.Defense, skill.CritSuccess);
                     }
                     else
                     {
-                        Enemy.AdjustDefense(TurnController.GetSprite(Turn_Controller.Effect.Block), damage, skill.CritSuccess);
                         StartCoroutine(Enemy.Block(damage, skill));
+                        Enemy.AdjustDefense(TurnController.GetSprite(Turn_Controller.Effect.Block), damage, skill.CritSuccess);
                     }
                 }
                 else
                 {
+                    StartCoroutine(Enemy.Damage(damage, skill));
                     Enemy.AdjustHealth(TurnController.GetSprite(skill.effect), damage, skill.effect.ToString(), skill.CritSuccess);
                     skill.Character.Team.combo_Counter.SetComboCount();
-                    StartCoroutine(Enemy.Damage(damage, skill));
                 }
 
                 yield return new WaitForSeconds(0.25f * skill.CritSuccess); // Impact Delay
+                TurnController.mainCamera.Shake();
 
                 animationController.PlaySpeed(1);
                 Enemy.animationController.PlaySpeed(1);

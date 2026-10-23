@@ -16,6 +16,11 @@ public class Target_Arrow : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
         Hovering(false);
     }
 
+    private void LateUpdate()
+    {
+        GetComponent<RectTransform>().anchoredPosition = owner.TurnController.mainCamera.UIPosition(owner.outcome_Bubble_Pos.position);
+    }
+
     public void OnPointerEnter(PointerEventData eventData)
     {
         Hovering(true);
@@ -39,22 +44,19 @@ public class Target_Arrow : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
 
     public void Highlight(bool x)
     {
-
         if (x)
-        {
             GetComponent<Image>().color = hoverColor;
-            owner.animationController.Outline(1, Color.white);
+        else
+            GetComponent<Image>().color = unHoverColor;
+
+        if (gameObject.activeSelf)
+        {
+            if (x)
+                StartCoroutine(owner.animationController.OutlineAppear(Color.white));
+            else
+                StartCoroutine(owner.animationController.OutlineDisappear(Color.white));
         }
         else
-        {
-            GetComponent<Image>().color = unHoverColor;
-            owner.animationController.Outline(0, Color.white);
-        }
-
-    }
-
-    private void LateUpdate()
-    {
-        GetComponent<RectTransform>().anchoredPosition = owner.TurnController.mainCamera.UIPosition(owner.outcome_Bubble_Pos.position);
+            owner.animationController.Outline(Color.clear);
     }
 }

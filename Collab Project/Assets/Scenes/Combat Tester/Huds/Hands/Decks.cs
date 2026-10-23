@@ -204,12 +204,12 @@ public class Decks : MonoBehaviour
             if (card.skill.chosen_Targets.Contains(c))
             {
                 c.animationController.Opacity(1f);
-                c.animationController.ColorFill(0, Color.white);
+                c.animationController.ColorFill(Color.clear);
             }
             else
             {
-                c.animationController.Opacity(0.5f);
-                c.animationController.ColorFill(1, Color.black);
+                //c.animationController.Opacity(0.5f);
+                //c.animationController.ColorFill(1, Color.black);
                 StartCoroutine(c.ResetAnimation(1));
 
             }

@@ -1793,6 +1793,8 @@ public class Joanna : Combat_Character
 
         yield return WaitForKeyFrame(0);
 
+        animationController.PlaySpeed(1);
+
         if (damage < 0)
         {
             OutcomeBubble("BREAK!", Color.white);
@@ -1801,8 +1803,6 @@ public class Joanna : Combat_Character
 
             skill.Character.Team.combo_Counter.SetComboCount();
         }
-
-        animationController.PlaySpeed(1);
 
         yield return WaitForKeyFrame(0);
     }

@@ -222,7 +222,7 @@ public class Main_Camera : MonoBehaviour
 
         Vector3 startPos = transform.position;
         float elapsedTime = 0f;
-        float duration = 1f;
+        float duration = 0.25f;
 
         while(elapsedTime < duration)
         {

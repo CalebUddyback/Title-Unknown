@@ -24,14 +24,31 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _OutlineOffsetComponent_208341C9_Texture2DF2A6350_2382191044:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _OutlineOffsetComponent_5C3E8F5B_Texture2DF2A6350_2382191044:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _OutlineOffsetComponent_6F922833_Texture2DF2A6350_2382191044:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _OutlineOffsetComponent_D460490B_Texture2DF2A6350_2382191044:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     m_Floats:
     - Custom_Color: 0
     - Fill_Amount: 0
     - Opacity: 1
-    - Outline_Opacity: 0
+    - Outline_Opacity: 1
+    - Outline_Thickness: 1
     m_Colors:
     - Color_C918222C: {r: 0.5943396, g: 0.5379989, b: 0.3280082, a: 1}
     - Color_EF4057AA: {r: 0.3987229, g: 0.5566038, b: 0.3964489, a: 1}
-    - Fill_Color: {r: 1, g: 0, b: 0, a: 1}
-    - Outline_Color: {r: 1, g: 1, b: 1, a: 1}
+    - Fill_Color: {r: 1, g: 0, b: 0, a: 0}
+    - Outline_Color: {r: 1, g: 1, b: 1, a: 0}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
