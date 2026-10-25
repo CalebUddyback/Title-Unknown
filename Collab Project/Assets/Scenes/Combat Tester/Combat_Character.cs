@@ -48,6 +48,8 @@ public abstract class Combat_Character : MonoBehaviour
 
     [Header("Turn Controller")]
 
+    public readonly float ImpactDelay = 0.25f;
+
     public bool doneTurn = false;
 
     public Character_Hud Hud;
@@ -335,6 +337,8 @@ public abstract class Combat_Character : MonoBehaviour
         if (transform.position == targetPos)
             yield break;
 
+        animationController.Clip("Move_Dash", 1);
+
         float timer = 0;
         float maxTime = t;
 
@@ -348,6 +352,10 @@ public abstract class Combat_Character : MonoBehaviour
         }
 
         transform.position = targetPos;
+
+        yield return animationController.coroutine;
+
+        animationController.Clip("Idle", 1);
     }
 
     public IEnumerator JumpInRange(Vector3 range)
@@ -546,11 +554,16 @@ public abstract class Combat_Character : MonoBehaviour
                     {
                         StartCoroutine(Enemy.Break(Enemy.Defense + damage, skill));
                         Enemy.AdjustDefense(TurnController.GetSprite(Turn_Controller.Effect.Block), -Enemy.Defense, skill.CritSuccess);
+
+                        yield return new WaitForSeconds(ImpactDelay); // Impact Delay
+                        TurnController.mainCamera.Shake();
                     }
                     else
                     {
                         StartCoroutine(Enemy.Block(damage, skill));
                         Enemy.AdjustDefense(TurnController.GetSprite(Turn_Controller.Effect.Block), damage, skill.CritSuccess);
+
+                        yield return new WaitForSeconds(ImpactDelay); // Impact Delay
                     }
                 }
                 else
@@ -558,15 +571,15 @@ public abstract class Combat_Character : MonoBehaviour
                     StartCoroutine(Enemy.Damage(damage, skill));
                     Enemy.AdjustHealth(TurnController.GetSprite(skill.effect), damage, skill.effect.ToString(), skill.CritSuccess);
                     skill.Character.Team.combo_Counter.SetComboCount();
+
+                    yield return new WaitForSeconds(ImpactDelay); // Impact Delay
                 }
 
-                yield return new WaitForSeconds(0.25f * skill.CritSuccess); // Impact Delay
-                TurnController.mainCamera.Shake();
 
                 animationController.PlaySpeed(1);
                 Enemy.animationController.PlaySpeed(1);
 
-                yield return Enemy.MoveAmount(new Vector3(skill.intervals.knockBack.x * Facing, skill.intervals.knockBack.y, skill.intervals.knockBack.z), 0.1f); ;
+                yield return Enemy.MoveAmount(new Vector3(skill.intervals.knockBack.x * Facing, skill.intervals.knockBack.y, skill.intervals.knockBack.z), 0.5f); ;
                 break;
         }
 
@@ -601,9 +614,9 @@ public abstract class Combat_Character : MonoBehaviour
     {
         animationController.Clip("Block_Break", 0);
 
-        yield return new WaitForSeconds(0.25f); // Grow length
-
         animationController.PlaySpeed(1);
+
+        yield return null;
 
         if (damage < 0)
         {

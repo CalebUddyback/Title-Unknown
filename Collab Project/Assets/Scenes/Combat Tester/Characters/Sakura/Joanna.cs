@@ -1776,6 +1776,10 @@ public class Joanna : Combat_Character
 
     public override IEnumerator Block(int damage, Skill skill)
     {
+        var main = sparks.main;
+
+        main.startDelay = ImpactDelay;
+
         sparks.Play();
 
         return base.Block(damage, skill);
@@ -1786,10 +1790,6 @@ public class Joanna : Combat_Character
         sparks.Play();
 
         animationController.Clip("Block_Break", 0);
-
-        yield return new WaitForSeconds(0.25f); // Grow length
-
-        animationController.PlaySpeed(1);
 
         yield return WaitForKeyFrame(0);
 
@@ -1809,6 +1809,10 @@ public class Joanna : Combat_Character
 
     public override IEnumerator Damage(int damage, Skill skill)
     {
+        var main = blood.main;
+
+        main.startDelay = ImpactDelay;
+
         blood.Play();
 
         return base.Damage(damage, skill);

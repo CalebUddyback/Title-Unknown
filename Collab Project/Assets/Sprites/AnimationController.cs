@@ -12,6 +12,8 @@ public class AnimationController : MonoBehaviour
 
     public Transform instatiatePoint;
 
+    public Coroutine outlineCo;
+
     public void Clip(string clipName, float playSpeed)
     {
         coroutine = StartCoroutine(Playing(clipName));
@@ -92,7 +94,15 @@ public class AnimationController : MonoBehaviour
         GetComponent<SpriteRenderer>().material.SetColor("Outline_Color", color);
     }
 
-    public IEnumerator OutlineAppear(Color color)
+    public void OutlineAppear(Color color)
+    {
+        if (outlineCo != null)
+            StopCoroutine(outlineCo);
+
+        outlineCo = StartCoroutine(OutlineAppearing(color));
+    }
+
+    IEnumerator OutlineAppearing(Color color)
     {
         Outline(color);
 
@@ -115,7 +125,15 @@ public class AnimationController : MonoBehaviour
         GetComponent<SpriteRenderer>().material.SetFloat("Outline_Thickness", 1);
     }
 
-    public IEnumerator OutlineDisappear(Color color)
+    public void OutlineDisappear(Color color)
+    {
+        if (outlineCo != null)
+            StopCoroutine(outlineCo);
+
+        outlineCo = StartCoroutine(OutlineDisappearing(color));
+    }
+
+    IEnumerator OutlineDisappearing(Color color)
     {
         Outline(color);
 

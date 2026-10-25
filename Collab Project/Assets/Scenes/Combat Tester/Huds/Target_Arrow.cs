@@ -49,14 +49,16 @@ public class Target_Arrow : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
         else
             GetComponent<Image>().color = unHoverColor;
 
-        if (gameObject.activeSelf)
+        if (!gameObject.activeSelf)
         {
-            if (x)
-                StartCoroutine(owner.animationController.OutlineAppear(Color.white));
-            else
-                StartCoroutine(owner.animationController.OutlineDisappear(Color.white));
-        }
-        else
             owner.animationController.Outline(Color.clear);
+            return;
+        }
+
+        if (x) 
+            owner.animationController.OutlineAppear(Color.white);
+        else
+            owner.animationController.OutlineDisappear(Color.white);
+
     }
 }

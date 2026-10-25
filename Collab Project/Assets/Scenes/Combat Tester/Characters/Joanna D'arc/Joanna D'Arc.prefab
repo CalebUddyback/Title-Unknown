@@ -365,6 +365,7 @@ MonoBehaviour:
   reacting: 0
   doneTurn: 0
   Hud: {fileID: 0}
+  Defense: 0
   character_Stats: {fileID: 11400000, guid: 045550b69d0686a4783c912e96925add, type: 2}
   weapon: {fileID: 11400000, guid: 8036eb8e8a6f4904fb130ffa837c3c18, type: 2}
   statChangers: []
@@ -4213,7 +4214,7 @@ ParticleSystem:
     radiusScale: 1
     collidesWith:
       serializedVersion: 2
-      m_Bits: 512
+      m_Bits: 2048
     maxCollisionShapes: 256
     quality: 0
     voxelSize: 0.5
@@ -8967,7 +8968,7 @@ ParticleSystem:
     radiusScale: 1
     collidesWith:
       serializedVersion: 2
-      m_Bits: 512
+      m_Bits: 2048
     maxCollisionShapes: 256
     quality: 0
     voxelSize: 0.5
