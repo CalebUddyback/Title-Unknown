@@ -50,23 +50,23 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   displayName: Guard
   animationName: Cast_ShieldBuff
-  effect: 0
   description: Damage reduces MP instead of HP
   selection: 3
-  type: 1
+  type: 2
   range: 0
   stage: 0
   phase: 0
+  manaCost: -25
   discard: 0
   chargeTime: 0
   set: 0
-  manaCost: -25
-  DamageVariation: {x: 0, y: 0}
   critical: 0
-  intervals:
-    distance: {x: 0.35, y: 0.35}
-    knockBack: {x: 0, y: 0, z: 0}
-  health: 0
-  defense: 1
-  mana: 0
+  effect: 0
+  distance: {x: 0.35, y: 0.35}
+  knockBack: {x: 0, y: 0, z: 0}
+  Target:
+    damage: 0
+    health: 0
+    defense: 5
+    mana: 0
   chosen_Targets: []

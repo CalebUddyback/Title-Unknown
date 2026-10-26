@@ -365,7 +365,6 @@ MonoBehaviour:
   reacting: 0
   doneTurn: 0
   Hud: {fileID: 0}
-  Defense: 0
   character_Stats: {fileID: 11400000, guid: 045550b69d0686a4783c912e96925add, type: 2}
   weapon: {fileID: 11400000, guid: 8036eb8e8a6f4904fb130ffa837c3c18, type: 2}
   statChangers: []
@@ -10839,6 +10838,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 4801451332084004913}
     m_Modifications:
+    - target: {fileID: -6621664565296584972, guid: 9641457c1daeec24fb81e483af0a5ca5,
+        type: 3}
+      propertyPath: Target.health
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4789887039423192804, guid: 9641457c1daeec24fb81e483af0a5ca5,
         type: 3}
       propertyPath: m_Name

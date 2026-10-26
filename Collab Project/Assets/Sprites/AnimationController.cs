@@ -22,6 +22,7 @@ public class AnimationController : MonoBehaviour
 
     public void PlaySpeed(float s)
     {
+        //Debug.Log(s, gameObject);
         GetComponent<Animator>().speed = s;
     }
 

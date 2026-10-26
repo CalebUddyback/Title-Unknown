@@ -92,13 +92,13 @@ public abstract class Combat_Character : MonoBehaviour
         Hud.healthBar.Adjust(former, Health);
     }
 
-    public int Defense;
+    public int Defense { get; set; }
 
-    public void AdjustDefense(Sprite spr, int change, float mutiplier)
+    public void AdjustDefense(Sprite spr, int change, string txt, float mutiplier)
     {
         bool overflow = true;
 
-        bool capTopBar = true;
+        bool capTopBar = false;
 
         int former = Defense;
 
@@ -114,10 +114,15 @@ public abstract class Combat_Character : MonoBehaviour
 
         change = Defense - former;
 
-        if (change <= 0)
-            OutcomeBubble(spr, change, "Block", Color.white);
+        if (txt == "")
+        {
+            if (change <= 0)
+                OutcomeBubble(spr, change, "-DF", Color.white);
+            else
+                OutcomeBubble(spr, change, "+DF", Color.white);
+        }
         else
-            OutcomeBubble(spr, change, "+DF", Color.white);
+            OutcomeBubble(spr, change, txt, Color.white);
 
         Hud.defenseBar.Adjust(former, Defense);
     }
@@ -337,8 +342,6 @@ public abstract class Combat_Character : MonoBehaviour
         if (transform.position == targetPos)
             yield break;
 
-        animationController.Clip("Move_Dash", 1);
-
         float timer = 0;
         float maxTime = t;
 
@@ -352,10 +355,6 @@ public abstract class Combat_Character : MonoBehaviour
         }
 
         transform.position = targetPos;
-
-        yield return animationController.coroutine;
-
-        animationController.Clip("Idle", 1);
     }
 
     public IEnumerator JumpInRange(Vector3 range)
@@ -523,6 +522,8 @@ public abstract class Combat_Character : MonoBehaviour
     public IEnumerator ApplyOutcome(Skill skill)
     {
 
+        Coroutine enemyMovement = null;
+
         int damage = GetCurrentStats(skill)[Character_Stats.Stat.STR];
 
         damage *= -1;
@@ -533,64 +534,92 @@ public abstract class Combat_Character : MonoBehaviour
 
         // damage should NOT be changed beyond this point
 
+        //skill.HitSuccess = 0;
 
-        Coroutine dodge = null;
-
-        switch (skill.HitSuccess)
+        switch (skill.type)
         {
-            case 0:
+            case Skill.Type.Offensive:
 
-                dodge = StartCoroutine(Enemy.Dodge());
-                Enemy.OutcomeBubble("MISS!", Color.white);
-                animationController.PlaySpeed(1);
+                switch (skill.HitSuccess)
+                {
+                    case 0:
+
+                        enemyMovement = StartCoroutine(Enemy.Dodge());
+                        Enemy.OutcomeBubble("MISS!", Color.white);
+
+                        animationController.PlaySpeed(1);
+
+                        yield return WaitForKeyFrame(0);
+
+                        break;
+
+                    case 1:
+
+                        if (Enemy.Defense > 0)
+                        {
+                            if (Enemy.Defense + damage <= 0)
+                            {
+                                StartCoroutine(Enemy.Break(Enemy.Defense + damage, skill));
+                                Enemy.AdjustDefense(TurnController.GetSprite(Turn_Controller.Effect.Block), -Enemy.Defense, "BLOCK", skill.CritSuccess);
+
+                                yield return new WaitForSeconds(ImpactDelay); // Impact Delay
+                                TurnController.mainCamera.Shake();
+                            }
+                            else
+                            {
+                                StartCoroutine(Enemy.Block(damage, skill));
+                                Enemy.AdjustDefense(TurnController.GetSprite(Turn_Controller.Effect.Block), damage, "BLOCK", skill.CritSuccess);
+
+                                yield return new WaitForSeconds(ImpactDelay); // Impact Delay
+                            }
+                        }
+                        else
+                        {
+                            StartCoroutine(Enemy.Damage(damage, skill));
+                            Enemy.AdjustHealth(TurnController.GetSprite(skill.effect), damage, skill.Target.ToString(), skill.CritSuccess);
+                            skill.Character.Team.combo_Counter.SetComboCount();
+
+                            yield return new WaitForSeconds(ImpactDelay); // Impact Delay
+                        }
+
+                        //effects
+
+
+                        animationController.PlaySpeed(1);
+                        Enemy.animationController.PlaySpeed(1);
+
+                        enemyMovement = StartCoroutine(Enemy.MoveAmount(new Vector3(skill.knockBack.x * Facing, skill.knockBack.y, skill.knockBack.z), 0.1f));
+
+                        yield return WaitForKeyFrame(0);
+
+                        break;
+                }
+
+                yield return enemyMovement;
+
+                if (Enemy.Defeated)
+                {
+                    Enemy.animationController.Clip("Defeated", 1);
+                    yield return Enemy.animationController.coroutine;
+                }
 
                 break;
 
-            case 1:
+            case Skill.Type.Support:
 
-                if (Enemy.Defense > 0)
-                {
-                    if (Enemy.Defense + damage <= 0)
-                    {
-                        StartCoroutine(Enemy.Break(Enemy.Defense + damage, skill));
-                        Enemy.AdjustDefense(TurnController.GetSprite(Turn_Controller.Effect.Block), -Enemy.Defense, skill.CritSuccess);
+                //yield return new WaitForSeconds(ImpactDelay); // Impact Delay
 
-                        yield return new WaitForSeconds(ImpactDelay); // Impact Delay
-                        TurnController.mainCamera.Shake();
-                    }
-                    else
-                    {
-                        StartCoroutine(Enemy.Block(damage, skill));
-                        Enemy.AdjustDefense(TurnController.GetSprite(Turn_Controller.Effect.Block), damage, skill.CritSuccess);
-
-                        yield return new WaitForSeconds(ImpactDelay); // Impact Delay
-                    }
-                }
-                else
-                {
-                    StartCoroutine(Enemy.Damage(damage, skill));
-                    Enemy.AdjustHealth(TurnController.GetSprite(skill.effect), damage, skill.effect.ToString(), skill.CritSuccess);
-                    skill.Character.Team.combo_Counter.SetComboCount();
-
-                    yield return new WaitForSeconds(ImpactDelay); // Impact Delay
-                }
-
+                AdjustDefense(null, skill.Target.defense, "", 1);
 
                 animationController.PlaySpeed(1);
-                Enemy.animationController.PlaySpeed(1);
 
-                yield return Enemy.MoveAmount(new Vector3(skill.intervals.knockBack.x * Facing, skill.intervals.knockBack.y, skill.intervals.knockBack.z), 0.5f); ;
+                yield return animationController.coroutine;
+
+                animationController.Clip("Idle", 1);
+
+                yield return TurnController.mainCamera.Reset(0.2f);
+
                 break;
-        }
-
-        yield return WaitForKeyFrame(0);
-
-        yield return dodge;
-
-        if (Enemy.Defeated)
-        {
-            Enemy.animationController.Clip("Defeated", 1);
-            yield return Enemy.animationController.coroutine;
         }
     }
 
@@ -622,7 +651,7 @@ public abstract class Combat_Character : MonoBehaviour
         {
             OutcomeBubble("BREAK!", Color.white);
 
-            AdjustHealth(TurnController.GetSprite(skill.effect), damage, skill.effect.ToString(), skill.CritSuccess);
+            AdjustHealth(TurnController.GetSprite(skill.effect), damage, skill.Target.ToString(), skill.CritSuccess);
 
             skill.Character.Team.combo_Counter.SetComboCount();
         }
@@ -693,7 +722,7 @@ public abstract class Combat_Character : MonoBehaviour
     {
         var currentStats = GetCurrentStats();
 
-        int attack = Random.Range(skill.DamageVariation.x, skill.DamageVariation.y + 1);
+        int attack = skill.Target.damage;
 
         currentStats[Character_Stats.Stat.STR] += attack;
         currentStats[Character_Stats.Stat.CRT] += skill.critical;

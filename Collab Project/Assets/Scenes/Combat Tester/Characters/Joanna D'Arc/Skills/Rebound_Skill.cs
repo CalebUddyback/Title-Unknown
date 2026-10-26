@@ -38,7 +38,7 @@ public class Rebound_Skill : Skill
     {
         Character.animationController.PlaySpeed(1);
 
-        Character.AdjustMana(mana, true);
+        Character.AdjustMana(Target.mana, true);
 
         yield return Character.animationController.coroutine;
 

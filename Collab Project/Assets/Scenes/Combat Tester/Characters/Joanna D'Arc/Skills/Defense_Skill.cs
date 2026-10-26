@@ -20,29 +20,40 @@ public class Defense_Skill : Skill
 
     public override IEnumerator Execute()
     {
-        Character.animationController.Clip(animationName, 1);
+        Character.enemyTransform = chosen_Targets[0].transform;
 
-        GetOutcome(chosen_Targets[0].GetComponent<Combat_Character>());
+        //GetOutcome(chosen_Targets[0].GetComponent<Combat_Character>());
+
+        /*CAMERA CONTROL*/
+
+        //character.mCamera.BlackOut(0.9f, 0.5f);
+
+        Vector3 camTargetPos = new Vector3(chosen_Targets[0].transform.position.x, 0.45f, chosen_Targets[0].transform.position.z - 2f);
+
+        yield return Character.TurnController.mainCamera.MovingTo(camTargetPos, 0.5f);
+
+        Character.animationController.Clip(animationName, 1f);
 
         yield return Character.WaitForKeyFrame(0);
 
-        yield return new WaitUntil(() => Character.deck.cardRemoved == true);
+        stage = Stage.Impact;
+
+        CoroutineWithData cwd = new CoroutineWithData(Character, Character.TurnController.Reactions());
+        yield return cwd.coroutine;
     }
 
     public override IEnumerator Resolve()
     {
-        Character.animationController.PlaySpeed(1);
+        //Character.animationController.PlaySpeed(1)
 
-        //Character.blocking = true;
+        Coroutine outcome = Character.StartCoroutine(Character.ApplyOutcome(this));
 
+        yield return outcome;
 
-        // Character deffense up
-
-        Character.AdjustDefense(null, defense, 1);
-
-        //yield return null;
-        yield return Character.animationController.coroutine;
-
-        Character.animationController.Clip("Idle", 1);
+        //Character.AdjustDefense(null, defense, "", 1);
+        //
+        //yield return Character.animationController.coroutine;
+        //
+        //Character.animationController.Clip("Idle", 1);
     }
 }

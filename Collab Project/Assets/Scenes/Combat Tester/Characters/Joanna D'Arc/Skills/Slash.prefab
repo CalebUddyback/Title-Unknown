@@ -50,23 +50,22 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   displayName: Down Slash
   animationName: Attack_Light
-  effect: 0
   description: 
   selection: 0
   type: 0
   range: 0
   stage: 0
   phase: 0
+  manaCost: 0
   discard: 0
   chargeTime: 0
   set: 0
-  manaCost: 0
-  DamageVariation: {x: 0, y: 0}
   critical: 0
-  intervals:
-    distance: {x: 0.4, y: 0.4}
-    knockBack: {x: 0, y: 0, z: 0}
-  health: 0
-  defense: 0
-  mana: 0
+  effect: 0
+  distance: {x: 0.35, y: 0.35}
+  knockBack: {x: 0, y: 0, z: 0}
+  Target:
+    health: -1
+    defense: 0
+    mana: 0
   chosen_Targets: []

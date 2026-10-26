@@ -41,10 +41,9 @@ public class Card: MonoBehaviour
         cardText.text = skill.displayName;
         manaCost.text = Mathf.Abs(skill.manaCost).ToString();
 
-        if (skill.DamageVariation.y > 0)
+        if (skill.Target.damage > 0)
         {
-            int dam1 = skill.Character.GetCurrentStats()[Character_Stats.Stat.STR] + skill.DamageVariation.x;
-            int dam2 = skill.Character.GetCurrentStats()[Character_Stats.Stat.STR] + skill.DamageVariation.y;
+            int dam = skill.Character.GetCurrentStats()[Character_Stats.Stat.STR] + skill.Target.damage;
 
             GameObject effect = Instantiate(effects.GetChild(0).gameObject, effects);
 
@@ -52,10 +51,8 @@ public class Card: MonoBehaviour
 
             //effect.transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = "Deal " + "<color=red>" + "<b>" + dam1 + " - " + dam2 + "</b>" + "</color>" + " Damage";
 
-            if (skill.DamageVariation.x == skill.DamageVariation.y)
-                effect.transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = "Deal: " + "<b>" + dam2 + "</b>" + " damage";
-            else
-                effect.transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = "Deal: " + "<b>" + dam1 + "-" + dam2 + "</b>" + " damage";
+            effect.transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = "Deal: " + "<b>" + dam + "</b>" + " damage";
+
         }
 
         if (skill.discard)
@@ -76,15 +73,15 @@ public class Card: MonoBehaviour
             effect.transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = skill.description;
         }
 
-        if (skill.mana != 0)
+        if (skill.Target.mana != 0)
         {
-            string s = (skill.mana > 0) ? "Gain: " : "Lose: ";
+            string s = (skill.Target.mana > 0) ? "Gain: " : "Lose: ";
 
             GameObject effect = Instantiate(effects.GetChild(0).gameObject, effects);
 
             effect.gameObject.SetActive(true);
 
-            effect.transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = s + skill.mana + " MP";
+            effect.transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = s + skill.Target.mana + " MP";
         }
 
     }

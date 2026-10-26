@@ -20,6 +20,24 @@ TextureImporter:
   - first:
       213: -3284967915845663836
     second: Sakura Sprites idle_5
+  - first:
+      213: -5529848839480068828
+    second: Sakura Sprites idle_0
+  - first:
+      213: 368443680077132905
+    second: Sakura Sprites idle_1
+  - first:
+      213: 8670755620666733983
+    second: Sakura Sprites idle_2
+  - first:
+      213: 1354989676677788483
+    second: Sakura Sprites idle_3
+  - first:
+      213: 2110017395089360589
+    second: Sakura Sprites idle_4
+  - first:
+      213: -8340362101603979331
+    second: Sakura Sprites idle_5
   externalObjects: {}
   serializedVersion: 11
   mipmaps:
@@ -108,19 +126,19 @@ TextureImporter:
       name: Sakura Sprites idle_0
       rect:
         serializedVersion: 2
-        x: 6
-        y: 7
-        width: 27
-        height: 46
+        x: 0
+        y: 0
+        width: 47
+        height: 58
       alignment: 9
-      pivot: {x: -0, y: -0}
+      pivot: {x: 0.12765957, y: 0.13793103}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 1365d10e3b75c5160800000000000000
-      internalID: 7015578749607171633
+      spriteID: 4253f2567c70243b0800000000000000
+      internalID: -5529848839480068828
       vertices: []
       indices: 
       edges: []
@@ -129,19 +147,19 @@ TextureImporter:
       name: Sakura Sprites idle_1
       rect:
         serializedVersion: 2
-        x: 51
-        y: 6
-        width: 31
-        height: 45
+        x: 47
+        y: 0
+        width: 47
+        height: 58
       alignment: 9
-      pivot: {x: 0.09677419, y: -0}
+      pivot: {x: 0.14893617, y: 0.12068965}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: f94089b2ce1d37370800000000000000
-      internalID: 8319223748957308063
+      spriteID: 9643cbe2399fc1500800000000000000
+      internalID: 368443680077132905
       vertices: []
       indices: 
       edges: []
@@ -150,19 +168,19 @@ TextureImporter:
       name: Sakura Sprites idle_2
       rect:
         serializedVersion: 2
-        x: 102
-        y: 7
-        width: 31
-        height: 44
+        x: 94
+        y: 0
+        width: 47
+        height: 58
       alignment: 9
-      pivot: {x: 0.12903225, y: 0}
+      pivot: {x: 0.25531915, y: 0.13793103}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 08d55bdb37d2d8050800000000000000
-      internalID: 5804345469877706112
+      spriteID: f95ff002c46b45870800000000000000
+      internalID: 8670755620666733983
       vertices: []
       indices: 
       edges: []
@@ -171,19 +189,19 @@ TextureImporter:
       name: Sakura Sprites idle_3
       rect:
         serializedVersion: 2
-        x: 148
-        y: 6
-        width: 31
-        height: 45
+        x: 141
+        y: 0
+        width: 47
+        height: 58
       alignment: 9
-      pivot: {x: 0.09677419, y: -0}
+      pivot: {x: 0.21276595, y: 0.12068965}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 43f7dab3ea55ec020800000000000000
-      internalID: 2363921061229985588
+      spriteID: 34373b09ee3edc210800000000000000
+      internalID: 1354989676677788483
       vertices: []
       indices: 
       edges: []
@@ -192,19 +210,19 @@ TextureImporter:
       name: Sakura Sprites idle_4
       rect:
         serializedVersion: 2
-        x: 196
-        y: 7
-        width: 27
-        height: 46
+        x: 188
+        y: 0
+        width: 47
+        height: 58
       alignment: 9
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.17021276, y: 0.13793103}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 7546679c69cc49ea0800000000000000
-      internalID: -5866839466559773609
+      spriteID: dc6423834a9484d10800000000000000
+      internalID: 2110017395089360589
       vertices: []
       indices: 
       edges: []
@@ -213,19 +231,19 @@ TextureImporter:
       name: Sakura Sprites idle_5
       rect:
         serializedVersion: 2
-        x: 245
-        y: 5
-        width: 28
-        height: 48
+        x: 235
+        y: 0
+        width: 47
+        height: 58
       alignment: 9
-      pivot: {x: -0, y: 0}
+      pivot: {x: 0.21276595, y: 0.10344827}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 4a3c675c5137962d0800000000000000
-      internalID: -3284967915845663836
+      spriteID: dbfa3c39bd4114c80800000000000000
+      internalID: -8340362101603979331
       vertices: []
       indices: 
       edges: []

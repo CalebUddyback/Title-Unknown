@@ -6,7 +6,7 @@ AnimationClip:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Move_BackDash
+  m_Name: Dodge
   serializedVersion: 6
   m_Legacy: 0
   m_Compressed: 0
@@ -87,6 +87,15 @@ AnimationClip:
     - time: 0.4
       value: {fileID: 3806690270930808179, guid: 5d6d68b9ccb9b074b820cb3fbc815cd3,
         type: 3}
+    - time: 0.46666667
+      value: {fileID: -7491443416612588502, guid: 5d6d68b9ccb9b074b820cb3fbc815cd3,
+        type: 3}
+    - time: 0.53333336
+      value: {fileID: -5218259395210961482, guid: 5d6d68b9ccb9b074b820cb3fbc815cd3,
+        type: 3}
+    - time: 0.6
+      value: {fileID: -5218259395210961482, guid: 5d6d68b9ccb9b074b820cb3fbc815cd3,
+        type: 3}
     attribute: m_Sprite
     path: 
     classID: 212
@@ -127,12 +136,15 @@ AnimationClip:
     - {fileID: 4110033328518778561, guid: 5d6d68b9ccb9b074b820cb3fbc815cd3, type: 3}
     - {fileID: -138470620751715066, guid: 5d6d68b9ccb9b074b820cb3fbc815cd3, type: 3}
     - {fileID: 3806690270930808179, guid: 5d6d68b9ccb9b074b820cb3fbc815cd3, type: 3}
+    - {fileID: -7491443416612588502, guid: 5d6d68b9ccb9b074b820cb3fbc815cd3, type: 3}
+    - {fileID: -5218259395210961482, guid: 5d6d68b9ccb9b074b820cb3fbc815cd3, type: 3}
+    - {fileID: -5218259395210961482, guid: 5d6d68b9ccb9b074b820cb3fbc815cd3, type: 3}
   m_AnimationClipSettings:
     serializedVersion: 2
     m_AdditiveReferencePoseClip: {fileID: 0}
     m_AdditiveReferencePoseTime: 0
     m_StartTime: 0
-    m_StopTime: 0.46666667
+    m_StopTime: 0.6666667
     m_OrientationOffsetY: 0
     m_Level: 0
     m_CycleOffset: 0
@@ -200,6 +212,13 @@ AnimationClip:
   m_HasMotionFloatCurves: 0
   m_Events:
   - time: 0.4
+    functionName: KeyFrame
+    data: 
+    objectReferenceParameter: {fileID: 0}
+    floatParameter: 0
+    intParameter: 0
+    messageOptions: 0
+  - time: 0.6
     functionName: EndFrame
     data: 
     objectReferenceParameter: {fileID: 0}

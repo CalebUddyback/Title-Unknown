@@ -1774,6 +1774,15 @@ public class Joanna : Combat_Character
         characterName = "Joanna D'Arc";
     }
 
+    public override IEnumerator Dodge()
+    {
+        animationController.Clip("Move_BackDash", 1);
+
+        yield return MoveAmount(new Vector3(0.3f * -Facing, 0, 0));
+
+        yield return WaitForKeyFrame(0);
+    }
+
     public override IEnumerator Block(int damage, Skill skill)
     {
         var main = sparks.main;
@@ -1799,7 +1808,7 @@ public class Joanna : Combat_Character
         {
             OutcomeBubble("BREAK!", Color.white);
 
-            AdjustHealth(TurnController.GetSprite(skill.effect), damage, skill.effect.ToString(), skill.CritSuccess);
+            AdjustHealth(TurnController.GetSprite(skill.effect), damage, skill.Target.ToString(), skill.CritSuccess);
 
             skill.Character.Team.combo_Counter.SetComboCount();
         }

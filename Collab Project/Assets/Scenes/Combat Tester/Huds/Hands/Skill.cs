@@ -12,7 +12,6 @@ public abstract class Skill : MonoBehaviour
 
     public string displayName;
     public string animationName;
-    public Turn_Controller.Effect effect;
     public string description = "";
 
     public enum Selection { Oppostion_Target, Oppostion, Oppostion_Random, Self, Team_Target, Team, Team_Random, Targeter, All_Target, All, All_Random };
@@ -27,29 +26,30 @@ public abstract class Skill : MonoBehaviour
 
     [Header("Requirements")]
 
+    public int manaCost;
     public bool discard;
     public int chargeTime;
     public bool set = false;
 
     [Header("Stats")]
 
-    public int manaCost;
-    public Vector2Int DamageVariation;
     public int critical;
+    public Turn_Controller.Effect effect;
+
+    public Vector2 distance = new Vector2(0.35f, 0.35f);
+    public Vector3 knockBack;
 
     [System.Serializable]
-    public class Intervals
+    public class Test
     {
-        public Vector2 distance = new Vector2(0.35f, 0.35f);
-        public Vector3 knockBack;
+        public int damage;
+        public int health;
+        public int defense;
+        public int mana;
     }
-    public Intervals intervals;
 
     [Header("Effects")]
-
-    public int health;
-    public int defense;
-    public int mana;
+    public Test Target;
 
     public int CritSuccess { get; set; }
     public int HitSuccess { get; set; }
@@ -61,25 +61,6 @@ public abstract class Skill : MonoBehaviour
             manaCost *= -1;
             Debug.LogWarning("Positive values are not allowed for 'Mana Cost'");
         }
-
-        if (DamageVariation.x > 0)
-        {
-            DamageVariation.x *= -1;
-            Debug.LogWarning("Positive values are not allowed for 'DamageVariation.x'");
-        }
-
-        if (DamageVariation.y > 0)
-        {
-            DamageVariation.y *= -1;
-            Debug.LogWarning("Positive values are not allowed for 'DamageVariation.y'");
-        }
-
-        if (DamageVariation.y > DamageVariation.x)
-        {
-            DamageVariation.x = DamageVariation.y;
-            Debug.LogWarning("DamageVariation.y' cannot be lower than 'DamageVariation.x'");
-        }
-
     }
 
     //[HideInInspector]

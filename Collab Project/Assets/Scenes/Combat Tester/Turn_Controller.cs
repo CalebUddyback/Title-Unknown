@@ -271,15 +271,14 @@ public class Turn_Controller : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.W))
         {
-            characterTurn.OutcomeBubble("Test", Color.white);
-            //characterTurn.AdjustDefense(null, 5, 1);
+            characterTurn.AdjustDefense(null, 2, "", 1);
             //AdjustHealth(20, 1);
             //AdjustMana(20, true);
         }
 
         if (Input.GetKeyDown(KeyCode.S))
         {
-            characterTurn.AdjustDefense(null, -5, 1);
+            characterTurn.AdjustDefense(null, -1, "", 1);
             //AdjustHealth(-20, 1);
             //AdjustMana(-20, true);
         }
@@ -314,6 +313,11 @@ public class Turn_Controller : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.H))
         {
             mainCamera.Shake();
+        }
+
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            Debug.Break();
         }
 
     }

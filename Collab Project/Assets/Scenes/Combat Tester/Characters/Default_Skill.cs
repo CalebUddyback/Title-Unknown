@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Sakura_Skill1: Skill
+public class Default_Skill: Skill
 {
     public override bool UseCondition()
     {
@@ -40,7 +40,7 @@ public class Sakura_Skill1: Skill
 
         stage = Stage.Moving;
 
-        yield return Character.MoveInRange(-(intervals.distance));
+        yield return Character.MoveInRange(-(distance));
 
         Character.animationController.Clip(animationName, 1f);
 

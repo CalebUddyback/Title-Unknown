@@ -70,7 +70,7 @@ public class StatBar : MonoBehaviour
 
                 if (current <= max * (displayBar.Count - 1))
                 {
-                    lead.fillAmount = (current - (max * i)) / (float)max;
+                    lead.fillAmount = (max > 0) ? (current - (max * i)) / (float)max : 0;
                     overflowMax = max;
                 }
                 else
@@ -115,13 +115,16 @@ public class StatBar : MonoBehaviour
 
                 currentText.color = (i > 0) ? displayBar[i].posChange : Color.white;
 
-                while (displayBar[i].backBar.fillAmount > displayBar[i].frontBar.fillAmount)
+                while (follow.fillAmount > lead.fillAmount)
                 {
                     follow.fillAmount = Mathf.MoveTowards(follow.fillAmount, lead.fillAmount, chaseSpeed * Time.deltaTime);
                     yield return null;
                 }
 
                 follow.fillAmount = lead.fillAmount;
+
+                if (max == 0 && current == 0)
+                    currentText.color = Color.white;
 
                 yield return null;
             }
@@ -136,7 +139,7 @@ public class StatBar : MonoBehaviour
 
                 currentText.color = (i > 0) ? displayBar[i].posChange : Color.white;
 
-                while (displayBar[i].backBar.fillAmount > displayBar[i].frontBar.fillAmount)
+                while (lead.fillAmount > follow.fillAmount)
                 {
                     follow.fillAmount = Mathf.MoveTowards(follow.fillAmount, lead.fillAmount, chaseSpeed * Time.deltaTime);
                     yield return null;
