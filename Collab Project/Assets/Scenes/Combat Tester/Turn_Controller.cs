@@ -319,7 +319,6 @@ public class Turn_Controller : MonoBehaviour
         {
             Debug.Break();
         }
-
     }
 
     public void AnimationSpeed(float s)
@@ -581,12 +580,12 @@ public class Turn_Controller : MonoBehaviour
 
             if (!card.negated)
             {
-                Debug.Log(card.skill.name + " resolved", card.gameObject);
+                Debug.Log(card.skill.displayName + " (" + card.skill.name + ") resolved", card.gameObject);
                 yield return card.skill.Resolve();
             }
             else
             {
-                Debug.Log(card.skill.name + " negated");
+                Debug.Log(card.skill.displayName + " (" + card.skill.name + ") resolved", card.gameObject);
                 card.negated = false;
             }
 

@@ -16,7 +16,7 @@ public abstract class Skill : MonoBehaviour
 
     public enum Selection { Oppostion_Target, Oppostion, Oppostion_Random, Self, Team_Target, Team, Team_Random, Targeter, All_Target, All, All_Random };
     public Selection selection;
-    public enum Type { Offensive, Defensive, Support };
+    public enum Type { Offensive, Defensive, Spell };
     public Type type;
     public enum Range { Close, Far };
     public Range range;
@@ -32,7 +32,8 @@ public abstract class Skill : MonoBehaviour
     public bool set = false;
 
     [Header("Stats")]
-
+    public bool guaranteedHit = false;
+    public int accuracy = 100;
     public int critical;
     public Turn_Controller.Effect effect;
 
@@ -49,10 +50,11 @@ public abstract class Skill : MonoBehaviour
     }
 
     [Header("Effects")]
-    public Test Target;
+    public Test target;
 
-    public int CritSuccess { get; set; }
+    public int HitChance { get; set; }
     public int HitSuccess { get; set; }
+    public int CritSuccess { get; set; }
 
     private void OnValidate()
     {
@@ -140,6 +142,17 @@ public abstract class Skill : MonoBehaviour
         for (int i = 0; i < eligible_Targets.Count; i++)
         {
             eligible_Targets[i].target_Arrow.gameObject.SetActive(true);
+
+            if (guaranteedHit)
+            {
+                eligible_Targets[i].target_Arrow.hitChance.text = "";
+            }
+            else
+            {
+                HitChance = Character.GetCurrentStats(this)[Character_Stats.Stat.DEX];
+
+                eligible_Targets[i].target_Arrow.hitChance.text = Mathf.CeilToInt(((float)HitChance / (HitChance + eligible_Targets[i].MissChance())) * 100).ToString() + "%";
+            }
         }
 
         if (selection == Selection.Team || selection == Selection.Oppostion || selection == Selection.All)
@@ -203,12 +216,21 @@ public abstract class Skill : MonoBehaviour
 
     public void GetOutcome(Combat_Character target)
     {
+        int hitRoll = Mathf.CeilToInt((float)(Random.Range(0, HitChance) + Random.Range(0, HitChance)) / 2);
+
+        // If equal: Clash?
+
+        if (hitRoll > target.MissChance())
+            HitSuccess = 1;
+        else if (hitRoll == target.MissChance())
+            HitSuccess = 0;
+        else
+            HitSuccess = 0;
+
+        Debug.Log(hitRoll + " : " + target.MissChance());
+
         int critRoll = Random.Range(0, 100);
 
         CritSuccess = critRoll < critical ? 3 : 1;
-
-        int hitRoll = (Random.Range(0, 100) + Random.Range(0, 100)) / 2;
-
-        HitSuccess = hitRoll > target.GetCurrentStats()[Character_Stats.Stat.LCK] ? 1 : 0;
     }
 }

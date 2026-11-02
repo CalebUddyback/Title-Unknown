@@ -46,7 +46,7 @@ public class Sakura_Skill4 : Skill
 
         Character.animationController.PlaySpeed(1);
 
-        Character.AdjustMana(Target.mana, true);
+        Character.AdjustMana(target.mana, true);
 
         yield return Character.animationController.coroutine;
     }

@@ -9,9 +9,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8425386044685355709}
-  - component: {fileID: -8288857822269860274}
+  - component: {fileID: -6621664565296584972}
   m_Layer: 0
-  m_Name: Guard
+  m_Name: HP Potion
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -36,7 +36,7 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 125, y: 155}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &-8288857822269860274
+--- !u!114 &-6621664565296584972
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -45,28 +45,30 @@ MonoBehaviour:
   m_GameObject: {fileID: 4789887039423192804}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 87268f766288670468aed9c0bfc958c2, type: 3}
+  m_Script: {fileID: 11500000, guid: c8f2b80f1e4f1ad4f8be4b1942747ebe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  displayName: Guard
-  animationName: Cast_ShieldBuff
-  description: Damage reduces MP instead of HP
+  displayName: HP Potion
+  animationName: Use_Item
+  description: 
   selection: 3
   type: 2
   range: 0
   stage: 0
   phase: 0
-  manaCost: -25
+  manaCost: 0
   discard: 0
   chargeTime: 0
   set: 0
+  guaranteedHit: 1
+  accuracy: 100
   critical: 0
   effect: 0
-  distance: {x: 0.35, y: 0.35}
+  distance: {x: 0, y: 0}
   knockBack: {x: 0, y: 0, z: 0}
-  Target:
+  target:
     damage: 0
-    health: 0
-    defense: 5
+    health: 15
+    defense: 0
     mana: 0
   chosen_Targets: []

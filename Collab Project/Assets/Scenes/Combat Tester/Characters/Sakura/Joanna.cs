@@ -1808,7 +1808,7 @@ public class Joanna : Combat_Character
         {
             OutcomeBubble("BREAK!", Color.white);
 
-            AdjustHealth(TurnController.GetSprite(skill.effect), damage, skill.Target.ToString(), skill.CritSuccess);
+            AdjustHealth(TurnController.GetSprite(skill.effect), damage, skill.effect.ToString(), skill.CritSuccess);
 
             skill.Character.Team.combo_Counter.SetComboCount();
         }

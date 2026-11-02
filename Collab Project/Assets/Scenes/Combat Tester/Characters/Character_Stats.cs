@@ -14,6 +14,7 @@ public class Character_Stats : ScriptableObject
         initiative,   // Turn order
         speed,      // Turn amount
 
+        dexterity,
         strength,   // Effectivness
 
         critical,  // Criticals
@@ -24,6 +25,7 @@ public class Character_Stats : ScriptableObject
         INI,
         SPD,
 
+        DEX,
         STR,
 
         CRT,

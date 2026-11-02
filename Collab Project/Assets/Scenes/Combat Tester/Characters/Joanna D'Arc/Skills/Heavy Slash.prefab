@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 8425386044685355709}
   - component: {fileID: -6621664565296584972}
   m_Layer: 0
-  m_Name: Slash
+  m_Name: Front Slash
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -48,24 +48,26 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c8f2b80f1e4f1ad4f8be4b1942747ebe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  displayName: Down Slash
-  animationName: Attack_Light
+  displayName: Heavy Slash
+  animationName: Attack_FrontLight
   description: 
   selection: 0
   type: 0
   range: 0
   stage: 0
   phase: 0
-  manaCost: 0
+  manaCost: -50
   discard: 0
   chargeTime: 0
   set: 0
+  accuracy: 100
   critical: 0
-  effect: 0
+  effect: 1
   distance: {x: 0.35, y: 0.35}
   knockBack: {x: 0, y: 0, z: 0}
   Target:
-    health: -1
+    damage: 0
+    health: 0
     defense: 0
     mana: 0
   chosen_Targets: []

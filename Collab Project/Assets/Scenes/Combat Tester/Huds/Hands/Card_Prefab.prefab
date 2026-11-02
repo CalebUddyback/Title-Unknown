@@ -1896,7 +1896,7 @@ MonoBehaviour:
   m_fontSizeBase: 20
   m_fontWeight: 400
   m_enableAutoSizing: 1
-  m_fontSizeMin: 10
+  m_fontSizeMin: 5
   m_fontSizeMax: 14
   m_fontStyle: 1
   m_HorizontalAlignment: 1
@@ -2001,5 +2001,6 @@ MonoBehaviour:
   discardLines: {fileID: 89043945978300839}
   effects: {fileID: 7907089521571611313}
   skill: {fileID: 0}
-  hand: {fileID: 0}
+  deck: {fileID: 0}
   negated: 0
+  usable: 0

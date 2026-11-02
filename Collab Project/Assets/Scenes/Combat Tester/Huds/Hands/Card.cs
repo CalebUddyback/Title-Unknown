@@ -41,9 +41,9 @@ public class Card: MonoBehaviour
         cardText.text = skill.displayName;
         manaCost.text = Mathf.Abs(skill.manaCost).ToString();
 
-        if (skill.Target.damage > 0)
+        if (skill.target.damage > 0)
         {
-            int dam = skill.Character.GetCurrentStats()[Character_Stats.Stat.STR] + skill.Target.damage;
+            int dam = skill.Character.GetCurrentStats()[Character_Stats.Stat.STR] + skill.target.damage;
 
             GameObject effect = Instantiate(effects.GetChild(0).gameObject, effects);
 
@@ -73,15 +73,15 @@ public class Card: MonoBehaviour
             effect.transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = skill.description;
         }
 
-        if (skill.Target.mana != 0)
+        if (skill.target.mana != 0)
         {
-            string s = (skill.Target.mana > 0) ? "Gain: " : "Lose: ";
+            string s = (skill.target.mana > 0) ? "Gain: " : "Lose: ";
 
             GameObject effect = Instantiate(effects.GetChild(0).gameObject, effects);
 
             effect.gameObject.SetActive(true);
 
-            effect.transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = s + skill.Target.mana + " MP";
+            effect.transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = s + skill.target.mana + " MP";
         }
 
     }

@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -10,6 +11,13 @@ public class Target_Arrow : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
 
     public Color hoverColor = Color.white;
     public Color unHoverColor = new Color(0, 0, 0, 0.5f);
+
+    public TextMeshProUGUI hitChance;
+
+    private void Start()
+    {
+        gameObject.SetActive(false);
+    }
 
     private void OnDisable()
     {
@@ -45,9 +53,15 @@ public class Target_Arrow : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
     public void Highlight(bool x)
     {
         if (x)
+        {
             GetComponent<Image>().color = hoverColor;
+            hitChance.gameObject.SetActive(true);
+        }
         else
+        {
             GetComponent<Image>().color = unHoverColor;
+            hitChance.gameObject.SetActive(false);
+        }
 
         if (!gameObject.activeSelf)
         {

@@ -64,11 +64,29 @@ public class Draw_Selection : MonoBehaviour
 
         yield return new WaitUntil(() => chosenSlot != null);
 
+        chosenSlot.card.locked.gameObject.SetActive(true);
+
+        for (int i = 0; i < slots.childCount; i++)
+        {
+            if (slots.GetChild(i).GetComponent<Draw_Slot>() == chosenSlot)
+                continue;
+
+            slots.GetChild(i).GetComponent<Draw_Slot>().card.gameObject.SetActive(false);
+
+            slots.GetChild(i).GetComponent<Draw_Slot>().animator.Play();
+
+            slots.GetChild(i).GetComponent<Draw_Slot>().card.transform.SetParent(turn_Controller.characterTurn.deck.discardDeck);
+
+            slots.GetChild(i).GetComponent<Draw_Slot>().card.GetComponent<RectTransform>().anchoredPosition = Vector2.zero;
+
+            turn_Controller.characterTurn.deck.discardDeckQuantity.text = (turn_Controller.characterTurn.deck.discardDeck.childCount).ToString();
+
+            yield return new WaitForSeconds(0.25f);
+        }
+
         gameObject.SetActive(false);
 
         chosenSlot.GetComponent<Image>().color = Color.grey;
-
-        chosenSlot.card.usableIMG.gameObject.SetActive(true);
 
         Card_Slot slot = turn_Controller.characterTurn.deck.CreateSlots(1, true)[0];
 
@@ -79,8 +97,6 @@ public class Draw_Selection : MonoBehaviour
         yield return null;
 
         yield return turn_Controller.characterTurn.deck.ShiftCards();
-
-        turn_Controller.characterTurn.deck.drawDeckQuantity.text = turn_Controller.characterTurn.deck.drawDeck.childCount.ToString();
 
         yield return slot.RetrieveCard();
 
@@ -99,6 +115,10 @@ public class Draw_Selection : MonoBehaviour
 
             slots.GetChild(i).GetComponent<Draw_Slot>().card.GetComponent<RectTransform>().anchoredPosition = Vector2.zero;
         }
+
+        slot.card.usableIMG.gameObject.SetActive(true);
+
+        turn_Controller.CheckAllCards();
     }
 
     private IEnumerator GenerateCards()
@@ -136,9 +156,13 @@ public class Draw_Selection : MonoBehaviour
 
             card.usableIMG.gameObject.SetActive(false);
 
+            card.locked.gameObject.SetActive(false);
+
             card.gameObject.SetActive(true);
 
             slots.GetChild(i).GetComponent<Draw_Slot>().animator.Play();
+
+            turn_Controller.characterTurn.deck.drawDeckQuantity.text = (turn_Controller.characterTurn.deck.drawDeck.childCount).ToString();
 
             yield return new WaitForSeconds(0.25f);
         }

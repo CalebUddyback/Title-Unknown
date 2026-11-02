@@ -30,7 +30,7 @@ public class Sakura_Skill2 : Skill
     {
         Character.animationController.PlaySpeed(1);
 
-        int totalHeal = Target.health * CritSuccess;
+        int totalHeal = target.health * CritSuccess;
 
         foreach (Combat_Character target in chosen_Targets)
         {

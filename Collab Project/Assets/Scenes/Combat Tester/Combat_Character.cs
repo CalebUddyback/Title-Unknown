@@ -180,31 +180,12 @@ public abstract class Combat_Character : MonoBehaviour
 
         yield return new WaitForSeconds(0.5f);
 
-        // Draw
-
-        bool selectedDraw = Random.Range(0, 100) < 0 ? true : false;
-
-        if (deck.drawDeck.childCount < 3)
-            selectedDraw = false;
-
-        int d = 5;
-
-        if (selectedDraw)
-            d--;
-
         if (firstTurn)
         {
-            yield return deck.DrawCards(d, true, false);
-        }
-        else
-        {
-            //int d = (hand.cards.Count < 5) ? 5 - hand.cards.Count : 1;
-   
-            yield return deck.DrawCards(d, !selectedDraw, false);
 
-            if (selectedDraw)
-                yield return StartCoroutine(TurnController.draw_Selection.ChooseCard());
         }
+
+        yield return deck.DrawCards(5, true, false);
 
         int startMP = 20;
         AdjustMana(startMP, true);
@@ -469,6 +450,8 @@ public abstract class Combat_Character : MonoBehaviour
 
     }
 
+    readonly float obDistance = 50f;
+
     public void OutcomeBubble(Sprite spr, int num, string type, Color col1)
     {
         float distance = 0;
@@ -481,13 +464,12 @@ public abstract class Combat_Character : MonoBehaviour
             distance = Vector3.Distance(current_Outcome_Bubble.GetComponent<RectTransform>().anchoredPosition, TurnController.mainCamera.UIPosition(outcome_Bubble_Pos.position));
         }
 
-        if (current_Outcome_Bubble == null || distance > 30f)
+        if (current_Outcome_Bubble == null || distance > obDistance)
         {
             current_Outcome_Bubble = Instantiate(outcome_Bubble_Prefab, TurnController.damage_Bubbles);
-            current_Outcome_Bubble.GetComponent<RectTransform>().anchoredPosition = TurnController.mainCamera.UIPosition(outcome_Bubble_Pos.position);
         }
 
-        current_Outcome_Bubble.Input(spr, num, type, col1);
+        current_Outcome_Bubble.Input(spr, num, type, col1, TurnController.mainCamera, outcome_Bubble_Pos);
     }
 
     public void OutcomeBubble(string str, Color col1)
@@ -501,13 +483,12 @@ public abstract class Combat_Character : MonoBehaviour
             //Debug.Log(distance + " " + current_Outcome_Bubble.GetComponent<RectTransform>().anchoredPosition + " " + TurnController.mainCamera.UIPosition(outcome_Bubble_Pos.position));
         }
 
-        if (current_Outcome_Bubble == null || distance > 30f)
+        if (current_Outcome_Bubble == null || distance > obDistance)
         {
             current_Outcome_Bubble = Instantiate(outcome_Bubble_Prefab, TurnController.damage_Bubbles);
-            current_Outcome_Bubble.GetComponent<RectTransform>().anchoredPosition = TurnController.mainCamera.UIPosition(outcome_Bubble_Pos.position);
         }
 
-        current_Outcome_Bubble.Input(str, col1);
+        current_Outcome_Bubble.Input(str, col1, TurnController.mainCamera, outcome_Bubble_Pos);
     }
 
     public IEnumerator WaitForKeyFrame(int playSpeed)
@@ -576,7 +557,7 @@ public abstract class Combat_Character : MonoBehaviour
                         else
                         {
                             StartCoroutine(Enemy.Damage(damage, skill));
-                            Enemy.AdjustHealth(TurnController.GetSprite(skill.effect), damage, skill.Target.ToString(), skill.CritSuccess);
+                            Enemy.AdjustHealth(TurnController.GetSprite(skill.effect), damage, skill.effect.ToString(), skill.CritSuccess);
                             skill.Character.Team.combo_Counter.SetComboCount();
 
                             yield return new WaitForSeconds(ImpactDelay); // Impact Delay
@@ -605,11 +586,19 @@ public abstract class Combat_Character : MonoBehaviour
 
                 break;
 
-            case Skill.Type.Support:
+            case Skill.Type.Spell:
 
                 //yield return new WaitForSeconds(ImpactDelay); // Impact Delay
 
-                AdjustDefense(null, skill.Target.defense, "", 1);
+                animationController.PlaySpeed(1);
+
+                yield return WaitForKeyFrame(0);
+
+                if(skill.target.defense != 0)
+                    AdjustDefense(null, skill.target.defense, "", 1);
+
+                if (skill.target.health != 0)
+                    AdjustHealth(null, skill.target.health, "", 1);
 
                 animationController.PlaySpeed(1);
 
@@ -651,7 +640,7 @@ public abstract class Combat_Character : MonoBehaviour
         {
             OutcomeBubble("BREAK!", Color.white);
 
-            AdjustHealth(TurnController.GetSprite(skill.effect), damage, skill.Target.ToString(), skill.CritSuccess);
+            AdjustHealth(TurnController.GetSprite(skill.effect), damage, skill.target.ToString(), skill.CritSuccess);
 
             skill.Character.Team.combo_Counter.SetComboCount();
         }
@@ -686,11 +675,12 @@ public abstract class Combat_Character : MonoBehaviour
     {
         var baseStats = new Dictionary<Character_Stats.Stat, int>
         {
+            {Character_Stats.Stat.INI, character_Stats.initiative},
+            {Character_Stats.Stat.SPD, character_Stats.speed},
+            {Character_Stats.Stat.DEX, character_Stats.dexterity },
             {Character_Stats.Stat.STR, character_Stats.strength },
             {Character_Stats.Stat.CRT, character_Stats.critical },
-            {Character_Stats.Stat.SPD, character_Stats.speed},
             {Character_Stats.Stat.LCK, character_Stats.luck},
-            {Character_Stats.Stat.INI, character_Stats.initiative},
         };
 
         return baseStats;
@@ -711,6 +701,7 @@ public abstract class Combat_Character : MonoBehaviour
 
         if(weapon != null)
         {
+            currentStats[Character_Stats.Stat.DEX] += weapon.accuracy;
             currentStats[Character_Stats.Stat.STR] += weapon.attack;
             currentStats[Character_Stats.Stat.CRT] += weapon.critical;
         }
@@ -722,12 +713,18 @@ public abstract class Combat_Character : MonoBehaviour
     {
         var currentStats = GetCurrentStats();
 
-        int attack = skill.Target.damage;
-
-        currentStats[Character_Stats.Stat.STR] += attack;
+        currentStats[Character_Stats.Stat.DEX] += skill.accuracy;
+        currentStats[Character_Stats.Stat.STR] += skill.target.damage;
         currentStats[Character_Stats.Stat.CRT] += skill.critical;
 
         return currentStats;
+    }
+
+    public int MissChance()
+    {
+        var stats = GetCurrentStats();
+
+        return stats[Character_Stats.Stat.LCK] + stats[Character_Stats.Stat.SPD]; // - weapon.weight
     }
 
 
@@ -775,7 +772,6 @@ public abstract class Combat_Character : MonoBehaviour
             else
                 i++;
         }
-
     }
 
     public void ClearStatChangers()

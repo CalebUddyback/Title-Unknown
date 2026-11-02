@@ -9,9 +9,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8425386044685355709}
-  - component: {fileID: -6621664565296584972}
+  - component: {fileID: -6172615370404266624}
   m_Layer: 0
-  m_Name: Front Slash
+  m_Name: Resolve
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -36,7 +36,7 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 125, y: 155}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &-6621664565296584972
+--- !u!114 &-6172615370404266624
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -48,25 +48,27 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c8f2b80f1e4f1ad4f8be4b1942747ebe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  displayName: Heavy Slash
-  animationName: Attack_FrontLight
-  effect: 1
-  description: 
-  selection: 0
-  type: 0
+  displayName: Resolve
+  animationName: Cast_ShieldBuff
+  description: Damage reduces MP instead of HP
+  selection: 3
+  type: 2
   range: 0
   stage: 0
   phase: 0
+  manaCost: -25
   discard: 0
   chargeTime: 0
   set: 0
-  manaCost: -50
-  DamageVariation: {x: 0, y: 0}
+  guaranteedHit: 1
+  accuracy: 100
   critical: 0
-  intervals:
-    distance: {x: 0.4, y: 0.5}
-    knockBack: {x: 0.05, y: 0, z: 0}
-  health: 0
-  defense: 0
-  mana: 0
+  effect: 0
+  distance: {x: 0, y: 0}
+  knockBack: {x: 0, y: 0, z: 0}
+  target:
+    damage: 0
+    health: 0
+    defense: 5
+    mana: 0
   chosen_Targets: []

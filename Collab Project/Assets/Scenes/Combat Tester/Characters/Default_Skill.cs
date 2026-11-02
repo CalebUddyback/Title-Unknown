@@ -21,8 +21,6 @@ public class Default_Skill: Skill
         yield return null;
     }
 
-
-
     public override IEnumerator Execute()
     {
  
