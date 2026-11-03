@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 8425386044685355709}
   - component: {fileID: -6172615370404266624}
   m_Layer: 0
-  m_Name: Resolve
+  m_Name: Resoluteness
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -48,7 +48,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c8f2b80f1e4f1ad4f8be4b1942747ebe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  displayName: Resolve
+  displayName: Resoluteness
   animationName: Cast_ShieldBuff
   description: Damage reduces MP instead of HP
   selection: 3

@@ -6,61 +6,56 @@ public class NPC : MonoBehaviour
 {
     public AnimationController animationController;
 
-    public Transform patrolNodes;
+    public Transform faceToward;
 
-    List<Vector3> nodes = new List<Vector3>();
+    public Transform follow;
 
-    public float walkSpeed = 1;
+    private float followDistance = 0.4f;
 
-    public float delay = 3;
+    private float stopDistance = 0.25f;
 
+    [HideInInspector]
+    public float walkSpeed = 0.4f;
 
     private void Start()
     {
-        nodes.Add(animationController.transform.position);
-
-        foreach (Transform n in patrolNodes)
+        if (follow != null)
         {
-            nodes.Add(n.position);
+            StartCoroutine(Following());
         }
-
-        StartCoroutine(Patrol());
     }
 
-
-    IEnumerator Patrol()
+    private void Update()
     {
+        if(faceToward != null)
+        {
+            float dir = faceToward.position.x < transform.position.x ? -1 : 1;
 
-        int i = 1;
+            animationController.transform.localScale = new Vector3(dir, 1, 1);
+        }
+    }
 
+    IEnumerator Following()
+    {
         while (true)
         {
             animationController.Clip("Idle", 1);
 
-            yield return new WaitForSeconds(delay);
+            yield return new WaitUntil(() => Vector3.Distance(transform.position, follow.position) > followDistance);
 
-            Vector3 targetPos = nodes[i];
+            float dir = follow.position.x < transform.position.x ? -1 : 1;
+
+            animationController.transform.localScale = new Vector3(dir, 1, 1);
 
             animationController.Clip("Walk", 1);
 
-            float dir = animationController.transform.position.x - targetPos.x < 0 ? -1 : 1;
-
-            animationController.transform.localScale = new Vector3(dir,1,1);
-
-            while (animationController.transform.position != targetPos)
+            while (Vector3.Distance(transform.position, follow.position) > stopDistance)
             {
-                animationController.transform.position = Vector3.MoveTowards(animationController.transform.position, targetPos, walkSpeed/100f);
+                transform.position = Vector3.MoveTowards(transform.position, follow.position, walkSpeed / 100f);
 
                 yield return null;
             }
 
-            animationController.transform.position = targetPos;
-
-            if (i + 1 > nodes.Count - 1)
-                i = 0;
-            else
-                i++;
         }
-
     }
 }
