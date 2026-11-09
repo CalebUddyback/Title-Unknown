@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 8425386044685355709}
   - component: {fileID: -6621664565296584972}
   m_Layer: 0
-  m_Name: Front Slash
+  m_Name: Heavy Slash
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -60,13 +60,14 @@ MonoBehaviour:
   discard: 0
   chargeTime: 0
   set: 0
+  guaranteedHit: 0
   accuracy: 100
   critical: 0
   effect: 1
   distance: {x: 0.35, y: 0.35}
   knockBack: {x: 0, y: 0, z: 0}
-  Target:
-    damage: 0
+  target:
+    damage: 2
     health: 0
     defense: 0
     mana: 0

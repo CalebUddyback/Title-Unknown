@@ -4,29 +4,9 @@ using UnityEngine;
 
 public class Parry_Skill : Skill
 {
-    public override bool ReactCondition()
+    public override bool UseCondition()
     {
-        if (!set)
-            return false;
-
-        if (Character.TurnController.resolveStack.Count <= 0)
-            return false;
-
-        //if (manaCost > Character.Mana())
-        //    return false;
-        //
-        //if (!skill.chosen_Targets.Contains(Character.transform))
-        //    return false;
-        //if (skill.selection != Selection.Singular)
-        //    return false;
-        //
-        //if (skill.range != Range.Close)
-        //    return false;
-        //
-        //if (skill.type != Type.Offensive && skill.type != Type.Defensive)
-        //    return false;
-
-        return true;
+        return base.UseCondition();
     }
 
     public override IEnumerator SetUp()

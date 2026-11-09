@@ -517,98 +517,67 @@ public abstract class Combat_Character : MonoBehaviour
 
         //skill.HitSuccess = 0;
 
-        switch (skill.type)
+        switch (skill.HitSuccess)
         {
-            case Skill.Type.Offensive:
+            case 0:
 
-                switch (skill.HitSuccess)
-                {
-                    case 0:
-
-                        enemyMovement = StartCoroutine(Enemy.Dodge());
-                        Enemy.OutcomeBubble("MISS!", Color.white);
-
-                        animationController.PlaySpeed(1);
-
-                        yield return WaitForKeyFrame(0);
-
-                        break;
-
-                    case 1:
-
-                        if (Enemy.Defense > 0)
-                        {
-                            if (Enemy.Defense + damage <= 0)
-                            {
-                                StartCoroutine(Enemy.Break(Enemy.Defense + damage, skill));
-                                Enemy.AdjustDefense(TurnController.GetSprite(Turn_Controller.Effect.Block), -Enemy.Defense, "BLOCK", skill.CritSuccess);
-
-                                yield return new WaitForSeconds(ImpactDelay); // Impact Delay
-                                TurnController.mainCamera.Shake();
-                            }
-                            else
-                            {
-                                StartCoroutine(Enemy.Block(damage, skill));
-                                Enemy.AdjustDefense(TurnController.GetSprite(Turn_Controller.Effect.Block), damage, "BLOCK", skill.CritSuccess);
-
-                                yield return new WaitForSeconds(ImpactDelay); // Impact Delay
-                            }
-                        }
-                        else
-                        {
-                            StartCoroutine(Enemy.Damage(damage, skill));
-                            Enemy.AdjustHealth(TurnController.GetSprite(skill.effect), damage, skill.effect.ToString(), skill.CritSuccess);
-                            skill.Character.Team.combo_Counter.SetComboCount();
-
-                            yield return new WaitForSeconds(ImpactDelay); // Impact Delay
-                        }
-
-                        //effects
-
-
-                        animationController.PlaySpeed(1);
-                        Enemy.animationController.PlaySpeed(1);
-
-                        enemyMovement = StartCoroutine(Enemy.MoveAmount(new Vector3(skill.knockBack.x * Facing, skill.knockBack.y, skill.knockBack.z), 0.1f));
-
-                        yield return WaitForKeyFrame(0);
-
-                        break;
-                }
-
-                yield return enemyMovement;
-
-                if (Enemy.Defeated)
-                {
-                    Enemy.animationController.Clip("Defeated", 1);
-                    yield return Enemy.animationController.coroutine;
-                }
-
-                break;
-
-            case Skill.Type.Spell:
-
-                //yield return new WaitForSeconds(ImpactDelay); // Impact Delay
+                enemyMovement = StartCoroutine(Enemy.Dodge());
+                Enemy.OutcomeBubble("MISS!", Color.white);
 
                 animationController.PlaySpeed(1);
 
                 yield return WaitForKeyFrame(0);
 
-                if(skill.target.defense != 0)
-                    AdjustDefense(null, skill.target.defense, "", 1);
+                break;
 
-                if (skill.target.health != 0)
-                    AdjustHealth(null, skill.target.health, "", 1);
+            case 1:
+
+                if (Enemy.Defense > 0)
+                {
+                    if (Enemy.Defense + damage <= 0)
+                    {
+                        StartCoroutine(Enemy.Break(Enemy.Defense + damage, skill));
+                        Enemy.AdjustDefense(TurnController.GetSprite(Turn_Controller.Effect.Block), -Enemy.Defense, "BLOCK", skill.CritSuccess);
+
+                        yield return new WaitForSeconds(ImpactDelay); // Impact Delay
+                        TurnController.mainCamera.Shake();
+                    }
+                    else
+                    {
+                        StartCoroutine(Enemy.Block(damage, skill));
+                        Enemy.AdjustDefense(TurnController.GetSprite(Turn_Controller.Effect.Block), damage, "BLOCK", skill.CritSuccess);
+
+                        yield return new WaitForSeconds(ImpactDelay); // Impact Delay
+                    }
+                }
+                else
+                {
+                    StartCoroutine(Enemy.Damage(damage, skill));
+                    Enemy.AdjustHealth(TurnController.GetSprite(skill.effect), damage, skill.effect.ToString(), skill.CritSuccess);
+                    skill.Character.Team.combo_Counter.SetComboCount();
+
+                    yield return new WaitForSeconds(ImpactDelay); // Impact Delay
+                }
+
+                //effects
+
 
                 animationController.PlaySpeed(1);
+                Enemy.animationController.PlaySpeed(1);
 
-                yield return animationController.coroutine;
+                enemyMovement = StartCoroutine(Enemy.MoveAmount(new Vector3(skill.knockBack.x * Facing, skill.knockBack.y, skill.knockBack.z), 0.1f));
 
-                animationController.Clip("Idle", 1);
-
-                yield return TurnController.mainCamera.Reset(0.2f);
+                yield return WaitForKeyFrame(0);
 
                 break;
+        }
+
+        yield return enemyMovement;
+
+        if (Enemy.Defeated)
+        {
+            Enemy.animationController.Clip("Defeated", 1);
+            yield return Enemy.animationController.coroutine;
         }
     }
 

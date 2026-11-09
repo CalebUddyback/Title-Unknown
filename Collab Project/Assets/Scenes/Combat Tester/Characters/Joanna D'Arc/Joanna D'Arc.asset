@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   max_Health: 30
   max_Mana: 100
-  max_Defense: 0
+  max_Defense: 2
   initiative: 20
   speed: 20
   dexterity: 0

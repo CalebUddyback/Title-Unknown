@@ -15,7 +15,7 @@ public class NPC : MonoBehaviour
     private float stopDistance = 0.25f;
 
     [HideInInspector]
-    public float walkSpeed = 0.4f;
+    public float walkSpeed = 0.3f;
 
     private void Start()
     {

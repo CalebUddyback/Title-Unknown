@@ -52,8 +52,41 @@ public class Default_Skill: Skill
 
     public override IEnumerator Resolve()
     {
-        Coroutine outcome = Character.StartCoroutine(Character.ApplyOutcome(this));
 
-        yield return outcome;
+        switch (type)
+        {
+            case Type.Offensive:
+
+                yield return Character.StartCoroutine(Character.ApplyOutcome(this));
+
+                break;
+
+            case Type.Spell:
+
+                //yield return new WaitForSeconds(ImpactDelay); // Impact Delay
+
+                Character.animationController.PlaySpeed(1);
+
+                yield return Character.WaitForKeyFrame(0);
+
+                if (target.defense != 0)
+                    chosen_Targets[0].AdjustDefense(null, target.defense, "", 1);
+
+                if (target.mana != 0)
+                    chosen_Targets[0].AdjustMana(target.mana, true);
+
+                if (target.health != 0)
+                    chosen_Targets[0].AdjustHealth(null, target.health, "", 1);
+
+                Character.animationController.PlaySpeed(1);
+
+                yield return Character.animationController.coroutine;
+
+                Character.animationController.Clip("Idle", 1);
+
+                yield return TurnController.mainCamera.Reset(0.2f);
+
+                break;
+        }
     }
 }

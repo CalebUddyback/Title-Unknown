@@ -123,7 +123,10 @@ public class Decks : MonoBehaviour
                     selectedSlot.card.GetComponent<RectTransform>().anchoredPosition = Vector2.up * 12;
 
                 if (selectedSlot.card.Usable)
+                {
                     StartCoroutine(selectedSlot.card.skill.CharacterTargeting());
+                    //Debug.Log(selectedSlot.card.skill.displayName);
+                }
             }
             else
             {
@@ -432,8 +435,6 @@ public class Decks : MonoBehaviour
 
                 hand.Remove(slotsToRemove[i].card);
 
-                slotsToRemove[i].card.skill.set = false;
-
                 slotsToRemove[i].card = null;
 
                 yield return new WaitForSeconds(time / 2);
@@ -477,7 +478,7 @@ public class Decks : MonoBehaviour
 
         foreach (Transform slot in hand_Pos)
         {
-            if (slot.GetComponent<Card_Slot>().card.skill.set)
+            if (slot.GetComponent<Card_Slot>().card.skill.type == Skill.Type.Defensive)
                 continue;
 
             slots.Add(slot.GetComponent<Card_Slot>());

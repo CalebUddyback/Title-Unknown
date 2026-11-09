@@ -14,6 +14,8 @@ public class Turn_Controller : MonoBehaviour
 
     public Combat_Character characterTurn;
 
+    public Combat_Character characterActing;
+
     public DescriptionBox descriptionBox;
 
     public TextMeshProUGUI instructions;
@@ -335,7 +337,7 @@ public class Turn_Controller : MonoBehaviour
         {
             yield return turn_Timeline.Shift();
 
-            characterTurn = currentTurnOrder[0];
+            characterTurn = characterActing = currentTurnOrder[0];
 
             //yield return new WaitForSeconds(0.3f);
 
@@ -470,6 +472,21 @@ public class Turn_Controller : MonoBehaviour
         }
     }
 
+    public int CheckAllCards(Combat_Character character)
+    {
+        int c = 0;
+
+        foreach (Card card_Prefab in character.deck.hand)
+        {
+            card_Prefab.Usable = card_Prefab.skill.UseCondition();
+
+            if (card_Prefab.skill.UseCondition())
+                c++;
+        }
+
+        return c;
+    }
+
     public IEnumerator Reactions()
     {
         Skill skill = resolveStack.ElementAt(resolveStack.Count - 1).skill;
@@ -488,22 +505,23 @@ public class Turn_Controller : MonoBehaviour
     
         foreach (Combat_Character character in skill.Character.Team.Opposition.members)
         {
-            foreach (Transform child in character.deck.hand_Pos)
+            character.currentPhase = Combat_Character.Phase.Reacting;
+
+            if (CheckAllCards(character) > 0)
             {
-                Card_Slot slot = child.GetComponent<Card_Slot>();
-    
-                if (!resolveStack.Contains(slot.card) && slot.card.skill.ReactCondition())
-                {
-                    reactors.Add(character);
-                    StartCoroutine(Mark(character));
-                    break;
-                }
-    
+                reactors.Add(character);
+                characterActing = character;
+
+                StartCoroutine(Mark(character));
+            }
+            else
+            {
+                character.currentPhase = Combat_Character.Phase.Waiting;
             }
         }
     
-        // yield return new WaitUntil(() => slot.decks.cardCoroutine != null);
-        // yield return slot.decks.cardCoroutine;
+         //yield return new WaitUntil(() => slot.decks.cardCoroutine != null);
+         //yield return slot.decks.cardCoroutine;
     
     
         if (reactors.Count <= 0)
@@ -528,7 +546,7 @@ public class Turn_Controller : MonoBehaviour
     
             endTurnButton.onClick.AddListener(() => endTurn = true);
         }
-    
+
         yield return 0;
     }
 
@@ -573,7 +591,6 @@ public class Turn_Controller : MonoBehaviour
 
     public IEnumerator ResolveCards()
     {
-
         while(resolveStack.Count > 0)
         {
             Card card = resolveStack[resolveStack.Count - 1];
@@ -585,12 +602,27 @@ public class Turn_Controller : MonoBehaviour
             }
             else
             {
-                Debug.Log(card.skill.displayName + " (" + card.skill.name + ") resolved", card.gameObject);
+                Debug.Log(card.skill.displayName + " (" + card.skill.name + ") negated", card.gameObject);
                 card.negated = false;
             }
 
             resolveStack.Remove(card);
+            yield return null;
         }
+
+        foreach (Combat_Character character in all_Players)
+        {
+            if(character == characterTurn)
+            {
+                characterActing = characterTurn;
+                character.currentPhase = Combat_Character.Phase.Main;
+                continue;
+            }
+            
+            character.currentPhase = Combat_Character.Phase.Waiting;
+        }
+
+        CheckAllCards();
     }
 
     public IEnumerator Blink()

@@ -29,7 +29,6 @@ public abstract class Skill : MonoBehaviour
     public int manaCost;
     public bool discard;
     public int chargeTime;
-    public bool set = false;
 
     [Header("Stats")]
     public bool guaranteedHit = false;
@@ -67,11 +66,6 @@ public abstract class Skill : MonoBehaviour
 
     //[HideInInspector]
     public List<Combat_Character> chosen_Targets = new List<Combat_Character>();
-
-    public virtual bool ReactCondition()
-    {
-        return false;
-    }
 
     public virtual bool UseCondition()
     {
@@ -135,7 +129,7 @@ public abstract class Skill : MonoBehaviour
                 break;
 
             case Selection.Targeter:
-                eligible_Targets.Add(Character.TurnController.resolveStack[Character.TurnController.resolveStack.Count - 2].deck.owner);
+                eligible_Targets.Add(Character.TurnController.resolveStack[Character.TurnController.resolveStack.Count - 1].deck.owner);
                 break;
         }
 
@@ -157,7 +151,7 @@ public abstract class Skill : MonoBehaviour
 
         if (selection == Selection.Team || selection == Selection.Oppostion || selection == Selection.All)
         {
-            while (TurnController.characterTurn.deck.SelectedSlot != null)
+            while (TurnController.characterActing.deck.SelectedSlot != null)
             {
                 yield return null;
 
@@ -177,7 +171,7 @@ public abstract class Skill : MonoBehaviour
         }
         else if (selection == Selection.Team_Random || selection == Selection.Oppostion_Random || selection == Selection.All_Random)
         {
-            while (TurnController.characterTurn.deck.SelectedSlot != null)
+            while (TurnController.characterActing.deck.SelectedSlot != null)
             {
                 yield return null;
 
@@ -196,7 +190,7 @@ public abstract class Skill : MonoBehaviour
         }
         else
         {
-            while (TurnController.characterTurn.deck.SelectedSlot != null)
+            while (TurnController.characterActing.deck.SelectedSlot != null)
             {
                 yield return null;
             }

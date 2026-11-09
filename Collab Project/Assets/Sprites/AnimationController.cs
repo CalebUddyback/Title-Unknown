@@ -92,7 +92,7 @@ public class AnimationController : MonoBehaviour
 
     public void Outline(Color color)
     {
-        GetComponent<SpriteRenderer>().material.SetColor("Outline_Color", color);
+        GetComponent<SpriteRenderer>().material.SetVector("Outline_Color", color * 1.3f);
     }
 
     public void OutlineAppear(Color color)
