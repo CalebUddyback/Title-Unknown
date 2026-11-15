@@ -6,9 +6,9 @@ using UnityEngine.UI;
 
 public abstract class Skill : MonoBehaviour
 {
-    public Combat_Character Character => transform.parent.parent.GetComponent<Combat_Character>();
+    public Combat_Character owner => transform.parent.parent.GetComponent<Combat_Character>();
 
-    public Turn_Controller TurnController => Character.TurnController;
+    public Turn_Controller TurnController => owner.TurnController;
 
     public string displayName;
     public string animationName;
@@ -69,14 +69,14 @@ public abstract class Skill : MonoBehaviour
 
     public virtual bool UseCondition()
     {
-        if (Character.currentPhase != phase)
+        if (owner.currentPhase != phase)
             return false;
 
-        if (manaCost + Character.Mana <= 0)
+        if (manaCost + owner.Mana <= 0)
             return false;
 
         if (discard)
-            if (Character.deck.hand.Count < 1)
+            if (owner.deck.hand.Count < 1)
                 return false;
 
         return true;
@@ -88,70 +88,81 @@ public abstract class Skill : MonoBehaviour
     {
         List<Combat_Character> eligible_Targets = new List<Combat_Character>();
 
-        Vector3 initialCameraPosition = Character.TurnController.mainCamera.transform.position;
+        Vector3 initialCameraPosition = owner.TurnController.mainCamera.transform.position;
 
         TurnController.instructions.text = "Select Target";
 
         switch (selection)
         {
             case Selection.Self:
-                eligible_Targets.Add(Character);
+                eligible_Targets.Add(owner);
                 break;
 
             case Selection.Team:
-                eligible_Targets = Character.Team.members;
+                eligible_Targets = owner.Team.members;
                 //yield return Character.TurnController.mainCamera.Reset(0.2f);
                 break;
 
             case Selection.Team_Target:
-                eligible_Targets = Character.Team.members;
-                yield return Character.TurnController.mainCamera.Reset(0.2f);
+                eligible_Targets = owner.Team.members;
+                yield return owner.TurnController.mainCamera.Reset(0.2f);
                 break;
 
             case Selection.Team_Random:
-                eligible_Targets = Character.Team.members;
+                eligible_Targets = owner.Team.members;
                 //yield return Character.TurnController.mainCamera.Reset(0.2f);
                 break;
 
             case Selection.Oppostion:
-                eligible_Targets = Character.Team.Opposition.members;
+                eligible_Targets = owner.Team.Opposition.members;
                 //yield return Character.TurnController.mainCamera.Reset(0.2f);
                 break;
 
             case Selection.Oppostion_Target:
-                eligible_Targets = Character.Team.Opposition.members;
+                eligible_Targets = owner.Team.Opposition.members;
                 //yield return Character.TurnController.mainCamera.Reset(0.2f);
                 break;
 
             case Selection.Oppostion_Random:
-                eligible_Targets = Character.Team.Opposition.members;
+                eligible_Targets = owner.Team.Opposition.members;
                 //yield return Character.TurnController.mainCamera.Reset(0.2f);
                 break;
 
             case Selection.Targeter:
-                eligible_Targets.Add(Character.TurnController.resolveStack[Character.TurnController.resolveStack.Count - 1].deck.owner);
+                eligible_Targets.Add(owner.TurnController.resolveStack[owner.TurnController.resolveStack.Count - 1].deck.owner);
                 break;
         }
 
-        for (int i = 0; i < eligible_Targets.Count; i++)
+        for (int i = 0; i < TurnController.all_Players.Count; i++)
         {
-            eligible_Targets[i].target_Arrow.gameObject.SetActive(true);
+            Combat_Character c = TurnController.all_Players[i];
 
-            if (guaranteedHit)
+            if (eligible_Targets.Contains(c))
             {
-                eligible_Targets[i].target_Arrow.hitChance.text = "";
+                StartCoroutine(c.target_Arrow.SetState(Target_Arrow.State.Target, true));
+
+                if (guaranteedHit)
+                {
+                    c.target_Arrow.hitChance.text = "";
+                }
+                else
+                {
+                    HitChance = owner.GetCurrentStats(this)[Character_Stats.Stat.DEX];
+
+                    c.target_Arrow.hitChance.text = Mathf.CeilToInt(((float)HitChance / (HitChance + c.MissChance())) * 100).ToString() + "%";
+                }
             }
             else
             {
-                HitChance = Character.GetCurrentStats(this)[Character_Stats.Stat.DEX];
-
-                eligible_Targets[i].target_Arrow.hitChance.text = Mathf.CeilToInt(((float)HitChance / (HitChance + eligible_Targets[i].MissChance())) * 100).ToString() + "%";
+                c.target_Arrow.Shrink();
             }
+
+            yield return null;
         }
 
         if (selection == Selection.Team || selection == Selection.Oppostion || selection == Selection.All)
         {
-            while (TurnController.characterActing.deck.SelectedSlot != null)
+            while (TurnController.CharacterActing.deck.SelectedSlot != null)
             {
                 yield return null;
 
@@ -171,7 +182,7 @@ public abstract class Skill : MonoBehaviour
         }
         else if (selection == Selection.Team_Random || selection == Selection.Oppostion_Random || selection == Selection.All_Random)
         {
-            while (TurnController.characterActing.deck.SelectedSlot != null)
+            while (TurnController.CharacterActing.deck.SelectedSlot != null)
             {
                 yield return null;
 
@@ -190,7 +201,7 @@ public abstract class Skill : MonoBehaviour
         }
         else
         {
-            while (TurnController.characterActing.deck.SelectedSlot != null)
+            while (TurnController.CharacterActing.deck.SelectedSlot != null)
             {
                 yield return null;
             }
@@ -198,9 +209,14 @@ public abstract class Skill : MonoBehaviour
 
         //Hide Targets
 
-        for (int i = 0; i < TurnController.target_Arrows.childCount; i++)
+        for (int i = 0; i < TurnController.all_Players.Count; i++)
         {
-            TurnController.target_Arrows.GetChild(i).gameObject.SetActive(false);
+            Combat_Character c = TurnController.all_Players[i];
+
+            if (eligible_Targets.Contains(c))
+                c.target_Arrow.Shrink();
+
+            yield return null;
         }
     }
 

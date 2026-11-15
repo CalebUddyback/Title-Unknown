@@ -11,7 +11,7 @@ public class Defense_Skill : Skill
 
     public override IEnumerator SetUp()
     {
-        yield return Character.deck.DiscardCards();
+        yield return owner.deck.DiscardCards();
 
         //yield return CharacterTargeting();
 
@@ -20,7 +20,7 @@ public class Defense_Skill : Skill
 
     public override IEnumerator Execute()
     {
-        Character.enemyTransform = chosen_Targets[0].transform;
+        owner.enemyTransform = chosen_Targets[0].transform;
 
         //GetOutcome(chosen_Targets[0].GetComponent<Combat_Character>());
 
@@ -30,15 +30,15 @@ public class Defense_Skill : Skill
 
         Vector3 camTargetPos = new Vector3(chosen_Targets[0].transform.position.x, 0.45f, chosen_Targets[0].transform.position.z - 2f);
 
-        yield return Character.TurnController.mainCamera.MovingTo(camTargetPos, 0.5f);
+        yield return owner.TurnController.mainCamera.MovingTo(camTargetPos, 0.5f);
 
-        Character.animationController.Clip(animationName, 1f);
+        owner.animationController.Clip(animationName, 1f);
 
-        yield return Character.WaitForKeyFrame(0);
+        yield return owner.WaitForKeyFrame(0);
 
         stage = Stage.Impact;
 
-        CoroutineWithData cwd = new CoroutineWithData(Character, Character.TurnController.Reactions());
+        CoroutineWithData cwd = new CoroutineWithData(owner, owner.TurnController.Reactions());
         yield return cwd.coroutine;
     }
 
@@ -46,7 +46,7 @@ public class Defense_Skill : Skill
     {
         //Character.animationController.PlaySpeed(1)
 
-        Coroutine outcome = Character.StartCoroutine(Character.ApplyOutcome(this));
+        Coroutine outcome = owner.StartCoroutine(owner.ApplyOutcome(this));
 
         yield return outcome;
 

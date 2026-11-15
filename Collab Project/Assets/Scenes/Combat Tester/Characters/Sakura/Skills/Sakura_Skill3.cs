@@ -6,10 +6,10 @@ public class Sakura_Skill3 : Skill
 {
     public override bool UseCondition()
     {
-        if (Character.currentPhase != Combat_Character.Phase.Main)
+        if (owner.currentPhase != Combat_Character.Phase.Main)
             return false;
 
-        if (manaCost > Character.Mana)
+        if (manaCost > owner.Mana)
             return false;
 
         return true;
@@ -26,19 +26,19 @@ public class Sakura_Skill3 : Skill
     {
         GetOutcome(chosen_Targets[0].GetComponent<Combat_Character>());
 
-        Character.animationController.Clip("Buff", 1);
+        owner.animationController.Clip("Buff", 1);
 
-        yield return Character.WaitForKeyFrame(0);
+        yield return owner.WaitForKeyFrame(0);
     }
 
     public override IEnumerator Resolve()
     {
-        yield return new WaitUntil(() => Character.deck.cardRemoved == true);
+        yield return new WaitUntil(() => owner.deck.cardRemoved == true);
 
-        Character.animationController.PlaySpeed(1);
+        owner.animationController.PlaySpeed(1);
 
-        yield return Character.deck.DrawCards(2, true, true);
+        yield return owner.deck.DrawCards(2, true, true);
 
-        yield return Character.animationController.coroutine;
+        yield return owner.animationController.coroutine;
     }
 }

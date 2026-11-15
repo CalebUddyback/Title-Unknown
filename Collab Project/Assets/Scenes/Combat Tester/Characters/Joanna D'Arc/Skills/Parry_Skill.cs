@@ -6,6 +6,12 @@ public class Parry_Skill : Skill
 {
     public override bool UseCondition()
     {
+        if (TurnController.resolveStack.Count <= 0)
+            return false;
+
+        if (!TurnController.resolveStack[owner.TurnController.resolveStack.Count - 1].skill.chosen_Targets.Contains(owner))
+            return false;
+
         return base.UseCondition();
     }
 
@@ -21,27 +27,27 @@ public class Parry_Skill : Skill
     public override IEnumerator Execute()
     {
 
-        Character.enemyTransform = chosen_Targets[0].transform;
+        owner.enemyTransform = chosen_Targets[0].transform;
 
-        Character.TurnController.resolveStack[Character.TurnController.resolveStack.Count - 2].negated = true;
+        owner.TurnController.resolveStack[owner.TurnController.resolveStack.Count - 2].negated = true;
 
-        Character.animationController.PlaySpeed(1f);
+        owner.animationController.PlaySpeed(1f);
 
-        Character.animationController.Clip(animationName, 1);
+        owner.animationController.Clip(animationName, 1);
 
-        GetOutcome(Character.TurnController.characterTurn);
+        GetOutcome(owner.TurnController.characterTurn);
 
-        yield return Character.WaitForKeyFrame(0);
+        yield return owner.WaitForKeyFrame(0);
 
         stage = Stage.Impact;
 
-        CoroutineWithData cwd = new CoroutineWithData(Character, Character.TurnController.Reactions());
+        CoroutineWithData cwd = new CoroutineWithData(owner, owner.TurnController.Reactions());
         yield return cwd.coroutine;
     }   
 
     public override IEnumerator Resolve()
     {
-        Coroutine outcome = Character.StartCoroutine(Character.ApplyOutcome(this));
+        Coroutine outcome = owner.StartCoroutine(owner.ApplyOutcome(this));
 
         yield return outcome;
     }

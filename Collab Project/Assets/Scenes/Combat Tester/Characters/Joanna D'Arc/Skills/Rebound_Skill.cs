@@ -6,10 +6,10 @@ public class Rebound_Skill : Skill
 {
     public override bool UseCondition()
     {
-        if (Character.currentPhase != Combat_Character.Phase.Main)
+        if (owner.currentPhase != Combat_Character.Phase.Main)
             return false;
 
-        if (manaCost > Character.Mana)
+        if (manaCost > owner.Mana)
             return false;
 
         //if (!Character.blocking)
@@ -27,23 +27,23 @@ public class Rebound_Skill : Skill
 
     public override IEnumerator Execute()
     {
-        Character.animationController.Clip(animationName, 1);
+        owner.animationController.Clip(animationName, 1);
 
         GetOutcome(chosen_Targets[0].GetComponent<Combat_Character>());
 
-        yield return Character.WaitForKeyFrame(0);
+        yield return owner.WaitForKeyFrame(0);
     }
 
     public override IEnumerator Resolve()
     {
-        Character.animationController.PlaySpeed(1);
+        owner.animationController.PlaySpeed(1);
 
-        Character.AdjustMana(target.mana, true);
+        owner.AdjustMana(target.mana, true);
 
-        yield return Character.animationController.coroutine;
+        yield return owner.animationController.coroutine;
 
-        Character.animationController.Clip("Block_Set", 1);
+        owner.animationController.Clip("Block_Set", 1);
 
-        yield return Character.animationController.coroutine;
+        yield return owner.animationController.coroutine;
     }
 }

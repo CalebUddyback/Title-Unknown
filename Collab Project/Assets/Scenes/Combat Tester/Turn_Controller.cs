@@ -15,6 +15,28 @@ public class Turn_Controller : MonoBehaviour
     public Combat_Character characterTurn;
 
     public Combat_Character characterActing;
+    public Combat_Character CharacterActing
+    {
+        get
+        {
+            return characterActing;
+        }
+        set
+        {
+            characterActing = value;
+
+            if (characterActing == null)
+                return;
+
+            foreach (Combat_Character teammate in characterActing.Team.members)
+            {
+                if (teammate == CharacterActing)
+                    StartCoroutine(teammate.target_Arrow.SetState(Target_Arrow.State.View, false));
+                else
+                    StartCoroutine(teammate.target_Arrow.SetState(Target_Arrow.State.View, true));
+            }
+        }
+    }
 
     public DescriptionBox descriptionBox;
 
@@ -183,8 +205,6 @@ public class Turn_Controller : MonoBehaviour
 
                 character.target_Arrow.owner = character;
 
-                character.reaction_Arrow = Instantiate(reaction_Mark_Prefab, reaction_Marks);
-
                 character.Team = team;
             }
 
@@ -321,6 +341,7 @@ public class Turn_Controller : MonoBehaviour
         {
             Debug.Break();
         }
+
     }
 
     public void AnimationSpeed(float s)
@@ -337,7 +358,7 @@ public class Turn_Controller : MonoBehaviour
         {
             yield return turn_Timeline.Shift();
 
-            characterTurn = characterActing = currentTurnOrder[0];
+            characterTurn = currentTurnOrder[0];
 
             //yield return new WaitForSeconds(0.3f);
 
@@ -491,100 +512,66 @@ public class Turn_Controller : MonoBehaviour
     {
         Skill skill = resolveStack.ElementAt(resolveStack.Count - 1).skill;
     
-        selectedCharacter = null;
-    
         List<Combat_Character> reactors = new List<Combat_Character>();
-    
-        skill.Character.Team.visibleDeck.Locked = true;
-    
-        if (skill.Character.Team.Opposition.visibleDeck != null)
-            skill.Character.Team.Opposition.visibleDeck.Locked = false;
-    
-        skill.Character.Team.Opposition.reacting = true;
-    
-    
-        foreach (Combat_Character character in skill.Character.Team.Opposition.members)
+
+        characterActing = null;
+
+        skill.owner.Team.Opposition.reacting = true;
+
+        foreach (Combat_Character character in skill.owner.Team.Opposition.members)
         {
             character.currentPhase = Combat_Character.Phase.Reacting;
 
             if (CheckAllCards(character) > 0)
             {
                 reactors.Add(character);
-                characterActing = character;
 
-                StartCoroutine(Mark(character));
+                if (character.deck == character.Team.visibleDeck)
+                {
+                    CharacterActing = character;
+                    CharacterActing.deck.Locked = false;
+                    StartCoroutine(character.target_Arrow.SetState(Target_Arrow.State.React, false));
+                }
+                else
+                {
+                    StartCoroutine(character.target_Arrow.SetState(Target_Arrow.State.React, true));
+                }
+
             }
-            else
-            {
-                character.currentPhase = Combat_Character.Phase.Waiting;
-            }
+
         }
     
-         //yield return new WaitUntil(() => slot.decks.cardCoroutine != null);
-         //yield return slot.decks.cardCoroutine;
-    
-    
-        if (reactors.Count <= 0)
+        if (reactors.Count > 0)
         {
-            skill.Character.Team.Opposition.reacting = false;
-        }
-        else
-        {
+            //skill.owner.Team.visibleDeck.Locked = true;
+
             endTurnButton.transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = "Skip";
     
             endTurnButton.onClick.RemoveAllListeners();
     
-            endTurnButton.onClick.AddListener(() => skill.Character.Team.Opposition.reacting = false);
+            endTurnButton.onClick.AddListener(() => skill.owner.Team.Opposition.reacting = false);
     
-            yield return new WaitWhile(() => skill.Character.Team.Opposition.reacting == true && skill.Character.Team.Opposition.visibleDeck.cardCoroutine == null);
-    
-            skill.Character.Team.Opposition.reacting = false;
-    
-            yield return skill.Character.Team.Opposition.visibleDeck.cardCoroutine;
-    
+            yield return new WaitWhile(() => skill.owner.Team.Opposition.reacting == true && skill.owner.Team.Opposition.visibleDeck.cardCoroutine == null);
+
+            foreach (Combat_Character opponent in skill.owner.Team.Opposition.members)
+            {
+                opponent.target_Arrow.pulse.gameObject.SetActive(false);
+                opponent.target_Arrow.Shrink();
+                yield return null;
+            }
+
+            yield return skill.owner.Team.Opposition.visibleDeck.cardCoroutine;
+
             endTurnButton.onClick.RemoveAllListeners();
-    
+
             endTurnButton.onClick.AddListener(() => endTurn = true);
+
+            endTurnButton.transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = "End Turn";
         }
+
+        skill.owner.Team.Opposition.reacting = false;
 
         yield return 0;
-    }
-
-    IEnumerator Mark(Combat_Character character)
-    {
-        character.reaction_Arrow.SetActive(true);
-
-        character.reacting = true;
-
-        while (character.Team.reacting == true)
-        {
-            character.reaction_Arrow.GetComponent<RectTransform>().anchoredPosition = mainCamera.UIPosition(character.outcome_Bubble_Pos.position);
-
-            if (character == selectedCharacter && character.deck != character.Team.visibleDeck)
-            {
-                StartCoroutine(character.deck.Raise(false));
-                selectedCharacter = null;
-            }
-
-            if (character.deck == character.Team.visibleDeck)
-            {
-                character.reaction_Arrow.transform.GetChild(0).GetComponent<TextMeshProUGUI>().color = Color.white;
-            }
-            else if (character == CharacterHoveringOver)
-            {
-                character.reaction_Arrow.transform.GetChild(0).GetComponent<TextMeshProUGUI>().color = Color.yellow;
-            }
-            else
-            {
-                character.reaction_Arrow.transform.GetChild(0).GetComponent<TextMeshProUGUI>().color = Color.red;
-            }
-
-            yield return null;
-        }
-
-        character.reacting = false;
-
-        character.reaction_Arrow.SetActive(false);
     }
 
     public List<Card> resolveStack = new List<Card>();
@@ -614,7 +601,7 @@ public class Turn_Controller : MonoBehaviour
         {
             if(character == characterTurn)
             {
-                characterActing = characterTurn;
+                CharacterActing = characterTurn;
                 character.currentPhase = Combat_Character.Phase.Main;
                 continue;
             }

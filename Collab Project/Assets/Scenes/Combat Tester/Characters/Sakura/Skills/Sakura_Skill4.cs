@@ -6,17 +6,17 @@ public class Sakura_Skill4 : Skill
 {
     public override bool UseCondition()
     {
-        if (Character.currentPhase != Combat_Character.Phase.Main)
+        if (owner.currentPhase != Combat_Character.Phase.Main)
             return false;
 
-        if (manaCost > Character.Mana)
+        if (manaCost > owner.Mana)
             return false;
 
         if(discard)
-            if (Character.deck.hand.Count < 1)
+            if (owner.deck.hand.Count < 1)
                 return false;
 
-        if (Character.deck.hand.Count < 2)
+        if (owner.deck.hand.Count < 2)
             return false;
 
         return true;
@@ -24,7 +24,7 @@ public class Sakura_Skill4 : Skill
 
     public override IEnumerator SetUp()
     {
-        yield return Character.deck.DiscardCards();
+        yield return owner.deck.DiscardCards();
 
         //yield return CharacterTargeting();
 
@@ -35,19 +35,19 @@ public class Sakura_Skill4 : Skill
     {
         GetOutcome(chosen_Targets[0].GetComponent<Combat_Character>());
 
-        Character.animationController.Clip("Buff", 1);
+        owner.animationController.Clip("Buff", 1);
 
-        yield return Character.WaitForKeyFrame(0);
+        yield return owner.WaitForKeyFrame(0);
     }
 
     public override IEnumerator Resolve()
     {
-        yield return new WaitUntil(() => Character.deck.cardRemoved == true);
+        yield return new WaitUntil(() => owner.deck.cardRemoved == true);
 
-        Character.animationController.PlaySpeed(1);
+        owner.animationController.PlaySpeed(1);
 
-        Character.AdjustMana(target.mana, true);
+        owner.AdjustMana(target.mana, true);
 
-        yield return Character.animationController.coroutine;
+        yield return owner.animationController.coroutine;
     }
 }

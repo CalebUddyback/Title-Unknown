@@ -123,10 +123,7 @@ public class Decks : MonoBehaviour
                     selectedSlot.card.GetComponent<RectTransform>().anchoredPosition = Vector2.up * 12;
 
                 if (selectedSlot.card.Usable)
-                {
                     StartCoroutine(selectedSlot.card.skill.CharacterTargeting());
-                    //Debug.Log(selectedSlot.card.skill.displayName);
-                }
             }
             else
             {
@@ -137,6 +134,10 @@ public class Decks : MonoBehaviour
                     ExecutedSlot = selectedSlot;
 
                     owner.TurnController.CharacterHoveringOver = null;
+                }
+                else
+                {
+                    owner.TurnController.CharacterActing = owner;
                 }
 
                 if (selectedSlot != null)
@@ -241,13 +242,13 @@ public class Decks : MonoBehaviour
 
             executedSlot = null;
 
-            cardCoroutine = null;
+            //cardCoroutine = null;
 
             yield return card.skill.Execute();
 
             owner.TurnController.CheckAllCards();
 
-            if (owner = owner.TurnController.characterTurn)
+            if (owner == owner.TurnController.characterTurn)
                 yield return owner.TurnController.ResolveCards();
 
             Locked = false;
@@ -495,61 +496,60 @@ public class Decks : MonoBehaviour
         Coroutine retrieval = null;
 
         for (int r = 0; r < hand_Pos.childCount; r++)
-        { 
             retrieval = StartCoroutine(hand_Pos.GetChild(r).GetComponent<Card_Slot>().RetrieveCard());
-        }
 
         yield return retrieval;
     }
 
-    public IEnumerator Raise( bool autoUnlock)
+    public IEnumerator Raise( bool autoUnlock, bool showTargets)
     {
-        //gameObject.SetActive(true);
-
         if (owner.Team.visibleDeck != owner.deck)
         {
-
             Decks temp = owner.Team.visibleDeck;
 
             owner.Team.visibleDeck = this;
 
+            owner.target_Arrow.Shrink();
+
             if (temp != null && temp != this)
-                yield return temp.Lower(false);
+            {
+                yield return temp.Lower();
+
+                if (owner.target_Arrow.pulse.gameObject.activeSelf)
+                    owner.TurnController.CharacterActing = owner;
+                else
+                {
+                    if (showTargets)
+                        StartCoroutine(temp.owner.target_Arrow.SetState(Target_Arrow.State.View, true));
+                }
+            }
 
             Vector3 startPos = new Vector3(0, -170f, 0);
-
-            Vector3 targetPos = new Vector3(0, 0, 0);
 
             float timer = 0;
             float maxTime = 0.2f;
 
             while (timer < maxTime)
             {
-                GetComponent<RectTransform>().anchoredPosition = Vector3.Lerp(startPos, targetPos, timer / maxTime);
+                GetComponent<RectTransform>().anchoredPosition = Vector3.Lerp(startPos, Vector3.zero, timer / maxTime);
 
                 timer += Time.deltaTime;
 
                 yield return null;
             }
 
-            GetComponent<RectTransform>().anchoredPosition = targetPos;
-
+            GetComponent<RectTransform>().anchoredPosition = Vector3.zero;
         }
 
         if(autoUnlock)
             Locked = false;
     }
 
-    public IEnumerator Lower(bool autoNull)
+    public IEnumerator Lower()
     {
         Locked = true;
 
-        if(autoNull)
-            owner.Team.visibleDeck = null;
-
-        SelectedSlot = null; ;
-
-        Vector3 startPos = new Vector3(0, 0, 0);
+        SelectedSlot = null;
 
         Vector3 targetPos = new Vector3(0, -170f, 0);
 
@@ -558,7 +558,7 @@ public class Decks : MonoBehaviour
 
         while (timer < maxTime)
         {
-            GetComponent<RectTransform>().anchoredPosition = Vector3.Lerp(startPos, targetPos, timer / maxTime);
+            GetComponent<RectTransform>().anchoredPosition = Vector3.Lerp(Vector3.zero, targetPos, timer / maxTime);
 
             timer += Time.deltaTime;
 
@@ -566,7 +566,5 @@ public class Decks : MonoBehaviour
         }
 
         GetComponent<RectTransform>().anchoredPosition = targetPos;
-
-        //gameObject.SetActive(false);
     }
 }

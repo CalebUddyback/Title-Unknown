@@ -24,7 +24,7 @@ public class Default_Skill: Skill
     public override IEnumerator Execute()
     {
  
-        Character.enemyTransform = chosen_Targets[0].transform;
+        owner.enemyTransform = chosen_Targets[0].transform;
 
         GetOutcome(chosen_Targets[0].GetComponent<Combat_Character>());
 
@@ -34,19 +34,19 @@ public class Default_Skill: Skill
 
         Vector3 camTargetPos = new Vector3(chosen_Targets[0].transform.position.x, 0.45f, chosen_Targets[0].transform.position.z - 2f);
 
-        yield return Character.TurnController.mainCamera.MovingTo(camTargetPos, 0.5f);
+        yield return owner.TurnController.mainCamera.MovingTo(camTargetPos, 0.5f);
 
         stage = Stage.Moving;
 
-        yield return Character.MoveInRange(-(distance));
+        yield return owner.MoveInRange(-(distance));
 
-        Character.animationController.Clip(animationName, 1f);
+        owner.animationController.Clip(animationName, 1f);
 
-        yield return Character.WaitForKeyFrame(0);
+        yield return owner.WaitForKeyFrame(0);
 
         stage = Stage.Impact;
 
-        CoroutineWithData cwd = new CoroutineWithData(Character, Character.TurnController.Reactions());
+        CoroutineWithData cwd = new CoroutineWithData(owner, owner.TurnController.Reactions());
         yield return cwd.coroutine;
     }
 
@@ -57,7 +57,7 @@ public class Default_Skill: Skill
         {
             case Type.Offensive:
 
-                yield return Character.StartCoroutine(Character.ApplyOutcome(this));
+                yield return owner.StartCoroutine(owner.ApplyOutcome(this));
 
                 break;
 
@@ -65,9 +65,9 @@ public class Default_Skill: Skill
 
                 //yield return new WaitForSeconds(ImpactDelay); // Impact Delay
 
-                Character.animationController.PlaySpeed(1);
+                owner.animationController.PlaySpeed(1);
 
-                yield return Character.WaitForKeyFrame(0);
+                yield return owner.WaitForKeyFrame(0);
 
                 if (target.defense != 0)
                     chosen_Targets[0].AdjustDefense(null, target.defense, "", 1);
@@ -78,11 +78,11 @@ public class Default_Skill: Skill
                 if (target.health != 0)
                     chosen_Targets[0].AdjustHealth(null, target.health, "", 1);
 
-                Character.animationController.PlaySpeed(1);
+                owner.animationController.PlaySpeed(1);
 
-                yield return Character.animationController.coroutine;
+                yield return owner.animationController.coroutine;
 
-                Character.animationController.Clip("Idle", 1);
+                owner.animationController.Clip("Idle", 1);
 
                 yield return TurnController.mainCamera.Reset(0.2f);
 

@@ -18,6 +18,7 @@ public abstract class Combat_Character : MonoBehaviour
     public Turn_Controller.Team Team { get; set; }
 
     public AnimationController animationController;
+    public bool customColor = false;
 
     public Outcome_Bubble outcome_Bubble_Prefab;
     public Outcome_Bubble current_Outcome_Bubble;
@@ -27,9 +28,6 @@ public abstract class Combat_Character : MonoBehaviour
 
     [HideInInspector]
     public Target_Arrow target_Arrow;
-
-    [HideInInspector]
-    public GameObject reaction_Arrow;
 
     public enum Phase {Main, Action, End, Waiting, Reacting}
     public Phase currentPhase = Phase.Waiting;
@@ -55,6 +53,15 @@ public abstract class Combat_Character : MonoBehaviour
     public Character_Hud Hud;
 
     public Turn_Controller TurnController { get; set; }
+
+    private void Start()
+    {
+
+        if(customColor)
+            animationController.GetComponent<SpriteRenderer>().material.SetInt("Custom_Color", 1);
+        else
+            animationController.GetComponent<SpriteRenderer>().material.SetInt("Custom_Color", 0);
+    }
 
     public int Health { get; set; }
 
@@ -176,7 +183,7 @@ public abstract class Combat_Character : MonoBehaviour
 
     public IEnumerator StartTurn()
     {
-        yield return deck.Raise(false);
+        yield return deck.Raise(false, false);
 
         yield return new WaitForSeconds(0.5f);
 
@@ -186,6 +193,8 @@ public abstract class Combat_Character : MonoBehaviour
         }
 
         yield return deck.DrawCards(5, true, false);
+
+        TurnController.CharacterActing = this;
 
         int startMP = 20;
         AdjustMana(startMP, true);
@@ -207,6 +216,9 @@ public abstract class Combat_Character : MonoBehaviour
     public IEnumerator EndTurn()
     {
         TurnController.endTurnButton.interactable = false;
+
+        foreach (Combat_Character teammate in Team.members)
+            teammate.target_Arrow.Shrink();
 
         if (deck.cardsPlayed.Count == 0)
         {
@@ -240,7 +252,8 @@ public abstract class Combat_Character : MonoBehaviour
 
         //yield return cards.Lower();
 
-        firstTurn = false;
+        if(firstTurn)
+            firstTurn = false;
 
         // Done
 
@@ -554,7 +567,7 @@ public abstract class Combat_Character : MonoBehaviour
                 {
                     StartCoroutine(Enemy.Damage(damage, skill));
                     Enemy.AdjustHealth(TurnController.GetSprite(skill.effect), damage, skill.effect.ToString(), skill.CritSuccess);
-                    skill.Character.Team.combo_Counter.SetComboCount();
+                    skill.owner.Team.combo_Counter.SetComboCount();
 
                     yield return new WaitForSeconds(ImpactDelay); // Impact Delay
                 }
@@ -609,9 +622,9 @@ public abstract class Combat_Character : MonoBehaviour
         {
             OutcomeBubble("BREAK!", Color.white);
 
-            AdjustHealth(TurnController.GetSprite(skill.effect), damage, skill.target.ToString(), skill.CritSuccess);
+            AdjustHealth(TurnController.GetSprite(skill.effect), damage, skill.effect.ToString(), skill.CritSuccess);
 
-            skill.Character.Team.combo_Counter.SetComboCount();
+            skill.owner.Team.combo_Counter.SetComboCount();
         }
 
         yield return null;

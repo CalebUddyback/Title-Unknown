@@ -43,7 +43,7 @@ public class Card: MonoBehaviour
 
         if (skill.target.damage > 0)
         {
-            int dam = skill.Character.GetCurrentStats()[Character_Stats.Stat.STR] + skill.target.damage;
+            int dam = skill.owner.GetCurrentStats()[Character_Stats.Stat.STR] + skill.target.damage;
 
             GameObject effect = Instantiate(effects.GetChild(0).gameObject, effects);
 

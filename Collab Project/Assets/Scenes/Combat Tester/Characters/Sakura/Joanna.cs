@@ -1810,7 +1810,7 @@ public class Joanna : Combat_Character
 
             AdjustHealth(TurnController.GetSprite(skill.effect), damage, skill.effect.ToString(), skill.CritSuccess);
 
-            skill.Character.Team.combo_Counter.SetComboCount();
+            skill.owner.Team.combo_Counter.SetComboCount();
         }
 
         yield return WaitForKeyFrame(0);
