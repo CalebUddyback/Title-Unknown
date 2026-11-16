@@ -533,18 +533,12 @@ public class Turn_Controller : MonoBehaviour
                     StartCoroutine(character.target_Arrow.SetState(Target_Arrow.State.React, false));
                 }
                 else
-                {
                     StartCoroutine(character.target_Arrow.SetState(Target_Arrow.State.React, true));
-                }
-
             }
-
         }
     
         if (reactors.Count > 0)
         {
-            //skill.owner.Team.visibleDeck.Locked = true;
-
             endTurnButton.transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = "Skip";
     
             endTurnButton.onClick.RemoveAllListeners();
@@ -553,6 +547,8 @@ public class Turn_Controller : MonoBehaviour
     
             yield return new WaitWhile(() => skill.owner.Team.Opposition.reacting == true && skill.owner.Team.Opposition.visibleDeck.cardCoroutine == null);
 
+            Debug.Log("1");
+
             foreach (Combat_Character opponent in skill.owner.Team.Opposition.members)
             {
                 opponent.target_Arrow.pulse.gameObject.SetActive(false);
@@ -560,16 +556,22 @@ public class Turn_Controller : MonoBehaviour
                 yield return null;
             }
 
-            yield return skill.owner.Team.Opposition.visibleDeck.cardCoroutine;
+
+            skill.owner.Team.Opposition.reacting = false;
+
+            endTurnButton.transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = "End Turn";
 
             endTurnButton.onClick.RemoveAllListeners();
 
             endTurnButton.onClick.AddListener(() => endTurn = true);
 
-            endTurnButton.transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = "End Turn";
+            yield return skill.owner.Team.Opposition.visibleDeck.cardCoroutine;
         }
 
-        skill.owner.Team.Opposition.reacting = false;
+        if(skill.owner.Team.Opposition.visibleDeck != null)
+            skill.owner.Team.Opposition.visibleDeck.Locked = true;
+
+        Debug.Log("Done");
 
         yield return 0;
     }

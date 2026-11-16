@@ -240,11 +240,13 @@ public class Decks : MonoBehaviour
 
             StartCoroutine(RemoveSlots(cardsToRemove, true, false));
 
-            executedSlot = null;
-
             //cardCoroutine = null;
 
+            executedSlot = null;
+
             yield return card.skill.Execute();
+
+            // reactions here
 
             owner.TurnController.CheckAllCards();
 
